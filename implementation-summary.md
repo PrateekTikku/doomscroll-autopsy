@@ -1,6 +1,6 @@
 # Doomscroll Autopsy — Implementation Summary
 
-> The shared memory between AI chats. **Read all of it before starting a milestone.** When you finish, update the status table and **append** your section at the bottom using the template. Never rewrite or delete another milestone's section; if something in it is now wrong, add a correction in your own section.
+> The shared memory between AI chats. **Read all of it before starting a milestone.** Write your section **only after the owner has approved your finished work** (`implementation-milestones.md` 0.7): then update the status table and **append** your section at the bottom using the template. Never rewrite or delete another milestone's section; if something in it is now wrong, add a correction in your own section.
 
 ## Status
 
@@ -20,7 +20,7 @@
 | M8 Should-tier extras | ⬜ Not started | | L6 | |
 | M9 Showcase | ⬜ Not started | | | |
 
-Status values: ⬜ Not started · 📝 Plan awaiting approval · 🟡 In progress (plan approved) · ✅ Done · ⚠️ Done with gaps · ❌ Blocked
+Status values: ⬜ Not started · 📝 Plan awaiting approval · 🟡 In progress (plan approved) · 🔍 Awaiting review · ✅ Done · ⚠️ Done with gaps · ❌ Blocked
 
 ## Current showcase level
 **None yet.** (Update this line whenever a milestone raises the level; see `implementation-milestones.md` 0.4.)
@@ -38,7 +38,7 @@ Status values: ⬜ Not started · 📝 Plan awaiting approval · 🟡 In progres
 ## <ID> — <title>
 **Status:** ✅ Done | ⚠️ Done with gaps | ❌ Blocked
 **Date:** YYYY-MM-DD · **Commits:** <first-hash>..<last-hash>
-**Approved plan:** `docs/plans/<ID>.md` (approved YYYY-MM-DD HH:MM)
+**Approved plan:** `docs/plans/<ID>.md` (approved YYYY-MM-DD HH:MM) · **Work approved:** YYYY-MM-DD HH:MM
 
 ### What was built
 - Bullet list of user-visible and internal capabilities.
@@ -84,7 +84,7 @@ Status values: ⬜ Not started · 📝 Plan awaiting approval · 🟡 In progres
 ### What was built
 - `PDD.md` v2: full product design with 51 decisions (D-01 to D-51), priority tiers, risks, spikes and showcase plan.
 - `implementation-milestones.md`: milestones M0–M9 plus a parallel training lane T1–T2, the showcase ladder (what we can submit if we stop early), global rules, and shared contracts.
-- Plan-approval gate: every milestone writes `docs/plans/<ID>.md` and waits for the owner's explicit approval before implementing (`implementation-milestones.md` 0.7).
+- Two approval gates (`implementation-milestones.md` 0.7): the owner approves each plan (`docs/plans/<ID>.md`) before implementation, and approves the finished work before the summary is written. No commit without his explicit approval.
 - Git repository initialised locally on `main` (no remote).
 
 ### Notes for the next milestone

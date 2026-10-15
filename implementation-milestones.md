@@ -4,7 +4,7 @@
 >
 > **Start every milestone with the `/start-milestone <ID>` skill and finish it with `/finish-milestone <ID>`.** The owner can run `/milestone-status` at any time.
 >
-> **Plan first, build after approval.** Every milestone begins with a written implementation plan that the owner reviews. **Do not write any product code, install dependencies or change project files (other than the plan and your status row) until the owner explicitly approves the plan.** See section 0.7.
+> **Two approval gates.** (1) Every milestone begins with a written implementation plan; **do not write any product code, install dependencies or change project files (other than the plan and your status row) until the owner explicitly approves the plan.** (2) When the work is done, the owner reviews it; **only after his explicit approval do you write the summary and commit.** **No commit is ever made without the owner's explicit approval.** See section 0.7.
 
 ---
 
@@ -24,11 +24,11 @@
 4. **Privacy rules are non-negotiable** (PDD section 11). Never persist item text, screenshots, or query strings. No network calls except model downloads from Hugging Face. No analytics.
 5. **Keep `main` working.** At the end of your milestone, `npm run build` (in `extension/`) and all tests must pass, and the extension must load in Chrome without errors.
 6. **File ownership.** Some milestones run in parallel (see 0.5). Only edit files your milestone owns or explicitly lists. Shared contracts in `shared/` change only in M0, or with a note in the summary plus a matching update in every consumer.
-7. **Commits:** commit locally on `main`. Never push. Stage explicit paths only (never `git add -A` or `git add .`), because another chat may be working in the same folder. Commit message format: `M<id>: <summary>` with a short body, ending with the co-author trailer your harness specifies. Commit in small, logical steps; the final commit includes your `implementation-summary.md` entry.
+7. **Commits need the owner's explicit approval** (section 0.7): one commit when the plan is approved, and the commits listed in your work-review request once the work is approved. Commit locally on `main`; never push. Stage explicit paths only (never `git add -A` or `git add .`), because another chat may be working in the same folder. Message format: `<ID>: <summary>` with a short body, ending with the co-author trailer your harness specifies. The final commit includes your `implementation-summary.md` entry.
 8. **Tests:** TypeScript unit tests with **Vitest** (`extension/`). Python tests with **pytest** (`training/`). Every pure function you write (clustering, Hungarian, scoring, facts, validators) gets tests.
 9. **Showcase evidence:** every milestone saves material for the post in `docs/showcase/<milestone-id>/`: numbers, short notes, and a `CAPTURE.md` listing screenshots or GIFs the owner should take (you can't take them yourself unless you have a browser tool).
 10. **After the plan is approved, ask the owner only when:** you're blocked, the PDD is ambiguous on something that matters, you need to deviate materially from the approved plan (section 0.7), or an action is outward-facing (publishing to Hugging Face or DEV, which always need his explicit yes).
-11. **When you finish,** report to the owner: what works, what doesn't, what to review (a short checklist), and what the next milestone needs to know.
+11. **When you finish,** request a work review (section 0.7, phase 3): what works, what doesn't, high-level review steps, and the proposed commits. Write the summary and commit only after the owner approves.
 
 ### 0.4 Showcase ladder: what we can submit if we stop early
 Milestones are ordered so the product is always submittable. Each level is a complete, honest story.
@@ -75,8 +75,10 @@ All live in `shared/` as JSON Schema files **plus** generated TypeScript types (
 - **`daily-facts.schema.json`**: input to the autopsy (PDD 9.8): `date`; `deepBlocks{count, longestMin, totalMin, blocks[{start, end, minutes, territory}]}`; `residue{switchesOutOfDeep, meanMinBackToDeep}`; `totalsMin{deep, shallow, drain}`; `drainOverAllowance[{territory, minutesOver}]`; `topTriggers[{fromTerritory, toTerritory, hour, count}]`; `strongestStretch{territory, start, end, minutes}`; `nudges{shown, accepted, snoozed, ignored, medianReturnMin}`; `vs7Day{deepBlocksDelta, drainOverDelta}` (nullable when < 7 days).
 - **`shared/personas.json`**: Deep Worker personas (developer, writer, researcher, designer, student, freelancer), each with typical sites per label, typical day shape and spiral triggers. Used by both the TS synthetic-day generator (M4) and the Python teacher-input generator (T1).
 
-### 0.7 Plan-approval gate (every milestone)
-Every milestone has two phases. **Phase 2 never starts without the owner's explicit approval in the chat** ("approved", "go ahead", or similar). Silence, or a question from the owner, is not approval.
+### 0.7 Approval gates (every milestone)
+Every milestone has **two approval gates**: the owner approves the **plan** before any implementation, and approves the **finished work** before the summary is written and anything is committed. **Approval must be explicit in the chat** ("approved", "go ahead", "yes, commit"). Silence, or a question from the owner, is not approval.
+
+**Commits need explicit approval. Never run `git commit` unless the owner has approved that specific commit.** Each approval request must say exactly what will be committed (file list and commit message). The approval covers that commit only.
 
 **Phase 1: plan (no implementation)**
 1. Read everything listed in rule 0.3.1 and inspect the current code your milestone builds on.
@@ -89,18 +91,28 @@ Every milestone has two phases. **Phase 2 never starts without the owner's expli
    - **Test plan:** how each acceptance criterion will be verified (test names, manual steps, measurements).
    - **Risks and open questions:** what could go wrong; decisions you need from the owner (only things the PDD doesn't settle).
    - **Out of scope:** confirm what you will *not* do.
-   - **Estimate and commits:** rough time per task, and the commits you expect to make.
+   - **Estimate and commits:** rough time per task, and the commits you expect to propose at the end.
 3. Keep it short enough to review in 5 minutes (about 1–2 pages). Don't paste code beyond small type or interface sketches.
-4. Set your status row in `implementation-summary.md` to **📝 Plan awaiting approval**, commit only the plan and the summary (`<ID>: plan`), and show the owner a short summary of the plan with the path to the full file. **Then stop and wait.**
+4. Set your status row in `implementation-summary.md` to **📝 Plan awaiting approval**. **Don't commit.** Show the owner a short summary of the plan, the path to the full file, and the commit that approval will create (`<ID>: plan approved` with `docs/plans/<ID>.md` + `implementation-summary.md`). **Then stop and wait.**
 
-**Review loop**
-- If the owner requests changes, update `docs/plans/<ID>.md`, commit (`<ID>: plan v2`, etc.), and wait again.
-- When approved, add `**Approved:** YYYY-MM-DD HH:MM by owner` at the top of the plan, set your status to 🟡 In progress, and commit (`<ID>: plan approved`).
+**Plan review loop**
+- **Changes requested:** update `docs/plans/<ID>.md`, summarise what changed, and wait again. No commit.
+- **Approved:** add `**Approved:** YYYY-MM-DD HH:MM by owner` at the top of the plan, set your status to 🟡 In progress, and make the one commit the owner approved (`<ID>: plan approved`).
 
-**Phase 2: implement the approved plan**
-- Follow the approved plan. Small, local adjustments (naming, helper functions, an extra test) are fine; record them under "Deviations from the approved plan" in your summary.
+**Phase 2: implement the approved plan (no commits)**
+- Follow the approved plan. **Work stays uncommitted** until the work review is approved. Small, local adjustments (naming, helper functions, an extra test) are fine; keep a note of them for the summary.
 - **Material deviations need approval first:** changing scope, skipping or adding a task, changing a `shared/` contract or storage schema differently than planned, adding a dependency not in the plan, or taking a spike fallback that changes what the milestone delivers. Stop, explain the problem and your proposed change in the chat, update the plan file, and wait for the owner's yes.
-- Finish with `/finish-milestone <ID>`.
+
+**Phase 3: work review (run `/finish-milestone <ID>`)**
+1. Verify every acceptance criterion and run the privacy check; save showcase evidence and spike results (these files are part of the work under review).
+2. Set your status row to **🔍 Awaiting review** (uncommitted) and ask the owner to review, giving:
+   - what was built, and each acceptance criterion as met / not met with evidence
+   - **high-level review steps:** the 3–7 things to look at or try, with exact commands or clicks (e.g. "reload the extension, open the popup, browse YouTube Shorts for 2 minutes, check the counts rise")
+   - what's left undone, deviations from the plan, and known issues
+   - the **proposed commits**: for each, the message and the exact file list (`git status --short` for context)
+   Then **stop and wait**.
+3. **Changes requested:** make them, re-verify, and ask for review again.
+4. **Approved:** only now write your section in `implementation-summary.md` (status row, showcase level, known issues, appended section), then make exactly the approved commits, with the summary included in the final one. Report the commit hashes. If something had to change after approval (e.g. a commit fails a hook), stop and ask again rather than improvising.
 
 ---
 
@@ -372,7 +384,7 @@ Every milestone has two phases. **Phase 2 never starts without the owner's expli
 ---
 
 ## M8 — Should-tier features (optional, Showcase Level 6)
-**Goal:** add Should items **in this order**, each independently committed and shippable. Stop at freeze time (Oct 17 EOD) wherever you are. Re-zip at the end.
+**Goal:** add Should items **in this order**, each independently shippable. **Each item gets its own work review and approved commit** (section 0.7, phase 3), so we can stop cleanly at freeze time (Oct 17 EOD) after any item. Re-zip at the end.
 
 **Read:** PDD 5.1, 9.3, 9.6 (GRU), 4.5 step 3, 11.4.
 
@@ -387,7 +399,7 @@ Every milestone has two phases. **Phase 2 never starts without the owner's expli
 
 **Out of scope:** Could-tier items unless the owner asks (768d MRL experiment, topic-tag accuracy eval, quiet hours, shortcut).
 
-**Acceptance criteria:** each item has tests (where logic exists), works in the build, and is committed separately; the final zip is rebuilt.
+**Acceptance criteria:** each item has tests (where logic exists), works in the build, and was reviewed and committed separately with the owner's approval; the final zip is rebuilt.
 
 **Showcase evidence:** `docs/showcase/M8/`: GRU vs Markov metrics; CAPTURE.md (map, breathing step).
 
