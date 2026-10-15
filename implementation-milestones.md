@@ -3,6 +3,8 @@
 > **Who this is for.** Each milestone below is implemented by a **separate AI chat**. You (the AI) start with no memory of earlier chats. This file, `PDD.md` and `implementation-summary.md` are your memory. The owner (Prateek) orchestrates and does high-level review; he is not pair-programming with you.
 >
 > **Start every milestone with the `/start-milestone <ID>` skill and finish it with `/finish-milestone <ID>`.** The owner can run `/milestone-status` at any time.
+>
+> **Plan first, build after approval.** Every milestone begins with a written implementation plan that the owner reviews. **Do not write any product code, install dependencies or change project files (other than the plan and your status row) until the owner explicitly approves the plan.** See section 0.7.
 
 ---
 
@@ -16,7 +18,7 @@
 - **Submission:** DEV post published by **Sun Oct 18, 11:59 PM PDT**. Oct 18 is showcase work only (M9).
 
 ### 0.3 Global rules for every milestone
-1. **Read before you write:** the agent instructions, `PDD.md` (at least sections 1, 4, 5 and the sections your milestone cites), `implementation-summary.md` (all of it), and your milestone section here.
+1. **Read before you write:** the agent instructions, `PDD.md` (at least sections 1, 4, 5 and the sections your milestone cites), `implementation-summary.md` (all of it), and your milestone section here. Then **write your plan and wait for the owner's approval** (section 0.7) before implementing anything.
 2. **Stay in scope.** Do only what your milestone lists. If you find a bug in earlier work that blocks you, fix the minimum needed and record it in your summary. If you find something out of scope worth doing, list it under "Suggested follow-ups" in your summary instead of doing it.
 3. **Don't re-decide.** Design decisions are in `PDD.md` section 17. Only change one if you're blocked; then stop, explain to the owner, and update the decision log if he agrees.
 4. **Privacy rules are non-negotiable** (PDD section 11). Never persist item text, screenshots, or query strings. No network calls except model downloads from Hugging Face. No analytics.
@@ -25,7 +27,7 @@
 7. **Commits:** commit locally on `main`. Never push. Stage explicit paths only (never `git add -A` or `git add .`), because another chat may be working in the same folder. Commit message format: `M<id>: <summary>` with a short body, ending with the co-author trailer your harness specifies. Commit in small, logical steps; the final commit includes your `implementation-summary.md` entry.
 8. **Tests:** TypeScript unit tests with **Vitest** (`extension/`). Python tests with **pytest** (`training/`). Every pure function you write (clustering, Hungarian, scoring, facts, validators) gets tests.
 9. **Showcase evidence:** every milestone saves material for the post in `docs/showcase/<milestone-id>/`: numbers, short notes, and a `CAPTURE.md` listing screenshots or GIFs the owner should take (you can't take them yourself unless you have a browser tool).
-10. **Ask the owner only when:** you're blocked, the PDD is ambiguous on something that matters, or an action is outward-facing (publishing to Hugging Face or DEV, which always need his explicit yes).
+10. **After the plan is approved, ask the owner only when:** you're blocked, the PDD is ambiguous on something that matters, you need to deviate materially from the approved plan (section 0.7), or an action is outward-facing (publishing to Hugging Face or DEV, which always need his explicit yes).
 11. **When you finish,** report to the owner: what works, what doesn't, what to review (a short checklist), and what the next milestone needs to know.
 
 ### 0.4 Showcase ladder: what we can submit if we stop early
@@ -72,6 +74,33 @@ All live in `shared/` as JSON Schema files **plus** generated TypeScript types (
 - **`naming-output.schema.json`**: `{name (≤6 words), suggested_label: "deep"|"shallow"|"drain", why}`.
 - **`daily-facts.schema.json`**: input to the autopsy (PDD 9.8): `date`; `deepBlocks{count, longestMin, totalMin, blocks[{start, end, minutes, territory}]}`; `residue{switchesOutOfDeep, meanMinBackToDeep}`; `totalsMin{deep, shallow, drain}`; `drainOverAllowance[{territory, minutesOver}]`; `topTriggers[{fromTerritory, toTerritory, hour, count}]`; `strongestStretch{territory, start, end, minutes}`; `nudges{shown, accepted, snoozed, ignored, medianReturnMin}`; `vs7Day{deepBlocksDelta, drainOverDelta}` (nullable when < 7 days).
 - **`shared/personas.json`**: Deep Worker personas (developer, writer, researcher, designer, student, freelancer), each with typical sites per label, typical day shape and spiral triggers. Used by both the TS synthetic-day generator (M4) and the Python teacher-input generator (T1).
+
+### 0.7 Plan-approval gate (every milestone)
+Every milestone has two phases. **Phase 2 never starts without the owner's explicit approval in the chat** ("approved", "go ahead", or similar). Silence, or a question from the owner, is not approval.
+
+**Phase 1: plan (no implementation)**
+1. Read everything listed in rule 0.3.1 and inspect the current code your milestone builds on.
+2. Write the plan to `docs/plans/<ID>.md` with these sections:
+   - **Understanding:** the milestone's goal in your own words (3–5 lines), and which showcase level it unlocks.
+   - **Approach:** task-by-task breakdown in implementation order, mapped to the milestone's numbered tasks. For each: what you'll build and how (key algorithms, libraries, browser APIs).
+   - **Files:** files and folders you'll create or modify (this is your ownership claim for the milestone), and anything shared you'll touch.
+   - **Interfaces and data:** new types, message formats, storage changes, and any change to `shared/` contracts.
+   - **Spikes first:** spikes you'll run before the main work, the pass bar, and the fallback if they fail.
+   - **Test plan:** how each acceptance criterion will be verified (test names, manual steps, measurements).
+   - **Risks and open questions:** what could go wrong; decisions you need from the owner (only things the PDD doesn't settle).
+   - **Out of scope:** confirm what you will *not* do.
+   - **Estimate and commits:** rough time per task, and the commits you expect to make.
+3. Keep it short enough to review in 5 minutes (about 1–2 pages). Don't paste code beyond small type or interface sketches.
+4. Set your status row in `implementation-summary.md` to **📝 Plan awaiting approval**, commit only the plan and the summary (`<ID>: plan`), and show the owner a short summary of the plan with the path to the full file. **Then stop and wait.**
+
+**Review loop**
+- If the owner requests changes, update `docs/plans/<ID>.md`, commit (`<ID>: plan v2`, etc.), and wait again.
+- When approved, add `**Approved:** YYYY-MM-DD HH:MM by owner` at the top of the plan, set your status to 🟡 In progress, and commit (`<ID>: plan approved`).
+
+**Phase 2: implement the approved plan**
+- Follow the approved plan. Small, local adjustments (naming, helper functions, an extra test) are fine; record them under "Deviations from the approved plan" in your summary.
+- **Material deviations need approval first:** changing scope, skipping or adding a task, changing a `shared/` contract or storage schema differently than planned, adding a dependency not in the plan, or taking a spike fallback that changes what the milestone delivers. Stop, explain the problem and your proposed change in the chat, update the plan file, and wait for the owner's yes.
+- Finish with `/finish-milestone <ID>`.
 
 ---
 

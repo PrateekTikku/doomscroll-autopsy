@@ -20,7 +20,7 @@
 | M8 Should-tier extras | ⬜ Not started | | L6 | |
 | M9 Showcase | ⬜ Not started | | | |
 
-Status values: ⬜ Not started · 🟡 In progress · ✅ Done · ⚠️ Done with gaps · ❌ Blocked
+Status values: ⬜ Not started · 📝 Plan awaiting approval · 🟡 In progress (plan approved) · ✅ Done · ⚠️ Done with gaps · ❌ Blocked
 
 ## Current showcase level
 **None yet.** (Update this line whenever a milestone raises the level; see `implementation-milestones.md` 0.4.)
@@ -38,6 +38,7 @@ Status values: ⬜ Not started · 🟡 In progress · ✅ Done · ⚠️ Done wi
 ## <ID> — <title>
 **Status:** ✅ Done | ⚠️ Done with gaps | ❌ Blocked
 **Date:** YYYY-MM-DD · **Commits:** <first-hash>..<last-hash>
+**Approved plan:** `docs/plans/<ID>.md` (approved YYYY-MM-DD HH:MM)
 
 ### What was built
 - Bullet list of user-visible and internal capabilities.
@@ -52,7 +53,10 @@ Status values: ⬜ Not started · 🟡 In progress · ✅ Done · ⚠️ Done wi
 - [x] criterion — evidence (test name, measurement)
 - [ ] criterion not met — why, and what was done instead
 
-### Decisions and deviations
+### Deviations from the approved plan
+- Small adjustments made during implementation, and any material deviation together with when the owner approved it.
+
+### Decisions and deviations from the PDD
 - Any choice not specified in the PDD, and any deviation from it (with PDD decision-log update if one was made).
 
 ### Spike / measurement results
@@ -80,6 +84,7 @@ Status values: ⬜ Not started · 🟡 In progress · ✅ Done · ⚠️ Done wi
 ### What was built
 - `PDD.md` v2: full product design with 51 decisions (D-01 to D-51), priority tiers, risks, spikes and showcase plan.
 - `implementation-milestones.md`: milestones M0–M9 plus a parallel training lane T1–T2, the showcase ladder (what we can submit if we stop early), global rules, and shared contracts.
+- Plan-approval gate: every milestone writes `docs/plans/<ID>.md` and waits for the owner's explicit approval before implementing (`implementation-milestones.md` 0.7).
 - Git repository initialised locally on `main` (no remote).
 
 ### Notes for the next milestone
