@@ -1,0 +1,229 @@
+{
+  "version": 1,
+  "description": "Known feed origins (PDD 9.6 rules mode, M3 suggested labels). `pathPatterns` are regular expressions matched against the URL path; `kind` is short-video, feed, forum, news or video.",
+  "feeds": [
+    {
+      "origin": "https://www.youtube.com",
+      "pathPatterns": [
+        "^/$",
+        "^/shorts/",
+        "^/feed/(trending|explore)"
+      ],
+      "kind": "short-video"
+    },
+    {
+      "origin": "https://m.youtube.com",
+      "pathPatterns": [
+        "^/$",
+        "^/shorts/"
+      ],
+      "kind": "short-video"
+    },
+    {
+      "origin": "https://www.instagram.com",
+      "pathPatterns": [
+        "^/$",
+        "^/reels?/",
+        "^/explore/",
+        "^/stories/"
+      ],
+      "kind": "short-video"
+    },
+    {
+      "origin": "https://www.tiktok.com",
+      "pathPatterns": [
+        "^/$",
+        "^/foryou",
+        "^/explore",
+        "^/following",
+        "^/@[^/]+/video/"
+      ],
+      "kind": "short-video"
+    },
+    {
+      "origin": "https://www.facebook.com",
+      "pathPatterns": [
+        "^/$",
+        "^/watch",
+        "^/reel/",
+        "^/stories/"
+      ],
+      "kind": "feed"
+    },
+    {
+      "origin": "https://x.com",
+      "pathPatterns": [
+        "^/home$",
+        "^/explore",
+        "^/i/trending",
+        "^/[^/]+/status/"
+      ],
+      "kind": "feed"
+    },
+    {
+      "origin": "https://twitter.com",
+      "pathPatterns": [
+        "^/home$",
+        "^/explore",
+        "^/[^/]+/status/"
+      ],
+      "kind": "feed"
+    },
+    {
+      "origin": "https://www.threads.net",
+      "pathPatterns": [
+        "^/$",
+        "^/@[^/]+/post/"
+      ],
+      "kind": "feed"
+    },
+    {
+      "origin": "https://bsky.app",
+      "pathPatterns": [
+        "^/$",
+        "^/profile/[^/]+/post/"
+      ],
+      "kind": "feed"
+    },
+    {
+      "origin": "https://www.linkedin.com",
+      "pathPatterns": [
+        "^/feed/?"
+      ],
+      "kind": "feed"
+    },
+    {
+      "origin": "https://www.pinterest.com",
+      "pathPatterns": [
+        "^/$",
+        "^/pin/",
+        "^/ideas/"
+      ],
+      "kind": "feed"
+    },
+    {
+      "origin": "https://www.tumblr.com",
+      "pathPatterns": [
+        "^/dashboard",
+        "^/explore"
+      ],
+      "kind": "feed"
+    },
+    {
+      "origin": "https://www.reddit.com",
+      "pathPatterns": [
+        "^/$",
+        "^/r/(all|popular)/?",
+        "^/r/[^/]+/?$",
+        "^/r/[^/]+/comments/"
+      ],
+      "kind": "forum"
+    },
+    {
+      "origin": "https://old.reddit.com",
+      "pathPatterns": [
+        "^/$",
+        "^/r/(all|popular)/?",
+        "^/r/[^/]+/?$"
+      ],
+      "kind": "forum"
+    },
+    {
+      "origin": "https://9gag.com",
+      "pathPatterns": [
+        "^/"
+      ],
+      "kind": "forum"
+    },
+    {
+      "origin": "https://news.ycombinator.com",
+      "pathPatterns": [
+        "^/$",
+        "^/news",
+        "^/newest",
+        "^/item"
+      ],
+      "kind": "forum"
+    },
+    {
+      "origin": "https://www.twitch.tv",
+      "pathPatterns": [
+        "^/$",
+        "^/directory"
+      ],
+      "kind": "video"
+    },
+    {
+      "origin": "https://www.cnn.com",
+      "pathPatterns": [
+        "^/"
+      ],
+      "kind": "news"
+    },
+    {
+      "origin": "https://www.foxnews.com",
+      "pathPatterns": [
+        "^/"
+      ],
+      "kind": "news"
+    },
+    {
+      "origin": "https://www.bbc.com",
+      "pathPatterns": [
+        "^/news"
+      ],
+      "kind": "news"
+    },
+    {
+      "origin": "https://www.nytimes.com",
+      "pathPatterns": [
+        "^/$",
+        "^/section/"
+      ],
+      "kind": "news"
+    },
+    {
+      "origin": "https://www.theguardian.com",
+      "pathPatterns": [
+        "^/[a-z-]+$",
+        "^/(uk|us|international)$"
+      ],
+      "kind": "news"
+    },
+    {
+      "origin": "https://www.dailymail.co.uk",
+      "pathPatterns": [
+        "^/"
+      ],
+      "kind": "news"
+    },
+    {
+      "origin": "https://www.buzzfeed.com",
+      "pathPatterns": [
+        "^/"
+      ],
+      "kind": "news"
+    },
+    {
+      "origin": "https://news.google.com",
+      "pathPatterns": [
+        "^/"
+      ],
+      "kind": "news"
+    },
+    {
+      "origin": "https://www.ndtv.com",
+      "pathPatterns": [
+        "^/"
+      ],
+      "kind": "news"
+    },
+    {
+      "origin": "https://timesofindia.indiatimes.com",
+      "pathPatterns": [
+        "^/"
+      ],
+      "kind": "news"
+    }
+  ]
+}

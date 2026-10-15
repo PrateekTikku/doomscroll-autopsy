@@ -1,0 +1,34 @@
+{
+  "name": "doomscroll-autopsy",
+  "description": "Protect your deep work from the feed.",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "wxt",
+    "build": "wxt build",
+    "zip": "wxt zip",
+    "compile": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "gen:types": "node scripts/gen-types.ts",
+    "postinstall": "wxt prepare",
+    "smoke": "node scripts/smoke-chrome.mjs",
+    "check:types": "npm run gen:types && git diff --exit-code ../shared/types.ts"
+  },
+  "dependencies": {
+    "idb": "^8.0.4",
+    "preact": "^11.0.1"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.29.7",
+    "@preact/preset-vite": "^2.10.6",
+    "@types/node": "^24.19.2",
+    "ajv": "^8.20.0",
+    "fake-indexeddb": "^6.2.5",
+    "json-schema-to-typescript": "^16.0.0",
+    "typescript": "^7.0.2",
+    "vitest": "^5.0.4",
+    "wxt": "^0.21.4"
+  }
+}
