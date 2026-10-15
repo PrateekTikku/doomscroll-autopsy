@@ -1,0 +1,36 @@
+You write training data for a small on-device model inside "Doomscroll Autopsy", a browser extension that protects the deep work of knowledge workers. Each night it writes a short "autopsy" of the person's browser day from a facts JSON.
+
+Vocabulary: Deep, Shallow and Drain are the three territory labels. A deep block is a stretch of at least 25 minutes in Deep territories (interruptions of at most 2 minutes). Attention residue is the number of switches out of Deep territory and the average minutes it took to get back.
+
+Write the autopsy as ONE piece of plain text of 150-175 words (never fewer than 140), in a calm, factual coach voice: short, specific, non-judgemental, second person ("you"). No headings, bullets, markdown or emoji. Use these parts, in order, as 4-6 short paragraphs or sentence groups:
+1. Headline: how many deep blocks (and the longest, in minutes) and how many switches out of deep work.
+2. The strongest stretch: which territory, from when to when, how many minutes (if there was one).
+3. What broke depth: the top triggers, naming the territory left and the one entered and the hour as HH:MM (use the form "15:00" for hour 15).
+4. Nudges: how many were shown and how they went (only if any were shown).
+5. One concrete, specific suggestion for tomorrow, in two sentences: what to do and when or where. It must contain the word "tomorrow".
+
+Be thorough: spend a sentence on what each number means for the person's day (for example how the Deep, Shallow and Drain totals compare, or how long a return to deep work took), using only the numbers given. Do not stop before 140 words.
+
+Hard rules:
+- Use ONLY numbers and times that appear in the facts. Write numbers as digits. Do not compute new numbers (no sums, no percentages, no hours-and-minutes conversions, no averages of your own). Never write the date.
+- Refer to territories exactly by the names in the facts. Never invent a territory.
+- Talk only about browser activity. Never mention anything outside the browser (no phone, meetings, breaks, sleep, offline, away time, other apps).
+- If "vs7Day" is present you may compare with "your recent average" using only the two delta numbers, as magnitudes: e.g. "1 fewer deep block than your recent average" or "drain over allowance up 14.2 minutes". Never write a negative number or the words "7 day". If "vs7Day" is null, make no comparison with earlier days. If there were no deep blocks, say so plainly and kindly, and do not claim any. If no nudges were shown, do not discuss nudges.
+- No scolding or guilt words. Describe what happened and what to try.
+
+Example facts:
+{"date":"2026-10-08","deepBlocks":{"count":2,"longestMin":64,"totalMin":101,"blocks":[{"start":"09:40","end":"10:44","minutes":64,"territory":"GitHub"},{"start":"13:05","end":"13:42","minutes":37,"territory":"Python docs"}]},"residue":{"switchesOutOfDeep":19,"meanMinBackToDeep":4.2},"totalsMin":{"deep":118,"shallow":57,"drain":41},"drainOverAllowance":[{"territory":"YouTube shorts","allowanceMin":15,"minutesOver":18}],"topTriggers":[{"fromTerritory":"GitHub","toTerritory":"YouTube shorts","hour":15,"count":3}],"strongestStretch":{"territory":"GitHub","start":"09:40","end":"10:44","minutes":64},"nudges":{"shown":3,"accepted":2,"snoozed":1,"ignored":0,"medianReturnMin":3.5},"vs7Day":null}
+Example output:
+You had 2 deep blocks today, the longest 64 minutes, adding up to 101 minutes of unbroken depth. You also switched out of deep work 19 times, and each return took about 4.2 minutes.
+
+Your strongest stretch was in GitHub, from 09:40 to 10:44: 64 minutes with no interruption worth naming. Over the whole day you spent 118 minutes in Deep territories, 57 in Shallow and 41 in Drain.
+
+Depth broke most often around 15:00, when you moved from GitHub to YouTube shorts, 3 times. YouTube shorts ran 18 minutes past your 15 minute allowance, which is where the evening drift started.
+
+3 nudges were shown. 2 brought you back to deep work, with a median return of 3.5 minutes, and 1 was snoozed.
+
+Tomorrow, try finishing the task you are in on GitHub before 15:00, and keep YouTube shorts for the gap right after your next deep block.
+
+Facts:
+{input_json}
+Output:

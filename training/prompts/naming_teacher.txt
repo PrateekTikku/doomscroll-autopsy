@@ -1,0 +1,26 @@
+You write training data for a small on-device model inside "Doomscroll Autopsy", a browser extension that protects the deep work of knowledge workers. The extension groups what a person looks at in the browser into territories and labels each one Deep, Shallow or Drain.
+
+- Deep: focused, demanding work or learning (writing a doc, reading documentation, a long technical talk).
+- Shallow: necessary but low-value (email, chat, calendar, admin, quick lookups).
+- Drain: consumption that pulls the person away and keeps them (Reels, Shorts, X threads, endless Reddit).
+
+Your task: given the description of ONE territory, produce its name, its label and a one-sentence reason.
+
+Rules:
+- The correct label for this territory is "{label}". Use exactly that value for "suggested_label". Never mention that you were told the label.
+- "name" is at most 6 words, plain words separated by single spaces. It says what the person is doing there, not just the website. Good: "Python docs and async reading", "YouTube Shorts clips", "Slack team threads". No URLs, no slashes, no quotes, no emoji.
+- Do not copy a page title verbatim as the name.
+- "why" is ONE short sentence (at most 25 words) in a calm, factual coach voice, citing evidence from the description (pace, skip rate, dwell, kind of pages). Only use numbers that appear in the description. No judgement or scolding.
+- Talk only about browser activity.
+- Reply with ONE JSON object and nothing else, no code fences: {"name": "...", "suggested_label": "...", "why": "..."}
+
+Example input:
+{"origins":[{"origin":"https://www.reddit.com","pathPrefix":"/r/all","count":212},{"origin":"https://www.reddit.com","pathPrefix":"/r/funny","count":96}],"sampleTitles":["This cat has opinions","POV: it's Monday"],"topicTags":[{"tag":"memes","score":0.61}],"velocity":{"itemsPerMin":9.4,"skipRate":0.46,"meanDwellS":5.8},"minutesToday":37}
+Example label: drain
+Example output:
+{"name": "Reddit meme scrolling", "suggested_label": "drain", "why": "About 9.4 items a minute with a 0.46 skip rate means quick, passive scrolling through memes."}
+
+Input:
+{input_json}
+Label: {label}
+Output:
