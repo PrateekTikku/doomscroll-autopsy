@@ -14,7 +14,7 @@
 | M4 Prediction + nudges + replay | ⬜ Not started | | L2 | |
 | M5 Metrics + dashboard + privacy | ⬜ Not started | | L3 | |
 | T1 Teacher data | 🔍 Awaiting owner review | | | 1,073 valid examples (660 naming, 413 autopsy) split 973 train / 100 eval in `training/data/`; S4 resolved (MTP ≈17–19 tok/s, concurrency 1). docs/plans/T1.md |
-| T2 Fine-tune + ONNX | ⬜ Not started | | | |
+| T2 Fine-tune + ONNX | 🟡 In progress | | | docs/plans/T2.md |
 | M6 Integrate 270M | ⬜ Not started | | L4 | |
 | M7 Release + first user | ⬜ Not started | | L5 | |
 | M8 Should-tier extras | ⬜ Not started | | L6 | |
