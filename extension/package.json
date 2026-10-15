@@ -14,7 +14,9 @@
     "gen:types": "node scripts/gen-types.ts",
     "postinstall": "wxt prepare",
     "smoke": "node scripts/smoke-chrome.mjs",
-    "check:types": "npm run gen:types && git diff --exit-code ../shared/types.ts"
+    "check:types": "npm run gen:types && git diff --exit-code ../shared/types.ts",
+    "live": "wxt build && node scripts/live.mjs",
+    "probe:s1": "node scripts/s1-probe.mjs"
   },
   "dependencies": {
     "idb": "^8.0.4",

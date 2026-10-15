@@ -39,3 +39,28 @@ h1 {
 .bad {
   color: var(--bad);
 }
+.warn {
+  color: #b45309;
+}
+h2 {
+  font-size: 13px;
+  margin: 14px 0 4px;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+table {
+  border-collapse: collapse;
+  width: 100%;
+}
+td {
+  padding: 2px 0;
+}
+td:last-child {
+  text-align: right;
+}
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
