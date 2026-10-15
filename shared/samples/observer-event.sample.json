@@ -1,0 +1,17 @@
+[
+  {
+    "type": "item",
+    "ts": 1792090800000,
+    "origin": "https://www.youtube.com",
+    "path": "/shorts/aB3dE5fG7hI",
+    "title": "This trick saves 2 hours #shorts",
+    "itemKey": "path:/shorts/aB3dE5fG7hI",
+    "isVisual": true,
+    "prevDwellMs": 4200,
+    "text": "This trick saves 2 hours. Follow for more."
+  },
+  { "type": "scroll", "ts": 1792090801250, "pxPerS": 1840.5 },
+  { "type": "video", "ts": 1792090802000, "itemKey": "path:/shorts/aB3dE5fG7hI", "event": "skip", "currentTime": 1.4, "duration": 31.2 },
+  { "type": "visibility", "ts": 1792090830000, "visible": false },
+  { "type": "heartbeat", "ts": 1792090815000, "origin": "https://developer.mozilla.org", "path": "/en-US/docs/Web/API/IndexedDB_API" }
+]

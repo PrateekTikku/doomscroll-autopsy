@@ -1,0 +1,254 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:doomscroll-autopsy:schema:personas:v1",
+  "title": "PersonaSet",
+  "description": "Deep Worker personas (PDD 3.1, 10.2) shared by the TS synthetic-day generator (M4) and the Python teacher-input generator (T1). Ranges are [min, max].",
+  "type": "object",
+  "properties": {
+    "version": {
+      "const": 1
+    },
+    "personas": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/persona"
+      }
+    }
+  },
+  "required": [
+    "version",
+    "personas"
+  ],
+  "additionalProperties": false,
+  "$defs": {
+    "range": {
+      "title": "Range",
+      "description": "[min, max]",
+      "type": "array",
+      "items": {
+        "type": "number"
+      },
+      "minItems": 2,
+      "maxItems": 2
+    },
+    "clock": {
+      "type": "string",
+      "pattern": "^([01]\\d|2[0-3]):[0-5]\\d$"
+    },
+    "site": {
+      "title": "PersonaSite",
+      "type": "object",
+      "properties": {
+        "origin": {
+          "type": "string",
+          "pattern": "^https?://[^/?#]+$"
+        },
+        "pathPrefix": {
+          "type": "string",
+          "pattern": "^/[^?#]*$"
+        },
+        "sampleTitles": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          }
+        },
+        "isVisual": {
+          "type": "boolean"
+        },
+        "velocity": {
+          "title": "PersonaVelocity",
+          "type": "object",
+          "properties": {
+            "itemsPerMin": {
+              "$ref": "#/$defs/range"
+            },
+            "skipRate": {
+              "$ref": "#/$defs/range"
+            },
+            "meanDwellS": {
+              "$ref": "#/$defs/range"
+            }
+          },
+          "required": [
+            "itemsPerMin",
+            "skipRate",
+            "meanDwellS"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "origin",
+        "pathPrefix",
+        "sampleTitles",
+        "isVisual",
+        "velocity"
+      ],
+      "additionalProperties": false
+    },
+    "persona": {
+      "title": "Persona",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z]+$"
+        },
+        "name": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "workHours": {
+          "title": "WorkHours",
+          "type": "object",
+          "properties": {
+            "start": {
+              "$ref": "#/$defs/clock"
+            },
+            "end": {
+              "$ref": "#/$defs/clock"
+            }
+          },
+          "required": [
+            "start",
+            "end"
+          ],
+          "additionalProperties": false
+        },
+        "sites": {
+          "title": "PersonaSites",
+          "type": "object",
+          "properties": {
+            "deep": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "$ref": "#/$defs/site"
+              }
+            },
+            "shallow": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "$ref": "#/$defs/site"
+              }
+            },
+            "drain": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "$ref": "#/$defs/site"
+              }
+            }
+          },
+          "required": [
+            "deep",
+            "shallow",
+            "drain"
+          ],
+          "additionalProperties": false
+        },
+        "dayShape": {
+          "title": "DayShape",
+          "type": "object",
+          "properties": {
+            "browserHours": {
+              "$ref": "#/$defs/range"
+            },
+            "deepBlocks": {
+              "$ref": "#/$defs/range"
+            },
+            "deepBlockMinutes": {
+              "$ref": "#/$defs/range"
+            },
+            "drainMinutes": {
+              "$ref": "#/$defs/range"
+            },
+            "peakDrainHours": {
+              "type": "array",
+              "items": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 23
+              }
+            }
+          },
+          "required": [
+            "browserHours",
+            "deepBlocks",
+            "deepBlockMinutes",
+            "drainMinutes",
+            "peakDrainHours"
+          ],
+          "additionalProperties": false,
+          "description": "browserHours: active browser hours per day; deepBlocks: deep blocks on a typical day; deepBlockMinutes, drainMinutes: per block / per day."
+        },
+        "spiralTriggers": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "title": "SpiralTrigger",
+            "type": "object",
+            "properties": {
+              "afterLabel": {
+                "enum": [
+                  "deep",
+                  "shallow"
+                ]
+              },
+              "toOrigin": {
+                "type": "string",
+                "pattern": "^https?://[^/?#]+$"
+              },
+              "toPathPrefix": {
+                "type": "string",
+                "pattern": "^/[^?#]*$"
+              },
+              "hours": {
+                "type": "array",
+                "minItems": 1,
+                "items": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 23
+                }
+              },
+              "spiralMinutes": {
+                "$ref": "#/$defs/range"
+              },
+              "note": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "afterLabel",
+              "toOrigin",
+              "toPathPrefix",
+              "hours",
+              "spiralMinutes",
+              "note"
+            ],
+            "additionalProperties": false
+          }
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "description",
+        "workHours",
+        "sites",
+        "dayShape",
+        "spiralTriggers"
+      ],
+      "additionalProperties": false
+    }
+  }
+}

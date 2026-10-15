@@ -1,0 +1,162 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:doomscroll-autopsy:schema:daily-facts:v1",
+  "title": "DailyFacts",
+  "description": "Deterministically computed facts for one day (PDD 9.8); the only source of numbers for the autopsy. Browser activity only (D-45). Times are local \"HH:MM\"; minutes are whole numbers; means are rounded to one decimal; territories are referenced by their current name.",
+  "type": "object",
+  "properties": {
+    "date": { "description": "Local date.", "type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}$" },
+    "deepBlocks": {
+      "title": "DeepBlocks",
+      "description": "Stretches of at least 25 minutes in Deep territories, interruptions at most 2 minutes, away time paused (PDD 4.1).",
+      "type": "object",
+      "properties": {
+        "count": { "type": "integer", "minimum": 0 },
+        "longestMin": { "type": "integer", "minimum": 0 },
+        "totalMin": { "type": "integer", "minimum": 0 },
+        "blocks": {
+          "type": "array",
+          "items": {
+            "title": "DeepBlock",
+            "type": "object",
+            "properties": {
+              "start": { "$ref": "#/$defs/clock" },
+              "end": { "$ref": "#/$defs/clock" },
+              "minutes": { "type": "integer", "minimum": 25 },
+              "territory": { "$ref": "#/$defs/territoryName" }
+            },
+            "required": ["start", "end", "minutes", "territory"],
+            "additionalProperties": false
+          }
+        }
+      },
+      "required": ["count", "longestMin", "totalMin", "blocks"],
+      "additionalProperties": false
+    },
+    "residue": {
+      "title": "AttentionResidue",
+      "type": "object",
+      "properties": {
+        "switchesOutOfDeep": { "type": "integer", "minimum": 0 },
+        "meanMinBackToDeep": {
+          "description": "Null when there was no return to Deep.",
+          "type": ["number", "null"],
+          "minimum": 0
+        }
+      },
+      "required": ["switchesOutOfDeep", "meanMinBackToDeep"],
+      "additionalProperties": false
+    },
+    "totalsMin": {
+      "title": "LabelTotals",
+      "description": "Browser minutes per label. Unlabelled time is not included.",
+      "type": "object",
+      "properties": {
+        "deep": { "type": "integer", "minimum": 0 },
+        "shallow": { "type": "integer", "minimum": 0 },
+        "drain": { "type": "integer", "minimum": 0 }
+      },
+      "required": ["deep", "shallow", "drain"],
+      "additionalProperties": false
+    },
+    "drainOverAllowance": {
+      "description": "Drain territories that went past their daily allowance (PDD 4.1, D-43).",
+      "type": "array",
+      "items": {
+        "title": "DrainOverage",
+        "type": "object",
+        "properties": {
+          "territory": { "$ref": "#/$defs/territoryName" },
+          "allowanceMin": { "type": "integer", "minimum": 0 },
+          "minutesOver": { "type": "integer", "minimum": 1 }
+        },
+        "required": ["territory", "allowanceMin", "minutesOver"],
+        "additionalProperties": false
+      }
+    },
+    "topTriggers": {
+      "description": "What broke depth most often: the territory left and the one entered, by local hour.",
+      "type": "array",
+      "maxItems": 5,
+      "items": {
+        "title": "Trigger",
+        "type": "object",
+        "properties": {
+          "fromTerritory": { "$ref": "#/$defs/territoryName" },
+          "toTerritory": { "$ref": "#/$defs/territoryName" },
+          "hour": { "type": "integer", "minimum": 0, "maximum": 23 },
+          "count": { "type": "integer", "minimum": 1 }
+        },
+        "required": ["fromTerritory", "toTerritory", "hour", "count"],
+        "additionalProperties": false
+      }
+    },
+    "strongestStretch": {
+      "description": "Longest unbroken Deep stretch; null when there was no Deep time.",
+      "oneOf": [
+        { "type": "null" },
+        {
+          "title": "Stretch",
+          "type": "object",
+          "properties": {
+            "territory": { "$ref": "#/$defs/territoryName" },
+            "start": { "$ref": "#/$defs/clock" },
+            "end": { "$ref": "#/$defs/clock" },
+            "minutes": { "type": "integer", "minimum": 1 }
+          },
+          "required": ["territory", "start", "end", "minutes"],
+          "additionalProperties": false
+        }
+      ]
+    },
+    "nudges": {
+      "title": "NudgeOutcomes",
+      "type": "object",
+      "properties": {
+        "shown": { "type": "integer", "minimum": 0 },
+        "accepted": { "type": "integer", "minimum": 0 },
+        "snoozed": { "type": "integer", "minimum": 0 },
+        "ignored": { "type": "integer", "minimum": 0 },
+        "medianReturnMin": {
+          "description": "Median minutes back to Deep after an accepted nudge; null when none.",
+          "type": ["number", "null"],
+          "minimum": 0
+        }
+      },
+      "required": ["shown", "accepted", "snoozed", "ignored", "medianReturnMin"],
+      "additionalProperties": false
+    },
+    "vs7Day": {
+      "description": "Difference from the previous 7-day average; null when fewer than 7 days exist.",
+      "oneOf": [
+        { "type": "null" },
+        {
+          "title": "SevenDayComparison",
+          "type": "object",
+          "properties": {
+            "deepBlocksDelta": { "type": "number" },
+            "drainOverDelta": { "description": "Minutes.", "type": "number" }
+          },
+          "required": ["deepBlocksDelta", "drainOverDelta"],
+          "additionalProperties": false
+        }
+      ]
+    }
+  },
+  "required": [
+    "date",
+    "deepBlocks",
+    "residue",
+    "totalsMin",
+    "drainOverAllowance",
+    "topTriggers",
+    "strongestStretch",
+    "nudges",
+    "vs7Day"
+  ],
+  "additionalProperties": false,
+  "$defs": {
+    "clock": { "title": "LocalClock", "description": "Local time, 24-hour \"HH:MM\".", "type": "string", "pattern": "^([01]\\d|2[0-3]):[0-5]\\d$" },
+    "territoryName": { "title": "TerritoryName", "type": "string", "minLength": 1, "maxLength": 80 }
+  }
+}

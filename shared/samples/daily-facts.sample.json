@@ -1,0 +1,23 @@
+{
+  "date": "2026-10-15",
+  "deepBlocks": {
+    "count": 3,
+    "longestMin": 74,
+    "totalMin": 151,
+    "blocks": [
+      { "start": "09:42", "end": "10:56", "minutes": 74, "territory": "Payment worker pull requests" },
+      { "start": "11:30", "end": "12:18", "minutes": 48, "territory": "Payment worker pull requests" },
+      { "start": "15:05", "end": "15:34", "minutes": 29, "territory": "IndexedDB and MDN docs" }
+    ]
+  },
+  "residue": { "switchesOutOfDeep": 41, "meanMinBackToDeep": 6.5 },
+  "totalsMin": { "deep": 212, "shallow": 96, "drain": 58 },
+  "drainOverAllowance": [{ "territory": "Shorts and Reels quick clips", "allowanceMin": 15, "minutesOver": 23 }],
+  "topTriggers": [
+    { "fromTerritory": "Payment worker pull requests", "toTerritory": "Shorts and Reels quick clips", "hour": 16, "count": 4 },
+    { "fromTerritory": "Team Slack threads", "toTerritory": "X home timeline", "hour": 13, "count": 3 }
+  ],
+  "strongestStretch": { "territory": "Payment worker pull requests", "start": "09:42", "end": "10:56", "minutes": 74 },
+  "nudges": { "shown": 4, "accepted": 2, "snoozed": 1, "ignored": 1, "medianReturnMin": 3 },
+  "vs7Day": null
+}

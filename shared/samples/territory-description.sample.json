@@ -1,0 +1,14 @@
+{
+  "origins": [
+    { "origin": "https://www.youtube.com", "pathPrefix": "/shorts", "count": 212 },
+    { "origin": "https://www.instagram.com", "pathPrefix": "/reels", "count": 64 }
+  ],
+  "sampleTitles": ["This trick saves 2 hours #shorts", "POV: Monday standup #shorts", "5-minute pasta you need to try"],
+  "topicTags": [
+    { "tag": "memes", "score": 0.41 },
+    { "tag": "cooking videos", "score": 0.37 },
+    { "tag": "productivity tips", "score": 0.33 }
+  ],
+  "velocity": { "itemsPerMin": 11.2, "skipRate": 0.46, "meanDwellS": 5.3 },
+  "minutesToday": 38
+}

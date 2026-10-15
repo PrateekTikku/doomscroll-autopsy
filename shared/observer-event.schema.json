@@ -1,0 +1,112 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:doomscroll-autopsy:schema:observer-event:v1",
+  "title": "ObserverEvent",
+  "description": "Event sent from the content script to the service worker (PDD 7.2). Never persisted as-is; `text` lives in memory only and is dropped after embedding.",
+  "oneOf": [
+    { "$ref": "#/$defs/itemEvent" },
+    { "$ref": "#/$defs/scrollEvent" },
+    { "$ref": "#/$defs/videoEvent" },
+    { "$ref": "#/$defs/visibilityEvent" },
+    { "$ref": "#/$defs/heartbeatEvent" }
+  ],
+  "$defs": {
+    "timestamp": {
+      "title": "EpochMs",
+      "description": "Milliseconds since the Unix epoch.",
+      "type": "integer",
+      "minimum": 0
+    },
+    "origin": {
+      "title": "Origin",
+      "description": "URL origin, e.g. https://www.youtube.com.",
+      "type": "string",
+      "pattern": "^https?://[^/?#]+$"
+    },
+    "path": {
+      "title": "UrlPath",
+      "description": "URL path with the query string and fragment stripped (PDD 8.2).",
+      "type": "string",
+      "pattern": "^/[^?#]*$"
+    },
+    "itemEvent": {
+      "title": "ItemEvent",
+      "description": "A new item came into view (PDD 7.3).",
+      "type": "object",
+      "properties": {
+        "type": { "const": "item" },
+        "ts": { "$ref": "#/$defs/timestamp" },
+        "origin": { "$ref": "#/$defs/origin" },
+        "path": { "$ref": "#/$defs/path" },
+        "title": { "type": "string", "maxLength": 300 },
+        "itemKey": {
+          "description": "Item identity (D-47): per-item URL path, else media currentSrc + duration + poster, else first 200 chars of normalised text, hashed.",
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        },
+        "isVisual": { "description": "Dominant media covers at least 50% of the viewport.", "type": "boolean" },
+        "prevDwellMs": { "description": "Dwell time of the previous item.", "type": "integer", "minimum": 0 },
+        "text": {
+          "description": "Item text for embedding (about 512 tokens). In memory only; never stored.",
+          "type": "string",
+          "maxLength": 4000
+        }
+      },
+      "required": ["type", "ts", "origin", "path", "itemKey", "isVisual", "prevDwellMs"],
+      "additionalProperties": false
+    },
+    "scrollEvent": {
+      "title": "ScrollEvent",
+      "type": "object",
+      "properties": {
+        "type": { "const": "scroll" },
+        "ts": { "$ref": "#/$defs/timestamp" },
+        "pxPerS": { "description": "Smoothed scroll velocity.", "type": "number", "minimum": 0 }
+      },
+      "required": ["type", "ts", "pxPerS"],
+      "additionalProperties": false
+    },
+    "videoEvent": {
+      "title": "VideoEvent",
+      "type": "object",
+      "properties": {
+        "type": { "const": "video" },
+        "ts": { "$ref": "#/$defs/timestamp" },
+        "itemKey": { "type": "string", "minLength": 1, "maxLength": 200 },
+        "event": {
+          "description": "`skip`: left before 2 s or before 25% watched (PDD 7.2).",
+          "enum": ["play", "pause", "ended", "skip"]
+        },
+        "currentTime": { "description": "Seconds.", "type": "number", "minimum": 0 },
+        "duration": { "description": "Seconds; null when unknown or live.", "type": ["number", "null"], "minimum": 0 }
+      },
+      "required": ["type", "ts", "itemKey", "event", "currentTime", "duration"],
+      "additionalProperties": false
+    },
+    "visibilityEvent": {
+      "title": "VisibilityEvent",
+      "type": "object",
+      "properties": {
+        "type": { "const": "visibility" },
+        "ts": { "$ref": "#/$defs/timestamp" },
+        "visible": { "type": "boolean" }
+      },
+      "required": ["type", "ts", "visible"],
+      "additionalProperties": false
+    },
+    "heartbeatEvent": {
+      "title": "HeartbeatEvent",
+      "description": "\"Still here\" pulse; consecutive heartbeats merge into spans (PDD 7.1).",
+      "type": "object",
+      "properties": {
+        "type": { "const": "heartbeat" },
+        "ts": { "$ref": "#/$defs/timestamp" },
+        "origin": { "$ref": "#/$defs/origin" },
+        "path": { "$ref": "#/$defs/path" }
+      },
+      "required": ["type", "ts", "origin", "path"],
+      "additionalProperties": false
+    }
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:doomscroll-autopsy:schema:naming-output:v1",
+  "title": "NamingOutput",
+  "description": "Output of territory naming (PDD 9.4), written by the fine-tuned Gemma 3 270M.",
+  "type": "object",
+  "properties": {
+    "name": {
+      "description": "At most 6 words, single spaces.",
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 60,
+      "pattern": "^\\S+( \\S+){0,5}$"
+    },
+    "suggested_label": { "enum": ["deep", "shallow", "drain"] },
+    "why": { "description": "One short sentence.", "type": "string", "minLength": 1, "maxLength": 200 }
+  },
+  "required": ["name", "suggested_label", "why"],
+  "additionalProperties": false
+}

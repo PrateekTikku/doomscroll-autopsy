@@ -1,0 +1,1667 @@
+{
+  "version": 1,
+  "personas": [
+    {
+      "id": "developer",
+      "name": "Backend developer",
+      "description": "Writes and reviews code most of the day; reads docs and GitHub; slips into Shorts and X after hard debugging sessions.",
+      "workHours": {
+        "start": "09:30",
+        "end": "18:30"
+      },
+      "sites": {
+        "deep": [
+          {
+            "origin": "https://github.com",
+            "pathPrefix": "/",
+            "sampleTitles": [
+              "Pull request #482: Add retry to payment worker",
+              "src/queue/worker.ts at main",
+              "Issue #311: Flaky integration test"
+            ],
+            "isVisual": false,
+            "velocity": {
+              "itemsPerMin": [
+                0.2,
+                1
+              ],
+              "skipRate": [
+                0,
+                0.02
+              ],
+              "meanDwellS": [
+                60,
+                300
+              ]
+            }
+          },
+          {
+            "origin": "https://developer.mozilla.org",
+            "pathPrefix": "/en-US/docs",
+            "sampleTitles": [
+              "IndexedDB API - Web APIs | MDN",
+              "Using Web Workers - Web APIs | MDN"
+            ],
+            "isVisual": false,
+            "velocity": {
+              "itemsPerMin": [
+                0.5,
+                2
+              ],
+              "skipRate": [
+                0,
+                0.05
+              ],
+              "meanDwellS": [
+                30,
+                120
+              ]
+            }
+          },
+          {
+            "origin": "https://docs.python.org",
+            "pathPrefix": "/3",
+            "sampleTitles": [
+              "asyncio — Asynchronous I/O",
+              "typing — Support for type hints"
+            ],
+            "isVisual": false,
+            "velocity": {
+              "itemsPerMin": [
+                0.5,
+                2
+              ],
+              "skipRate": [
+                0,
+                0.05
+              ],
+              "meanDwellS": [
+                30,
+                120
+              ]
+            }
+          },
+          {
+            "origin": "https://www.youtube.com",
+            "pathPrefix": "/watch",
+            "sampleTitles": [
+              "Designing Data-Intensive Applications — conference talk",
+              "Rust ownership explained in depth"
+            ],
+            "isVisual": true,
+            "velocity": {
+              "itemsPerMin": [
+                0.05,
+                0.3
+              ],
+              "skipRate": [
+                0,
+                0.1
+              ],
+              "meanDwellS": [
+                180,
+                900
+              ]
+            }
+          }
+        ],
+        "shallow": [
+          {
+            "origin": "https://app.slack.com",
+            "pathPrefix": "/client",
+            "sampleTitles": [
+              "#team | Slack",
+              "#random | Slack",
+              "Thread in #eng-help | Slack"
+            ],
+            "isVisual": false,
+            "velocity": {
+              "itemsPerMin": [
+                2,
+                6
+              ],
+              "skipRate": [
+                0.1,
+                0.3
+              ],
+              "meanDwellS": [
+                8,
+                30
+              ]
+            }
+          },
+          {
+            "origin": "https://linear.app",
+            "pathPrefix": "/team",
+            "sampleTitles": [
+              "My issues › Linear",
+              "Sprint 42 › Linear",
+              "Triage › Linear"
+            ],
+            "isVisual": false,
+            "velocity": {
+              "itemsPerMin": [
+                1,
+                3
+              ],
+              "skipRate": [
+                0.05,
+                0.2
+              ],
+              "meanDwellS": [
+                15,
+                60
+              ]
+            }
+          },
+          {
+            "origin": "https://calendar.google.com",
+            "pathPrefix": "/calendar",
+            "sampleTitles": [
+              "Google Calendar - Week of Oct 12",
+              "Google Calendar - Today"
+            ],
+            "isVisual": false,
+            "velocity": {
+              "itemsPerMin": [
+                1,
+                3
+              ],
+              "skipRate": [
+                0.05,
+                0.2
+              ],
+              "meanDwellS": [
+                15,
+                60
+              ]
+            }
+          }
+        ],
+        "drain": [
+          {
+            "origin": "https://www.youtube.com",
+            "pathPrefix": "/shorts",
+            "sampleTitles": [
+              "Wait for the end 😂 #shorts",
+              "This trick saves 2 hours #shorts",
+              "POV: Monday standup #shorts"
+            ],
+            "isVisual": true,
+            "velocity": {
+              "itemsPerMin": [
+                6,
+                15
+              ],
+              "skipRate": [
+                0.3,
+                0.6
+              ],
+              "meanDwellS": [
+                3,
+                10
+              ]
+            }
+          },
+          {
+            "origin": "https://x.com",
+            "pathPrefix": "/home",
+            "sampleTitles": [
+              "Home / X",
+              "Thread: why your startup will fail",
+              "Hot take on the new framework release"
+            ],
+            "isVisual": false,
+            "velocity": {
+              "itemsPerMin": [
+                3,
+                8
+              ],
+              "skipRate": [
+                0.15,
+                0.4
+              ],
+              "meanDwellS": [
+                6,
+                20
+              ]
+            }
+          },
+          {
+            "origin": "https://www.reddit.com",
+            "pathPrefix": "/r/all",
+            "sampleTitles": [
+              "r/all",
+              "TIL octopuses have three hearts",
+              "AITA for leaving the group chat?"
+            ],
+            "isVisual": false,
+            "velocity": {
+              "itemsPerMin": [
+                4,
+                12
+              ],
+              "skipRate": [
+                0.2,
+                0.5
+              ],
+              "meanDwellS": [
+                4,
+                15
+              ]
+            }
+          }
+        ]
+      },
+      "dayShape": {
+        "browserHours": [
+          6,
+          10
+        ],
+        "deepBlocks": [
+          1,
+          4
+        ],
+        "deepBlockMinutes": [
+          25,
+          110
+        ],
+        "drainMinutes": [
+          20,
+          90
+        ],
+        "peakDrainHours": [
+          13,
+          16,
+          21,
+          22
+        ]
+      },
+      "spiralTriggers": [
+        {
+          "afterLabel": "deep",
+          "toOrigin": "https://www.youtube.com",
+          "toPathPrefix": "/shorts",
+          "hours": [
+            15,
+            16
+          ],
+          "spiralMinutes": [
+            10,
+            45
+          ],
+          "note": "A failing build sends them to Shorts 'for a minute'."
+        },
+        {
+          "afterLabel": "shallow",
+          "toOrigin": "https://x.com",
+          "toPathPrefix": "/home",
+          "hours": [
+            11,
+            14
+          ],
+          "spiralMinutes": [
+            8,
+            30
+          ],
+          "note": "A Slack link to a tweet opens the timeline."
+        }
+      ]
+    },
+    {
+      "id": "writer",
+      "name": "Freelance writer",
+      "description": "Drafts long-form articles in Google Docs; researches in many tabs; Instagram and Reddit pull them away between drafts.",
+      "workHours": {
+        "start": "08:00",
+        "end": "15:00"
+      },
+      "sites": {
+        "deep": [
+          {
+            "origin": "https://docs.google.com",
+            "pathPrefix": "/document",
+            "sampleTitles": [
+              "Draft: The quiet cost of context switching - Google Docs",
+              "Pitch notes - Google Docs"
+            ],
+            "isVisual": false,
+            "velocity": {
+              "itemsPerMin": [
+                0.2,
+                1
+              ],
+              "skipRate": [
+                0,
+                0.02
+              ],
+              "meanDwellS": [
+                60,
+                300
+              ]
+            }
+          },
+          {
+            "origin": "https://en.wikipedia.org",
+            "pathPrefix": "/wiki",
+            "sampleTitles": [
+              "Attention residue - Wikipedia",
+              "History of the typewriter - Wikipedia"
+            ],
+            "isVisual": false,
+            "velocity": {
+              "itemsPerMin": [
+                0.5,
+                2
+              ],
+              "skipRate": [
+                0,
+                0.05
+              ],
+              "meanDwellS": [
+                30,
+                120
+              ]
+            }
+          },
+          {
+            "origin": "https://www.theatlantic.com",
+            "pathPrefix": "/ideas",
+            "sampleTitles": [
+              "The Case for Boredom - The Atlantic",
+              "Why We Can't Concentrate - The Atlantic"
+            ],
+            "isVisual": false,
+            "velocity": {
+              "itemsPerMin": [
+                0.5,
+                2
+              ],
+              "skipRate": [
+                0,
+                0.05
+              ],
+              "meanDwellS": [
+                30,
+                120
+              ]
+            }
+          }
+        ],
+        "shallow": [
+          {
+            "origin": "https://app.slack.com",
+            "pathPrefix": "/client",
+            "sampleTitles": [
+              "#team | Slack",
+              "#random | Slack",
+              "Thread in #eng-help | Slack"
+            ],
+            "isVisual": false,
+            "velocity": {
+              "itemsPerMin": [
+                2,
+                6
+              ],
+              "skipRate": [
+                0.1,
+                0.3
+              ],
+              "meanDwellS": [
+                8,
+                30
+              ]
+            }
+          },
+          {
+            "origin": "https://calendar.google.com",
+            "pathPrefix": "/calendar",
+            "sampleTitles": [
+              "Google Calendar - Week of Oct 12",
+              "Google Calendar - Today"
+            ],
+            "isVisual": false,
+            "velocity": {
+              "itemsPerMin": [
+                1,
+                3
+              ],
+              "skipRate": [
+                0.05,
+                0.2
+              ],
+              "meanDwellS": [
+                15,
+                60
+              ]
+            }
+          },
+          {
+            "origin": "https://www.notion.so",
+            "pathPrefix": "/",
+            "sampleTitles": [
+              "Editorial calendar",
+              "Invoices 2026"
+            ],
+            "isVisual": false,
+            "velocity": {
+              "itemsPerMin": [
+                1,
+                3
+              ],
+              "skipRate": [
+                0.05,
+                0.2
+              ],
+              "meanDwellS": [
+                15,
+                60
+              ]
+            }
+          }
+        ],
+        "drain": [
+          {
+            "origin": "https://www.instagram.com",
+            "pathPrefix": "/reels",
+            "sampleTitles": [
+              "Instagram reel",
+              "5-minute pasta you need to try",
+              "Gym fails compilation"
+            ],
+            "isVisual": true,
+            "velocity": {
+              "itemsPerMin": [
+                6,
+                15
+              ],
+              "skipRate": [
+                0.3,
+                0.6
+              ],
+              "meanDwellS": [
+                3,
+                10
+              ]
+            }
+          },
+          {
+            "origin": "https://www.reddit.com",
+            "pathPrefix": "/r/all",
+            "sampleTitles": [
+              "r/all",
+              "TIL octopuses have three hearts",
+              "AITA for leaving the group chat?"
+            ],
+            "isVisual": false,
+            "velocity": {
+              "itemsPerMin": [
+                4,
+                12
+              ],
+              "skipRate": [
+                0.2,
+                0.5
+              ],
+              "meanDwellS": [
+                4,
+                15
+              ]
+            }
+          },
+          {
+            "origin": "https://www.pinterest.com",
+            "pathPrefix": "/",
+            "sampleTitles": [
+              "Pinterest",
+              "Cozy home office ideas"
+            ],
+            "isVisual": true,
+            "velocity": {
+              "itemsPerMin": [
+                4,
+                12
+              ],
+              "skipRate": [
+                0.2,
+                0.5
+              ],
+              "meanDwellS": [
+                4,
+                15
+              ]
+            }
+          }
+        ]
+      },
+      "dayShape": {
+        "browserHours": [
+          5,
+          8
+        ],
+        "deepBlocks": [
+          1,
+          3
+        ],
+        "deepBlockMinutes": [
+          30,
+          90
+        ],
+        "drainMinutes": [
+          25,
+          100
+        ],
+        "peakDrainHours": [
+          11,
+          15,
+          20
+        ]
+      },
+      "spiralTriggers": [
+        {
+          "afterLabel": "deep",
+          "toOrigin": "https://www.instagram.com",
+          "toPathPrefix": "/reels",
+          "hours": [
+            11,
+            12
+          ],
+          "spiralMinutes": [
+            15,
+            50
+          ],
+          "note": "Finishing a section feels like permission for a reward."
+        },
+        {
+          "afterLabel": "deep",
+          "toOrigin": "https://www.reddit.com",
+          "toPathPrefix": "/r/all",
+          "hours": [
+            14,
+            15
+          ],
+          "spiralMinutes": [
+            10,
+            35
+          ],
+          "note": "Research on Reddit turns into the front page."
+        }
+      ]
+    },
+    {
+      "id": "researcher",
+      "name": "PhD researcher",
+      "description": "Reads papers on arXiv and Overleaf, writes in LaTeX; Twitter academic threads and YouTube autoplay are the leaks.",
+      "workHours": {
+        "start": "10:00",
+        "end": "19:00"
+      },
+      "sites": {
+        "deep": [
+          {
+            "origin": "https://arxiv.org",
+            "pathPrefix": "/abs",
+            "sampleTitles": [
+              "Attention Is All You Need",
+              "Matryoshka Representation Learning"
+            ],
+            "isVisual": false,
+            "velocity": {
+              "itemsPerMin": [
+                0.5,
+                2
+              ],
+              "skipRate": [
+                0,
+                0.05
+              ],
+              "meanDwellS": [
+                30,
+                120
+              ]
+            }
+          },
+          {
+            "origin": "https://www.overleaf.com",
+            "pathPrefix": "/project",
+            "sampleTitles": [
+              "Thesis chapter 3 - Overleaf",
+              "NeurIPS rebuttal - Overleaf"
+            ],
+            "isVisual": false,
+            "velocity": {
+              "itemsPerMin": [
+                0.2,
+                1
+              ],
+              "skipRate": [
+                0,
+                0.02
+              ],
+              "meanDwellS": [
+                60,
+                300
+              ]
+            }
+          },
+          {
+            "origin": "https://scholar.google.com",
+            "pathPrefix": "/scholar",
+            "sampleTitles": [
+              "Google Scholar",
+              "Cited by 1,204 - Google Scholar"
+            ],
+            "isVisual": false,
+            "velocity": {
+              "itemsPerMin": [
+                0.5,
+                2
+              ],
+              "skipRate": [
+                0,
+                0.05
+              ],
+              "meanDwellS": [
+                30,
+                120
+              ]
+            }
+          }
+        ],
+        "shallow": [
+          {
+            "origin": "https://app.slack.com",
+            "pathPrefix": "/client",
+            "sampleTitles": [
+              "#team | Slack",
+              "#random | Slack",
+              "Thread in #eng-help | Slack"
+            ],
+            "isVisual": false,
+            "velocity": {
+              "itemsPerMin": [
+                2,
+                6
+              ],
+              "skipRate": [
+                0.1,
+                0.3
+              ],
+              "meanDwellS": [
+                8,
+                30
+              ]
+            }
+          },
+          {
+            "origin": "https://calendar.google.com",
+            "pathPrefix": "/calendar",
+            "sampleTitles": [
+              "Google Calendar - Week of Oct 12",
+              "Google Calendar - Today"
+            ],
+            "isVisual": false,
+            "velocity": {
+              "itemsPerMin": [
+                1,
+                3
+              ],
+              "skipRate": [
+                0.05,
+                0.2
+              ],
+              "meanDwellS": [
+                15,
+                60
+              ]
+            }
+          },
+          {
+            "origin": "https://www.zotero.org",
+            "pathPrefix": "/mylibrary",
+            "sampleTitles": [
+              "My Library | Zotero",
+              "Unfiled items | Zotero"
+            ],
+            "isVisual": false,
+            "velocity": {
+              "itemsPerMin": [
+                1,
+                3
+              ],
+              "skipRate": [
+                0.05,
+                0.2
+              ],
+              "meanDwellS": [
+                15,
+                60
+              ]
+            }
+          }
+        ],
+        "drain": [
+          {
+            "origin": "https://x.com",
+            "pathPrefix": "/home",
+            "sampleTitles": [
+              "Home / X",
+              "Thread: why your startup will fail",
+              "Hot take on the new framework release"
+            ],
+            "isVisual": false,
+            "velocity": {
+              "itemsPerMin": [
+                3,
+                8
+              ],
+              "skipRate": [
+                0.15,
+                0.4
+              ],
+              "meanDwellS": [
+                6,
+                20
+              ]
+            }
+          },
+          {
+            "origin": "https://www.youtube.com",
+            "pathPrefix": "/",
+            "sampleTitles": [
+              "YouTube",
+              "Recommended for you"
+            ],
+            "isVisual": true,
+            "velocity": {
+              "itemsPerMin": [
+                4,
+                12
+              ],
+              "skipRate": [
+                0.2,
+                0.5
+              ],
+              "meanDwellS": [
+                4,
+                15
+              ]
+            }
+          },
+          {
+            "origin": "https://news.ycombinator.com",
+            "pathPrefix": "/",
+            "sampleTitles": [
+              "Hacker News",
+              "Show HN: I built a terminal for my toaster",
+              "Ask HN: How do you stay focused?"
+            ],
+            "isVisual": false,
+            "velocity": {
+              "itemsPerMin": [
+                3,
+                8
+              ],
+              "skipRate": [
+                0.15,
+                0.4
+              ],
+              "meanDwellS": [
+                6,
+                20
+              ]
+            }
+          }
+        ]
+      },
+      "dayShape": {
+        "browserHours": [
+          6,
+          11
+        ],
+        "deepBlocks": [
+          1,
+          4
+        ],
+        "deepBlockMinutes": [
+          25,
+          120
+        ],
+        "drainMinutes": [
+          20,
+          80
+        ],
+        "peakDrainHours": [
+          12,
+          17,
+          22,
+          23
+        ]
+      },
+      "spiralTriggers": [
+        {
+          "afterLabel": "deep",
+          "toOrigin": "https://x.com",
+          "toPathPrefix": "/home",
+          "hours": [
+            12,
+            17
+          ],
+          "spiralMinutes": [
+            10,
+            40
+          ],
+          "note": "Checking who quoted their paper becomes the timeline."
+        },
+        {
+          "afterLabel": "shallow",
+          "toOrigin": "https://news.ycombinator.com",
+          "toPathPrefix": "/",
+          "hours": [
+            22,
+            23
+          ],
+          "spiralMinutes": [
+            15,
+            60
+          ],
+          "note": "Late-night 'one more link'."
+        }
+      ]
+    },
+    {
+      "id": "designer",
+      "name": "Product designer",
+      "description": "Works in Figma for long stretches; looks for inspiration on Dribbble; inspiration browsing tips into Pinterest and TikTok.",
+      "workHours": {
+        "start": "09:00",
+        "end": "17:30"
+      },
+      "sites": {
+        "deep": [
+          {
+            "origin": "https://www.figma.com",
+            "pathPrefix": "/design",
+            "sampleTitles": [
+              "Checkout redesign – Figma",
+              "Design system v3 – Figma"
+            ],
+            "isVisual": true,
+            "velocity": {
+              "itemsPerMin": [
+                0.2,
+                1
+              ],
+              "skipRate": [
+                0,
+                0.02
+              ],
+              "meanDwellS": [
+                60,
+                300
+              ]
+            }
+          },
+          {
+            "origin": "https://m3.material.io",
+            "pathPrefix": "/components",
+            "sampleTitles": [
+              "Buttons – Material Design 3",
+              "Navigation drawer – Material Design 3"
+            ],
+            "isVisual": false,
+            "velocity": {
+              "itemsPerMin": [
+                0.5,
+                2
+              ],
+              "skipRate": [
+                0,
+                0.05
+              ],
+              "meanDwellS": [
+                30,
+                120
+              ]
+            }
+          }
+        ],
+        "shallow": [
+          {
+            "origin": "https://app.slack.com",
+            "pathPrefix": "/client",
+            "sampleTitles": [
+              "#team | Slack",
+              "#random | Slack",
+              "Thread in #eng-help | Slack"
+            ],
+            "isVisual": false,
+            "velocity": {
+              "itemsPerMin": [
+                2,
+                6
+              ],
+              "skipRate": [
+                0.1,
+                0.3
+              ],
+              "meanDwellS": [
+                8,
+                30
+              ]
+            }
+          },
+          {
+            "origin": "https://linear.app",
+            "pathPrefix": "/team",
+            "sampleTitles": [
+              "My issues › Linear",
+              "Sprint 42 › Linear",
+              "Triage › Linear"
+            ],
+            "isVisual": false,
+            "velocity": {
+              "itemsPerMin": [
+                1,
+                3
+              ],
+              "skipRate": [
+                0.05,
+                0.2
+              ],
+              "meanDwellS": [
+                15,
+                60
+              ]
+            }
+          },
+          {
+            "origin": "https://calendar.google.com",
+            "pathPrefix": "/calendar",
+            "sampleTitles": [
+              "Google Calendar - Week of Oct 12",
+              "Google Calendar - Today"
+            ],
+            "isVisual": false,
+            "velocity": {
+              "itemsPerMin": [
+                1,
+                3
+              ],
+              "skipRate": [
+                0.05,
+                0.2
+              ],
+              "meanDwellS": [
+                15,
+                60
+              ]
+            }
+          }
+        ],
+        "drain": [
+          {
+            "origin": "https://www.tiktok.com",
+            "pathPrefix": "/foryou",
+            "sampleTitles": [
+              "For You | TikTok",
+              "Day in my life as a designer",
+              "Study with me ASMR"
+            ],
+            "isVisual": true,
+            "velocity": {
+              "itemsPerMin": [
+                6,
+                15
+              ],
+              "skipRate": [
+                0.3,
+                0.6
+              ],
+              "meanDwellS": [
+                3,
+                10
+              ]
+            }
+          },
+          {
+            "origin": "https://dribbble.com",
+            "pathPrefix": "/shots",
+            "sampleTitles": [
+              "Dribbble - Popular shots",
+              "Fintech dashboard concept"
+            ],
+            "isVisual": true,
+            "velocity": {
+              "itemsPerMin": [
+                4,
+                12
+              ],
+              "skipRate": [
+                0.2,
+                0.5
+              ],
+              "meanDwellS": [
+                4,
+                15
+              ]
+            }
+          },
+          {
+            "origin": "https://www.instagram.com",
+            "pathPrefix": "/reels",
+            "sampleTitles": [
+              "Instagram reel",
+              "5-minute pasta you need to try",
+              "Gym fails compilation"
+            ],
+            "isVisual": true,
+            "velocity": {
+              "itemsPerMin": [
+                6,
+                15
+              ],
+              "skipRate": [
+                0.3,
+                0.6
+              ],
+              "meanDwellS": [
+                3,
+                10
+              ]
+            }
+          }
+        ]
+      },
+      "dayShape": {
+        "browserHours": [
+          6,
+          9
+        ],
+        "deepBlocks": [
+          1,
+          4
+        ],
+        "deepBlockMinutes": [
+          30,
+          120
+        ],
+        "drainMinutes": [
+          20,
+          70
+        ],
+        "peakDrainHours": [
+          12,
+          16,
+          21
+        ]
+      },
+      "spiralTriggers": [
+        {
+          "afterLabel": "deep",
+          "toOrigin": "https://dribbble.com",
+          "toPathPrefix": "/shots",
+          "hours": [
+            10,
+            15
+          ],
+          "spiralMinutes": [
+            10,
+            40
+          ],
+          "note": "Looking for a reference becomes an hour of shots."
+        },
+        {
+          "afterLabel": "shallow",
+          "toOrigin": "https://www.tiktok.com",
+          "toPathPrefix": "/foryou",
+          "hours": [
+            13,
+            21
+          ],
+          "spiralMinutes": [
+            15,
+            60
+          ],
+          "note": "After a long review meeting."
+        }
+      ]
+    },
+    {
+      "id": "student",
+      "name": "Computer science student",
+      "description": "Studies with lecture videos, course notes and practice problems; group chats and Reels interrupt study sessions.",
+      "workHours": {
+        "start": "11:00",
+        "end": "22:00"
+      },
+      "sites": {
+        "deep": [
+          {
+            "origin": "https://leetcode.com",
+            "pathPrefix": "/problems",
+            "sampleTitles": [
+              "Two Sum - LeetCode",
+              "LRU Cache - LeetCode"
+            ],
+            "isVisual": false,
+            "velocity": {
+              "itemsPerMin": [
+                0.2,
+                1
+              ],
+              "skipRate": [
+                0,
+                0.02
+              ],
+              "meanDwellS": [
+                60,
+                300
+              ]
+            }
+          },
+          {
+            "origin": "https://www.youtube.com",
+            "pathPrefix": "/watch",
+            "sampleTitles": [
+              "MIT 6.006 Lecture 8: Binary Heaps",
+              "CS50 Week 5: Data Structures"
+            ],
+            "isVisual": true,
+            "velocity": {
+              "itemsPerMin": [
+                0.05,
+                0.3
+              ],
+              "skipRate": [
+                0,
+                0.1
+              ],
+              "meanDwellS": [
+                180,
+                900
+              ]
+            }
+          },
+          {
+            "origin": "https://www.khanacademy.org",
+            "pathPrefix": "/math",
+            "sampleTitles": [
+              "Linear algebra | Khan Academy",
+              "Eigenvectors and eigenvalues"
+            ],
+            "isVisual": false,
+            "velocity": {
+              "itemsPerMin": [
+                0.5,
+                2
+              ],
+              "skipRate": [
+                0,
+                0.05
+              ],
+              "meanDwellS": [
+                30,
+                120
+              ]
+            }
+          }
+        ],
+        "shallow": [
+          {
+            "origin": "https://web.whatsapp.com",
+            "pathPrefix": "/",
+            "sampleTitles": [
+              "WhatsApp"
+            ],
+            "isVisual": false,
+            "velocity": {
+              "itemsPerMin": [
+                2,
+                6
+              ],
+              "skipRate": [
+                0.1,
+                0.3
+              ],
+              "meanDwellS": [
+                8,
+                30
+              ]
+            }
+          },
+          {
+            "origin": "https://canvas.instructure.com",
+            "pathPrefix": "/courses",
+            "sampleTitles": [
+              "Assignments",
+              "Grades"
+            ],
+            "isVisual": false,
+            "velocity": {
+              "itemsPerMin": [
+                1,
+                3
+              ],
+              "skipRate": [
+                0.05,
+                0.2
+              ],
+              "meanDwellS": [
+                15,
+                60
+              ]
+            }
+          },
+          {
+            "origin": "https://calendar.google.com",
+            "pathPrefix": "/calendar",
+            "sampleTitles": [
+              "Google Calendar - Week of Oct 12",
+              "Google Calendar - Today"
+            ],
+            "isVisual": false,
+            "velocity": {
+              "itemsPerMin": [
+                1,
+                3
+              ],
+              "skipRate": [
+                0.05,
+                0.2
+              ],
+              "meanDwellS": [
+                15,
+                60
+              ]
+            }
+          }
+        ],
+        "drain": [
+          {
+            "origin": "https://www.instagram.com",
+            "pathPrefix": "/reels",
+            "sampleTitles": [
+              "Instagram reel",
+              "5-minute pasta you need to try",
+              "Gym fails compilation"
+            ],
+            "isVisual": true,
+            "velocity": {
+              "itemsPerMin": [
+                6,
+                15
+              ],
+              "skipRate": [
+                0.3,
+                0.6
+              ],
+              "meanDwellS": [
+                3,
+                10
+              ]
+            }
+          },
+          {
+            "origin": "https://www.youtube.com",
+            "pathPrefix": "/shorts",
+            "sampleTitles": [
+              "Wait for the end 😂 #shorts",
+              "This trick saves 2 hours #shorts",
+              "POV: Monday standup #shorts"
+            ],
+            "isVisual": true,
+            "velocity": {
+              "itemsPerMin": [
+                6,
+                15
+              ],
+              "skipRate": [
+                0.3,
+                0.6
+              ],
+              "meanDwellS": [
+                3,
+                10
+              ]
+            }
+          },
+          {
+            "origin": "https://www.tiktok.com",
+            "pathPrefix": "/foryou",
+            "sampleTitles": [
+              "For You | TikTok",
+              "Day in my life as a designer",
+              "Study with me ASMR"
+            ],
+            "isVisual": true,
+            "velocity": {
+              "itemsPerMin": [
+                6,
+                15
+              ],
+              "skipRate": [
+                0.3,
+                0.6
+              ],
+              "meanDwellS": [
+                3,
+                10
+              ]
+            }
+          }
+        ]
+      },
+      "dayShape": {
+        "browserHours": [
+          5,
+          10
+        ],
+        "deepBlocks": [
+          0,
+          3
+        ],
+        "deepBlockMinutes": [
+          25,
+          80
+        ],
+        "drainMinutes": [
+          40,
+          150
+        ],
+        "peakDrainHours": [
+          14,
+          20,
+          23
+        ]
+      },
+      "spiralTriggers": [
+        {
+          "afterLabel": "deep",
+          "toOrigin": "https://www.youtube.com",
+          "toPathPrefix": "/shorts",
+          "hours": [
+            14,
+            20
+          ],
+          "spiralMinutes": [
+            15,
+            60
+          ],
+          "note": "Autoplay after a lecture lands on Shorts."
+        },
+        {
+          "afterLabel": "shallow",
+          "toOrigin": "https://www.instagram.com",
+          "toPathPrefix": "/reels",
+          "hours": [
+            22,
+            23
+          ],
+          "spiralMinutes": [
+            20,
+            70
+          ],
+          "note": "A Reel shared in the group chat."
+        }
+      ]
+    },
+    {
+      "id": "freelancer",
+      "name": "Freelance consultant",
+      "description": "Juggles client work, proposals and invoices; LinkedIn and news sites feel like work but rarely are.",
+      "workHours": {
+        "start": "08:30",
+        "end": "17:00"
+      },
+      "sites": {
+        "deep": [
+          {
+            "origin": "https://docs.google.com",
+            "pathPrefix": "/spreadsheets",
+            "sampleTitles": [
+              "Client forecast Q4 - Google Sheets",
+              "Pricing model - Google Sheets"
+            ],
+            "isVisual": false,
+            "velocity": {
+              "itemsPerMin": [
+                0.2,
+                1
+              ],
+              "skipRate": [
+                0,
+                0.02
+              ],
+              "meanDwellS": [
+                60,
+                300
+              ]
+            }
+          },
+          {
+            "origin": "https://www.notion.so",
+            "pathPrefix": "/",
+            "sampleTitles": [
+              "Client proposal: data migration",
+              "Workshop outline"
+            ],
+            "isVisual": false,
+            "velocity": {
+              "itemsPerMin": [
+                0.2,
+                1
+              ],
+              "skipRate": [
+                0,
+                0.02
+              ],
+              "meanDwellS": [
+                60,
+                300
+              ]
+            }
+          }
+        ],
+        "shallow": [
+          {
+            "origin": "https://app.slack.com",
+            "pathPrefix": "/client",
+            "sampleTitles": [
+              "#team | Slack",
+              "#random | Slack",
+              "Thread in #eng-help | Slack"
+            ],
+            "isVisual": false,
+            "velocity": {
+              "itemsPerMin": [
+                2,
+                6
+              ],
+              "skipRate": [
+                0.1,
+                0.3
+              ],
+              "meanDwellS": [
+                8,
+                30
+              ]
+            }
+          },
+          {
+            "origin": "https://calendar.google.com",
+            "pathPrefix": "/calendar",
+            "sampleTitles": [
+              "Google Calendar - Week of Oct 12",
+              "Google Calendar - Today"
+            ],
+            "isVisual": false,
+            "velocity": {
+              "itemsPerMin": [
+                1,
+                3
+              ],
+              "skipRate": [
+                0.05,
+                0.2
+              ],
+              "meanDwellS": [
+                15,
+                60
+              ]
+            }
+          },
+          {
+            "origin": "https://app.hubspot.com",
+            "pathPrefix": "/contacts",
+            "sampleTitles": [
+              "Contacts | HubSpot",
+              "Deals | HubSpot"
+            ],
+            "isVisual": false,
+            "velocity": {
+              "itemsPerMin": [
+                1,
+                3
+              ],
+              "skipRate": [
+                0.05,
+                0.2
+              ],
+              "meanDwellS": [
+                15,
+                60
+              ]
+            }
+          }
+        ],
+        "drain": [
+          {
+            "origin": "https://www.linkedin.com",
+            "pathPrefix": "/feed",
+            "sampleTitles": [
+              "Feed | LinkedIn",
+              "I quit my job to pursue my passion. Here's what happened",
+              "5 lessons from 10 years in tech"
+            ],
+            "isVisual": false,
+            "velocity": {
+              "itemsPerMin": [
+                4,
+                12
+              ],
+              "skipRate": [
+                0.2,
+                0.5
+              ],
+              "meanDwellS": [
+                4,
+                15
+              ]
+            }
+          },
+          {
+            "origin": "https://www.bbc.com",
+            "pathPrefix": "/news",
+            "sampleTitles": [
+              "BBC News - Home",
+              "Live: markets react"
+            ],
+            "isVisual": false,
+            "velocity": {
+              "itemsPerMin": [
+                4,
+                12
+              ],
+              "skipRate": [
+                0.2,
+                0.5
+              ],
+              "meanDwellS": [
+                4,
+                15
+              ]
+            }
+          },
+          {
+            "origin": "https://x.com",
+            "pathPrefix": "/home",
+            "sampleTitles": [
+              "Home / X",
+              "Thread: why your startup will fail",
+              "Hot take on the new framework release"
+            ],
+            "isVisual": false,
+            "velocity": {
+              "itemsPerMin": [
+                3,
+                8
+              ],
+              "skipRate": [
+                0.15,
+                0.4
+              ],
+              "meanDwellS": [
+                6,
+                20
+              ]
+            }
+          }
+        ]
+      },
+      "dayShape": {
+        "browserHours": [
+          6,
+          9
+        ],
+        "deepBlocks": [
+          0,
+          3
+        ],
+        "deepBlockMinutes": [
+          25,
+          75
+        ],
+        "drainMinutes": [
+          25,
+          90
+        ],
+        "peakDrainHours": [
+          9,
+          13,
+          16
+        ]
+      },
+      "spiralTriggers": [
+        {
+          "afterLabel": "shallow",
+          "toOrigin": "https://www.linkedin.com",
+          "toPathPrefix": "/feed",
+          "hours": [
+            9,
+            13
+          ],
+          "spiralMinutes": [
+            10,
+            40
+          ],
+          "note": "Replying to a message turns into scrolling the feed."
+        },
+        {
+          "afterLabel": "deep",
+          "toOrigin": "https://www.bbc.com",
+          "toPathPrefix": "/news",
+          "hours": [
+            12,
+            16
+          ],
+          "spiralMinutes": [
+            10,
+            30
+          ],
+          "note": "Checking the news 'quickly' between deliverables."
+        }
+      ]
+    }
+  ]
+}
