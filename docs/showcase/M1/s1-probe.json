@@ -1,0 +1,128 @@
+{
+  "date": "2026-10-15T06:42:46.242Z",
+  "scrollsPerSite": 20,
+  "sites": [
+    {
+      "site": "YouTube Shorts",
+      "origin": "https://www.youtube.com",
+      "finalPath": "/shorts/xDk3EGOUV1g",
+      "scrolls": 20,
+      "items": 22,
+      "ratio": 1.1,
+      "distinctKeys": 22,
+      "visual": 21,
+      "keyTypes": {
+        "t:": 1,
+        "u:": 21
+      },
+      "videoEvents": 60,
+      "perf": "[doomscroll] perf: scroll handler p95=0.50ms max=1.60ms n=382 · item detection p95=0.90ms max=1.60ms n=122 · text (idle) p95=0.10ms max=0.10ms n=17"
+    },
+    {
+      "site": "Reddit",
+      "origin": "https://www.reddit.com",
+      "finalPath": "/r/programming/",
+      "scrolls": 20,
+      "items": 1,
+      "ratio": 0.05,
+      "distinctKeys": 1,
+      "visual": 0,
+      "keyTypes": {
+        "t:": 1
+      },
+      "videoEvents": 0,
+      "perf": null
+    },
+    {
+      "site": "Mastodon (public feed, X-like)",
+      "origin": "https://mastodon.social",
+      "finalPath": "/explore",
+      "scrolls": 20,
+      "items": 20,
+      "ratio": 1,
+      "distinctKeys": 20,
+      "visual": 2,
+      "keyTypes": {
+        "v:": 2,
+        "t:": 13,
+        "m:": 5
+      },
+      "videoEvents": 0,
+      "perf": "[doomscroll] perf: scroll handler p95=0.30ms max=0.40ms n=26 · item detection p95=0.90ms max=1.50ms n=101 · text (idle) p95=0.20ms max=0.20ms n=14"
+    },
+    {
+      "site": "Bluesky (public profile feed)",
+      "origin": "https://bsky.app",
+      "finalPath": "/profile/bsky.app",
+      "scrolls": 20,
+      "items": 22,
+      "ratio": 1.1,
+      "distinctKeys": 21,
+      "visual": 2,
+      "keyTypes": {
+        "t:": 16,
+        "m:": 6
+      },
+      "videoEvents": 5,
+      "perf": "[doomscroll] perf: scroll handler p95=0.20ms max=0.20ms n=15 · item detection p95=2.70ms max=3.50ms n=94 · text (idle) p95=0.40ms max=0.40ms n=17"
+    },
+    {
+      "site": "MDN docs",
+      "origin": "https://developer.mozilla.org",
+      "finalPath": "/en-US/docs/Web/API/Intersection_Observer_API",
+      "scrolls": 20,
+      "items": 19,
+      "ratio": 0.95,
+      "distinctKeys": 19,
+      "visual": 0,
+      "keyTypes": {
+        "v:": 15,
+        "t:": 4
+      },
+      "videoEvents": 0,
+      "perf": "[doomscroll] perf: scroll handler p95=0.20ms max=0.20ms n=13 · item detection p95=2.10ms max=3.00ms n=80 · text (idle) p95=0.10ms max=0.10ms n=13"
+    },
+    {
+      "site": "Wikipedia article",
+      "origin": "https://en.wikipedia.org",
+      "finalPath": "/wiki/Attention",
+      "scrolls": 20,
+      "items": 17,
+      "ratio": 0.85,
+      "distinctKeys": 14,
+      "visual": 0,
+      "keyTypes": {
+        "t:": 17
+      },
+      "videoEvents": 0,
+      "perf": "[doomscroll] perf: scroll handler p95=0.20ms max=0.20ms n=15 · item detection p95=0.90ms max=2.20ms n=85 · text (idle) p95=1.80ms max=1.80ms n=14"
+    }
+  ],
+  "checks": {
+    "registeredContentScripts": [
+      {
+        "id": "observer",
+        "js": [
+          "observer.js"
+        ],
+        "excludes": 107
+      }
+    ],
+    "injectedIntoOpenTab": true,
+    "blocklistedEvents": 0,
+    "pausedBadge": "II",
+    "pausedEvents": 0,
+    "pausedSamples": 0,
+    "privacy": {
+      "records": 553,
+      "samples": 103,
+      "bins": 13,
+      "activeSecondsInBins": 228,
+      "recorderEvents": 437,
+      "urlsWithQueryOrFragment": 0,
+      "recordsWithTextField": 0,
+      "pageTextLinesChecked": 167,
+      "pageTextLinesFound": 0
+    }
+  }
+}

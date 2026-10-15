@@ -18,6 +18,10 @@ npm run build          # → extension/.output/chrome-mv3
 
 In Chrome, open `chrome://extensions`, turn on **Developer mode**, click **Load unpacked** and pick `extension/.output/chrome-mv3`.
 
+**For daily use** (your real data accumulates here): run `npm run live` and load `extension/.live/chrome-mv3` instead. That folder only changes when you run `npm run live` again (then click the reload icon in `chrome://extensions`). Keep it at the same path: Chrome ties an unpacked extension's ID, and so its stored data, to the folder.
+
+Already-open tabs are picked up on install. Pages Chrome can't script (`chrome://`, the Web Store) and blocklisted sites are never observed.
+
 `npm run dev` starts WXT in watch mode with hot reload; load `extension/.output/chrome-mv3-dev` the same way (once), and it reloads on save.
 
 ## Tests
@@ -25,6 +29,7 @@ In Chrome, open `chrome://extensions`, turn on **Developer mode**, click **Load 
 ```sh
 cd extension && npm test            # Vitest
 cd extension && npm run smoke       # headless Chrome: load the build, open popup/dashboard (after npm run build)
+cd extension && npm run probe:s1    # headless Chrome: scroll public sites, count detected items, check privacy (~7 min)
 cd training && uv run pytest        # Python 3.13 via uv
 ```
 

@@ -8,7 +8,7 @@
 |---|---|---|---|---|
 | Planning | ✅ Done | 2026-10-15 | — | PDD v2, milestone plan, workflow skills |
 | M0 Scaffold + contracts | ✅ Done | 2026-10-15 | — | WXT + Preact scaffold, IndexedDB v1, settings in chrome.storage.local (D-52), shared schemas v1, uv project |
-| M1 Observer + bins | 🟡 In progress | | | Plan approved; docs/plans/M1.md |
+| M1 Observer + bins | ✅ Done | 2026-10-15 | — | Generic observer, 30 s bins and samples in IndexedDB, pause + badge, popup live counts, dev recorder, S1 headless pass; owner's daily profile runs `.live/chrome-mv3` |
 | M2 Embedding engine | ⬜ Not started | | | |
 | M3 Territories + labeling | ⬜ Not started | | L1 | |
 | M4 Prediction + nudges + replay | ⬜ Not started | | L2 | |
@@ -31,6 +31,9 @@ Status values: ⬜ Not started · 📝 Plan awaiting approval · 🟡 In progres
 - **K-01** (M0): Ajv can't compile schemas at runtime under the MV3 CSP (`new Function`). Runtime validation of model output or facts must use Ajv standalone code or hand-written validators. Owner: M5, M6.
 - **K-02** (M0): `ensureOffscreenDocument()` uses `reasons: ['WORKERS']` as a placeholder; confirm the right reason in S2 (V-07). Owner: M2.
 - **K-03** (M0): no extension icons yet (Chrome shows a letter). Owner: M7.
+- **K-04** (M1): S1 per-site item counts for logged-in Instagram (feed, Reels), X and Reddit are not recorded; headless probes can't reach them. Record them in `experiments/spikes.md` when the owner checks (steps there). Owner: owner, any Lane A chat.
+- **K-05** (M1): the open 30 s bin is lost when Chrome quits (state lives in `chrome.storage.session`). Up to 30 s per browser session. Owner: M5 if it matters for metrics.
+- **K-06** (M1): `chrome.idle` uses a 120 s threshold, so up to 120 s at the start of each idle stretch counts as active. Owner: M5 (account for it in metrics, or lower the threshold).
 
 ---
 
@@ -210,3 +213,87 @@ These refinements to `implementation-milestones.md` 0.6 are all v1, so no consum
 - **T1:** read the schemas straight from `../shared`. `training/tests/test_shared_schemas.py` shows how to validate with `Draft202012Validator`. Add dependencies with `uv add` in `training/`.
 - **Imports:** `@/` points to `extension/` and `@shared/` to `shared/`. Import the browser API from `wxt/browser`; in tests, `wxt/testing/fake-browser`. IndexedDB tests get `fake-indexeddb` automatically (`vitest.config.ts`); reset it with `globalThis.indexedDB = new IDBFactory()` and `closeDb()`.
 - **Run `npm run smoke`** after building, to check the extension still loads with no exceptions.
+
+---
+
+## M1 — Observer, bins and storage
+**Status:** ✅ Done
+**Date:** 2026-10-15 · **Commits:** `fb70c0b` (plan) plus the three `M1:` commits after it
+**Approved plan:** `docs/plans/M1.md` (approved 2026-10-15 11:42) · **Work approved:** 2026-10-15 14:28
+
+### What was built
+- **Blocklist first.** The observer is an unlisted script (`entrypoints/observer.ts` → `/observer.js`), **not** a manifest content script. The service worker registers it with `chrome.scripting.registerContentScripts` (id `observer`, `<all_urls>`, `document_idle`, `persistAcrossSessions`) with `excludeMatches` built from the effective blocklist (107 patterns), so Chrome never injects into blocklisted domains or suffixes. It re-registers when the blocklist settings change. The script itself then checks incognito, non-http(s), keyword matches and pause before touching the page, and stops quietly if the extension was reloaded (orphaned copy).
+- **On install** the script is injected into already-open tabs with `executeScript`; a re-injected copy stops the old one via `globalThis.__doomscrollStop`.
+- **Generic item detection (PDD 7.3, no per-site code):** `elementFromPoint` at the viewport centre, then walk up to the first ancestor 30–100% of viewport height with ≥ 40 chars of text or dominant media. An item is committed after 600 ms as the current item. Pages without cards fall back to a 3×3 grid of text-block hashes; a new viewport sample when ≥ 60% of blocks changed. A long-viewed item gets a continuation sample every 60 s of activity.
+- **Item identity (D-47):** `u:<per-item path>` (`/shorts|reel(s)|status|comments|video|p/<id>`), else `m:<hash(currentSrc|duration|poster)>`, else `t:<hash(first 200 normalised chars, digits removed)>`; viewport samples are `v:<hash>`. Hash is cyrb53 (`hash53`), keys ≤ 200 chars.
+- **Content-side signals:** EMA scroll velocity (tau 1 s), visibility, video play/pause/ended/skip (skip = left after < 2 s or < 25% watched), heartbeats every 15 s while active, URL poll every 1 s for SPA navigation. Item text (`innerText`, ≤ 2000 chars) is read in an idle callback and sent in memory only.
+- **Service worker pipeline (`lib/observer/pipeline.ts`):** a pure `step(state, event)` reducer emits samples, dwell updates and closed 30 s bins. Time modes are active / idle / away / gap:
+  - Heartbeats merge into active time within a 45 s pulse window; after that it's a gap (not counted).
+  - Away (no focused window) and idle are counted for the first 10 minutes of an absence, then a gap (owner decision).
+  - D-46: a playing video in the active tab counts as active while `chrome.idle` says idle; `locked` is always idle.
+  - Only the active tab of the focused window counts, and only if its observer reports. Blocklisted pages, `chrome://`, paused time and incognito produce no bins.
+- **Storage (`lib/observer/service.ts`):** state persists in `chrome.storage.session` (`observer-state`) so worker restarts keep the open bin; events are processed through a promise queue. `scrubEvent` strips `text` always and `title` unless `storeTitles`; paths are sanitised (no `?`/`#`). Samples go to `samples` (vector `null` until M2), bins to `bins`. A provisional dwell is written when the tab is hidden or closed.
+- **Pause (D-48):** popup buttons 15 min / 1 hour / Until tomorrow (next 04:00 local, owner decision) / Until I resume, plus Resume now. Amber `II` badge and title while paused, a `pause-end` alarm resumes. The content script stops observing; the pipeline drops events and counts no time; the recorder records nothing but pause markers.
+- **Popup:** items seen today, active minutes today, items per minute now (polled every 2 s via the `live-stats` message), status line and pause controls.
+- **Recorder (dev mode, `lib/replay/recorder.ts`):** writes scrubbed `PipelineEvent`s (observer and browser events, no ticks, no text) to `recorderEvents`. Dashboard → Developer: dev-mode toggle, counts of samples / bins / recorded events, Download recording (JSONL), Clear recording. Dev mode also logs `[doomscroll] item …` lines and perf stats every 20 s to the page console.
+- **Daily-profile install:** `npm run live` builds and copies to `extension/.live/chrome-mv3` (git-ignored), which only changes when the owner runs it.
+- **S1 probe:** `npm run probe:s1` (headless Chrome over CDP pipe).
+
+### Key files
+- `extension/lib/observer/pipeline.ts` — time accounting, bins, samples (pure, fully unit-tested)
+- `extension/lib/observer/service.ts` — scrub, persist, session state, live stats, pause gating
+- `extension/lib/observer/background.ts` — `registerObserver(router)`: message handlers, tab/window/idle/alarm listeners, badge, script registration
+- `extension/lib/observer/content.ts` — `startObserver()` in the page: detection, signals, dev logs
+- `extension/entrypoints/observer.ts` — the checks that run first (incognito, scheme, blocklist, pause)
+- `extension/lib/observer/{identity,signals,blocklist,pause,url,types,messages}.ts` — pure helpers and types; `index.ts` re-exports the pure modules
+- `extension/lib/replay/recorder.ts` — dev-mode recorder
+- `extension/scripts/s1-probe.mjs`, `extension/scripts/live.mjs`
+
+### How to run / verify
+- `cd extension && npm run build && npm test` gives 16 files and 78 tests passing; `npm run compile` is clean; `npm run smoke` reports 0 exceptions; `npm run check:types` exits 0.
+- `cd extension && npm run probe:s1` (after a build, ~7 min) scrolls Shorts, Reddit, Mastodon, Bluesky, MDN and Wikipedia, then checks blocklist, pause and privacy, and writes `docs/showcase/M1/s1-probe.json`. Env: `HEADED=1`, `SCROLLS=n`, `ONLY=regex`, `DEBUG=1`. Exits 1 on any failed check.
+- Manual: `npm run live`, Load unpacked `extension/.live/chrome-mv3`, browse, open the popup; pause → `II` badge; dashboard → Developer → dev mode → Download recording.
+
+### Acceptance criteria
+- [x] Unit tests for item identity, velocity smoothing, heartbeat merging and bin aggregation — `identity.test.ts`, `signals.test.ts`, `pipeline.test.ts` (12 tests).
+- [x] 10 minutes of browsing produces bins and samples with no item text or query strings, plus a test that inspects stored records — `service.test.ts` checks every store for planted text, `?`, `#` and a `"text"` field; the ~8-minute headless probe stored 103 samples and 13 bins with 0 URLs with `?`/`#`, 0 records with text and 0 of 167 page-text lines found. Real browsing in the owner's profile was a review step, not checked by this chat.
+- [x] Blocklisted site → no events; paused → no events — probe: 0 events on a blocklisted site; 0 events and 0 samples while paused, badge `II`. Also in `service.test.ts` and `pipeline.test.ts`.
+- [x] S1 results recorded, failures noted — `experiments/spikes.md`: Shorts 1.10, Mastodon 1.00, Bluesky 1.10, MDN 0.95, Wikipedia 0.85 items per scroll; Reddit walls headless Chrome. Logged-in Instagram, X and Reddit counts are not recorded (K-04).
+- [x] Owner installs the build in their daily Chrome profile today — `npm run live` prepared `extension/.live/chrome-mv3` with install steps in the review request; installing was the owner's step and the owner approved the review (this chat did not see the install).
+
+### Deviations from the approved plan
+- `entrypoints/content.ts` replaced by the unlisted `entrypoints/observer.ts`: WXT's content-script wrapper posts a page-visible event and adds a listener before user code runs, which breaks "nothing before the blocklist check".
+- Planned detection/viewport/velocity/video files merged into `lib/observer/signals.ts`. Added `service.ts` (testable storage side) and `messages.ts`. M0's stub test `lib/observer/index.test.ts` removed; `index.ts` is now a barrel.
+- `lib/db` gained `count`, `clearStore`, `countByTs`; `assets/base.css` gained `.warn`, `h2`, `table`, `td`, `.row`.
+- Probe sites extended with Mastodon, Bluesky and Wikipedia because X and Instagram need a login and Reddit walls headless Chrome.
+
+### Decisions and deviations from the PDD
+None needs a decision-log entry; these fill gaps the PDD leaves open:
+- **60 s continuation samples** for any long-viewed item (PDD specifies it only for docs-style pages).
+- **`isVisual`** = media ≥ 50% of the viewport (PDD 7.2) **or** ≥ 60% of viewport height and ≥ 15% of its area, so a portrait Short on desktop counts.
+- **`chrome.idle` threshold 120 s.**
+- **Bin features:** `items_per_min` = items in the bin × 2; `mean_dwell_ms` = mean `prevDwellMs` of items in the bin (0 if none); `video_skip_rate` = skips ÷ distinct video keys; `scroll_px_s_mean` time-weighted over active seconds; `away`/`idle` flags set when > 15 s of the bin.
+- **Nothing is recorded while paused**, including browser events (only pause markers).
+
+### Spike / measurement results
+- **S1:** see `experiments/spikes.md`. Scroll handler p95 ≤ 0.5 ms everywhere (budget < 2 ms, PDD 9.9). Item detection runs off the scroll handler (≤ every 250 ms) with p95 0.9 ms (Shorts, Mastodon, Wikipedia), 2.1 ms (MDN) and 2.7 ms (Bluesky). Text read (idle callback) p95 ≤ 1.8 ms.
+
+### Contracts changed
+- **`BinRecord.active_s: number`** added in `lib/db/schema.ts` (no `DB_VERSION` bump; bins is keyed by `binStart`). M0's db test fixture updated.
+- **Messages** (`lib/observer/messages.ts`, merged into `MessageMap`): `observer-event` (content → background, payload `ObserverEvent` from `shared/types.ts`) and `live-stats` (popup → background, returns `{samplesToday, activeMinToday, itemsPerMinNow, pausedUntil}`).
+- **Recorder JSONL format** = `PipelineEvent` (`lib/observer/types.ts`): `ObserverEvent & {tabId}` or a browser event (`tab-activated`, `window-focus` with `windowId: null` = away, `idle-state`, `tab-removed`, `pause`). No `shared/` schema changed.
+
+### Known issues
+- K-04, K-05, K-06 (above).
+- Headless runs give low active seconds (228 s over ~8 min) because headless windows rarely report focus; real profiles don't have this.
+
+### Showcase evidence
+- `docs/showcase/M1/s1-results.md` (probe table, per-scroll cost), `s1-probe.json` (raw), `CAPTURE.md` (popup counts, Shorts vs docs items/min, pause badge, dev console, dashboard Developer section).
+
+### Notes for the next milestone
+- **M2:** samples are stored with `vector: null`; embed them later by reading `samples` and updating `vector`. Item text is **not** stored, so it must be embedded while in memory: hook in `lib/observer/service.ts` where the `item` event arrives (before `scrubEvent` drops `text`) or in `background.ts`'s `observer-event` handler, and pass the text to the offscreen engine. Samples before M2 stay vectorless (expected by the milestone plan).
+- **M3/M5:** bins carry `active_s`, `idle_s`, `away_s` and the velocity features; `territoryId` and `nudge*` fields are `null`/`false` for M3/M4 to fill. Away/idle beyond 10 minutes is a gap: no bins exist for it, by design.
+- **M4 replay:** the recorder's JSONL replays through `initialState()` + `step()` from `lib/observer/pipeline.ts`; the pipeline is pure and deterministic, so replaying a recording reproduces the bins.
+- **Adding background handlers:** follow `registerObserver(router)`; it must run before `router.listen()` in `entrypoints/background.ts`.
+- **Don't add a manifest `content_scripts` entry** for the observer; registration is dynamic so the blocklist stays an `excludeMatches` list. After changing the blocklist logic, test with `npm run probe:s1` (it checks a settings-added blocklisted domain).
+- **Daily profile:** the owner's data lives under the `.live/chrome-mv3` install. Ask the owner to run `npm run live` and reload after your changes; never point `live` elsewhere or move the folder (the extension ID, and so the data, is tied to the path).
