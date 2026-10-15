@@ -1,0 +1,18 @@
+[project]
+name = "doomscroll-training"
+version = "0.1.0"
+description = "Teacher data, fine-tuning, evaluation and ONNX export for Doomscroll Autopsy (PDD section 10)."
+requires-python = ">=3.13,<3.14"
+dependencies = []
+
+[dependency-groups]
+dev = [
+    "pytest>=8",
+    "jsonschema>=4.23",
+]
+
+[tool.uv]
+package = false
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
