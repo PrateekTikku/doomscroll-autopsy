@@ -41,7 +41,23 @@ _Not run yet._ Also resolves V-01, V-02, V-03, V-07.
 _Not run yet._
 
 ## S4 — Teacher throughput (T1)
-_Not run yet._ Also resolves V-04.
+**Result:** pass with MTP (2026-10-15): **17.1 tok/s** single stream with the separate MTP drafter, against 10.1 without it and a bar of 15. Also resolves V-04. Details: `docs/showcase/T1/s4-throughput*.md`.
+
+| Server | Config | Aggregate tok/s |
+|---|---|---|
+| Unsloth Studio (`unsloth run`) | no MTP, concurrency 1 / 2 / 4 | 6.4 / 5.1 / 6.8 |
+| raw `llama-server` | no MTP, `-np 4`, concurrency 1 / 2 / 4 | 10.1 / 7.9 / 10.9 |
+| raw `llama-server` | **MTP, `--spec-draft-n-max 3`, `-np 1`** | **17.1** (draft acceptance 0.62-0.82) |
+| raw `llama-server` | MTP, `--spec-draft-n-max 4`, `-np 1` | 13.9 |
+
+- Measured on 4 naming + 4 autopsy prompts; tok/s is streamed chunks per second (the server reports zero usage), a lower bound. Validators passed on all teacher outputs in the MTP run. Another chat was running browser probes on the same machine (noise).
+- **Why MTP did not work at first (two causes):**
+  1. **The UD-Q4_K_XL GGUF has no MTP layers** (`model doesn't contain MTP layers`). The drafter is a separate file in the same repo: `MTP/mtp-gemma-4-31B-it-Q8_0.gguf` (515 MB, mirrored at the repo root as `mtp-gemma-4-31B-it.gguf`). Unsloth's docs say "embedded" because `llama-server -hf <repo>` auto-downloads that sibling; downloading only the quant file from the cache (as Studio's UI did here) leaves it behind. Fix: download the drafter and pass `--model-draft` (`-md`) with `--spec-type draft-mtp`.
+  2. **The installed Studio never enables MTP.** Its backend (`studio/backend/core/inference/llama_cpp.py`) only knows `ngram-simple`, `ngram-mod` and `--spec-default`, defaults `speculative_type` to None, and skips speculation entirely when a vision projector (`--mmproj`) is loaded, which it does for this repo. `unsloth run` therefore launched llama-server with neither a drafter nor `--spec-type`. (A newer Studio may differ; `unsloth studio update` was not tried.)
+- **Studio fixed (2026-10-15):** `unsloth studio update` reported "2026.5.2 -> 2026.10.5 available, updating" but silently stayed on 2026.5.2: the `constraints.txt` shipped inside the old install pins `transformers==4.57.6`, while `unsloth-zoo` 2026.10.5 needs `transformers>=5` via `mlx-lm`, so the resolver kept the old release. Fix used: `uv pip install --python ~/.unsloth/studio/unsloth_studio/bin/python --no-deps unsloth==2026.10.5 unsloth-zoo==2026.10.5` (rollback: same command with `unsloth==2026.5.2 unsloth-zoo==2026.5.1`; pre-change freeze saved at `training/data/studio-freeze-before.txt`). The new Studio auto-downloads the drafter (`mtp-gemma-4-31B-it.gguf`, 515 MB, into the HF cache) and launches llama-server with `--model-draft` and `draft-mtp` (chained with ngram-mod) with no flags needed. **Result: 17.2 tok/s at concurrency 1, 17.3 at 4**, same as raw `llama-server`; `chat_template_kwargs: {"enable_thinking": false}` still works per request. `uv pip check` shows leftover incompatibilities (the MLX/openenv/mlx-audio extras want transformers 5 / newer `mlx`); they affect MLX training in Studio, not inference, and were not touched. Re-verify Studio training in T2/S5 before relying on it.
+- **Parallel slots give no aggregate gain** (decode is compute-bound); use `-np 1` with MTP.
+- **Working command:** `llama-server -m <UD-Q4_K_XL.gguf> --model-draft <mtp-...-Q8_0.gguf> --spec-type draft-mtp --spec-draft-n-max 3 -np 1 -c 8192 --flash-attn on --jinja --chat-template-kwargs '{"enable_thinking": false}'` (llama.cpp build d812350, after the 2026-06-07 MTP merge).
+- **Projection:** ~70 s per 4+4 examples, so ~1,000 examples take ~2.5-3 h including retries.
 
 ## S5 — Unsloth fine-tune + ONNX conversion on this Mac (T2)
 _Not run yet._ Also resolves V-05, V-06.
