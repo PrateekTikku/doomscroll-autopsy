@@ -7,7 +7,7 @@
 | Milestone | Status | Chat finished | Showcase level reached | Notes |
 |---|---|---|---|---|
 | Planning | ✅ Done | 2026-10-15 | — | PDD v2, milestone plan, workflow skills |
-| M0 Scaffold + contracts | ⬜ Not started | | | |
+| M0 Scaffold + contracts | 🟡 In progress | | | Plan: `docs/plans/M0.md` (approved 2026-10-15 10:09) |
 | M1 Observer + bins | ⬜ Not started | | | |
 | M2 Embedding engine | ⬜ Not started | | | |
 | M3 Territories + labeling | ⬜ Not started | | L1 | |
