@@ -9,7 +9,7 @@
 | Planning | ✅ Done | 2026-10-15 | — | PDD v2, milestone plan, workflow skills |
 | M0 Scaffold + contracts | ✅ Done | 2026-10-15 | — | WXT + Preact scaffold, IndexedDB v1, settings in chrome.storage.local (D-52), shared schemas v1, uv project |
 | M1 Observer + bins | ✅ Done | 2026-10-15 | — | Generic observer, 30 s bins and samples in IndexedDB, pause + badge, popup live counts, dev recorder, S1 headless pass; owner's daily profile runs `.live/chrome-mv3` |
-| M2 Embedding engine | ⬜ Not started | | | |
+| M2 Embedding engine | 🟡 In progress | | | docs/plans/M2.md |
 | M3 Territories + labeling | ⬜ Not started | | L1 | |
 | M4 Prediction + nudges + replay | ⬜ Not started | | L2 | |
 | M5 Metrics + dashboard + privacy | ⬜ Not started | | L3 | |
