@@ -13,7 +13,7 @@
 | M3 Territories + labeling | ⬜ Not started | | L1 | |
 | M4 Prediction + nudges + replay | ⬜ Not started | | L2 | |
 | M5 Metrics + dashboard + privacy | ⬜ Not started | | L3 | |
-| T1 Teacher data | ⬜ Not started | | | |
+| T1 Teacher data | 🟡 In progress | | | Plan approved; Phase A pilot (10 examples) first. docs/plans/T1.md |
 | T2 Fine-tune + ONNX | ⬜ Not started | | | |
 | M6 Integrate 270M | ⬜ Not started | | L4 | |
 | M7 Release + first user | ⬜ Not started | | L5 | |
