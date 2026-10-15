@@ -1,0 +1,25 @@
+# OS / editors
+.DS_Store
+.idea/
+.vscode/
+
+# Extension (WXT)
+node_modules/
+extension/.output/
+extension/.wxt/
+releases/
+
+# Training (uv)
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+training/data/*
+!training/data/samples/
+
+# Model files: downloaded or exported, never committed
+*.onnx
+*.onnx_data
+*.gguf
+*.safetensors
+*.bin

@@ -318,8 +318,10 @@ No vector database. At ~3–6k samples/day × 256 float32 = ~3–6 MB/day, brute
 | `nudges` | auto id | `ts`, `step` (1–3), `score`, `mode` (rules/markov/gru), `response` (`back` / `snooze` / `ignored`), `secondsToReturn` |
 | `models` | name | Markov matrix, GRU weights (TF.js `indexeddb://`), last evaluation metrics, active mode |
 | `reports` | date | Facts JSON, autopsy text, model version |
-| `settings` | key | Sensitivity, max nudge step, quiet hours, blocklist, retention days, store titles, dev mode, pause-until |
 | `forgetLog` | auto id | What was forgotten (type + time range or site), **never the content** |
+| `recorderEvents` | auto id | Dev-mode recorder (7.7): compact observer events, never item text, DOM or screenshots |
+
+**Settings are not in IndexedDB** (D-52): sensitivity, max nudge step, quiet hours, blocklist edits, retention days, store titles, dev mode and pause-until live in `chrome.storage.local`, so content scripts can check pause and the blocklist as their first action (11.2).
 
 ### 8.2 Retention (D-17)
 - Default **30 days** rolling (configurable).
@@ -484,7 +486,7 @@ Synthetic but realistic. We generate *inputs* programmatically (plausible territ
 - **Cascade:** delete the samples and bins → recompute affected territory centroids → regenerate names if their inputs changed → exclude the data from the next training (optional "retrain now") → regenerate affected reports. The `forgetLog` records only *what kind* of thing was forgotten.
 
 ### 11.5 Permissions (manifest)
-`storage`, `unlimitedStorage`, `offscreen`, `tabs`, `alarms`, `idle`, `scripting`, `commands`, `host_permissions: ["<all_urls>"]`. The install warning ("read and change all your data on all websites") is unavoidable for this product. The onboarding page and the post explain it, and 11.1 is the answer to it.
+`storage`, `unlimitedStorage`, `offscreen`, `tabs`, `alarms`, `idle`, `scripting`, `host_permissions: ["<all_urls>"]`. The keyboard shortcut (Could) adds a `commands` manifest key; it is not a permission. The install warning ("read and change all your data on all websites") is unavoidable for this product. The onboarding page and the post explain it, and 11.1 is the answer to it.
 
 ## 12. Tech stack, platform details and repository layout
 
@@ -668,6 +670,7 @@ Offer a post-mortem on DEV only with the owner's yes. Never publish anything wit
 | D-49 | Resource budget: embedding queue with backpressure and sub-sampling; idle unload; 270M loaded on demand | Battery, memory and jank on a model-heavy extension | Always-loaded models, embed everything |
 | D-50 | Honest privacy wording: vectors are not anonymous; claim is "never leaves your device"; titles optional | Embedding inversion is a known technique | "Anonymous numbers" claim |
 | D-51 | MV3 platform details (12.2): `wasm-unsafe-eval`, HF host access, `unlimitedStorage`, WebGPU sharing check, blocklist checked first in content scripts | Avoid day-one surprises | — |
+| D-52 | **Settings in `chrome.storage.local`**, not IndexedDB (M0, 2026-10-15) | Content scripts run in the page's origin and can't read the extension's IndexedDB; pause and blocklist must be checked there first, without waking the service worker | `settings` store in IndexedDB mirrored to `chrome.storage.local`; content scripts asking the service worker on every page load |
 
 (D-37 to D-39 intentionally unused.)
 
