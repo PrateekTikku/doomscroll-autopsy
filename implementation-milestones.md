@@ -92,6 +92,7 @@ All live in `shared/` as JSON Schema files **plus** generated TypeScript types (
 7. `training/`: `uv` project (Python 3.13), pytest, a test that validates a sample object against each JSON Schema in `shared/`.
 8. Root `README.md` (short: what this is, how to build, load unpacked, run tests), `LICENSE` (MIT, copyright Prateek), `.gitignore` (node_modules, .output, training data except samples, model files, `.venv`).
 9. `docs/showcase/` folder with a README explaining the per-milestone convention.
+10. Fill in the **Commands** section of the agent instructions (build, dev, test, type generation, training tests). Keep the agent instructions short; details belong in `README.md`.
 
 **Out of scope:** any observer logic, models, UI beyond "hello" placeholders, training code.
 
