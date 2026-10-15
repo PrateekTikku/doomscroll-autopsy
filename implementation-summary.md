@@ -8,7 +8,7 @@
 |---|---|---|---|---|
 | Planning | ✅ Done | 2026-10-15 | — | PDD v2, milestone plan, workflow skills |
 | M0 Scaffold + contracts | ✅ Done | 2026-10-15 | — | WXT + Preact scaffold, IndexedDB v1, settings in chrome.storage.local (D-52), shared schemas v1, uv project |
-| M1 Observer + bins | ⬜ Not started | | | |
+| M1 Observer + bins | 🟡 In progress | | | Plan approved; docs/plans/M1.md |
 | M2 Embedding engine | ⬜ Not started | | | |
 | M3 Territories + labeling | ⬜ Not started | | L1 | |
 | M4 Prediction + nudges + replay | ⬜ Not started | | L2 | |
