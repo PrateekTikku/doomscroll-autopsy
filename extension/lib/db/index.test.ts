@@ -22,6 +22,7 @@ const sample = (ts: number, vector: Float32Array | null = null): SampleRecord =>
 
 const bin = (binStart: number): BinRecord => ({
   binStart,
+  active_s: 0,
   scroll_px_s_mean: 0,
   items_per_min: 0,
   mean_dwell_ms: 0,

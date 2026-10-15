@@ -93,6 +93,19 @@ export async function getByTs(
   return (await openDb()).getAllFromIndex(store, 'ts', IDBKeyRange.bound(from, to));
 }
 
+export async function count(store: StoreName): Promise<number> {
+  return (await openDb()).count(store);
+}
+
+export async function clearStore(store: StoreName): Promise<void> {
+  await (await openDb()).clear(store);
+}
+
+/** Number of records whose `ts` index is in [from, to]. */
+export async function countByTs(store: 'samples' | 'nudges' | 'recorderEvents', from: number, to: number): Promise<number> {
+  return (await openDb()).countFromIndex(store, 'ts', IDBKeyRange.bound(from, to));
+}
+
 /** Empties every store (used by "wipe everything", PDD 11.4). */
 export async function clearAll(): Promise<void> {
   const db = await openDb();

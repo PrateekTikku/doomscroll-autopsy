@@ -42,6 +42,8 @@ export interface BinFeatures {
 export interface BinRecord extends BinFeatures {
   /** Epoch ms, aligned to 30 s. */
   binStart: number;
+  /** Seconds of observed, active browsing in the bin (≤ 30). The rest is idle, away or not observed (M1). */
+  active_s: number;
   /** Majority territory in the bin. */
   territoryId: string | null;
   /** Internal model feature only; never shown or reported (D-45). */
