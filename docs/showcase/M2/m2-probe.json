@@ -1,0 +1,113 @@
+{
+  "date": "2026-10-15T17:03:09.594Z",
+  "scrollsPerSite": 20,
+  "sites": [
+    {
+      "site": "YouTube Shorts",
+      "origin": "https://www.youtube.com",
+      "finalPath": "/shorts/a_i365o8vBY",
+      "scrolls": 20,
+      "items": 21,
+      "ratio": 1.05,
+      "distinctKeys": 21,
+      "visual": 20,
+      "keyTypes": {
+        "t:": 1,
+        "u:": 20
+      },
+      "videoEvents": 58,
+      "perf": "[doomscroll] perf: scroll handler p95=0.50ms max=1.70ms n=379 · item detection p95=1.00ms max=1.80ms n=117 · text (idle) p95=0.10ms max=0.10ms n=17"
+    },
+    {
+      "site": "MDN docs",
+      "origin": "https://developer.mozilla.org",
+      "finalPath": "/en-US/docs/Web/API/Intersection_Observer_API",
+      "scrolls": 20,
+      "items": 19,
+      "ratio": 0.95,
+      "distinctKeys": 19,
+      "visual": 0,
+      "keyTypes": {
+        "v:": 15,
+        "t:": 4
+      },
+      "videoEvents": 0,
+      "perf": "[doomscroll] perf: scroll handler p95=0.30ms max=0.30ms n=13 · item detection p95=3.90ms max=4.70ms n=80 · text (idle) p95=0.20ms max=0.20ms n=13"
+    },
+    {
+      "site": "Wikipedia article",
+      "origin": "https://en.wikipedia.org",
+      "finalPath": "/wiki/Attention",
+      "scrolls": 20,
+      "items": 17,
+      "ratio": 0.85,
+      "distinctKeys": 14,
+      "visual": 0,
+      "keyTypes": {
+        "t:": 17
+      },
+      "videoEvents": 0,
+      "perf": "[doomscroll] perf: scroll handler p95=0.20ms max=0.20ms n=14 · item detection p95=1.90ms max=2.70ms n=83 · text (idle) p95=3.30ms max=3.30ms n=14"
+    }
+  ],
+  "checks": {
+    "registeredContentScripts": [
+      {
+        "id": "observer",
+        "js": [
+          "observer.js"
+        ],
+        "excludes": 107
+      }
+    ],
+    "injectedIntoOpenTab": true,
+    "blocklistedEvents": 0,
+    "pausedBadge": "II",
+    "pausedEvents": 0,
+    "pausedSamples": 0,
+    "embedding": {
+      "samples": 59,
+      "withVector": 55,
+      "finiteUnitNorm": 55,
+      "dims": [
+        768
+      ],
+      "status": {
+        "state": "ready",
+        "percent": 100,
+        "device": "webgpu",
+        "dtype": "q4f16",
+        "vision": true,
+        "error": null,
+        "embeds": 55,
+        "failed": 0,
+        "medianMs": 48.900000005960464,
+        "p95Ms": 236.3999999910593,
+        "queued": 0,
+        "skipped": 4,
+        "droppedImages": 0,
+        "droppedJobs": 0,
+        "submitted": 59,
+        "written": 55,
+        "noInput": 0,
+        "noInputVisual": 0,
+        "unmatched": 0,
+        "nonFinite": 0,
+        "errors": 0,
+        "samplesToday": 59,
+        "vectorsToday": 55
+      }
+    },
+    "privacy": {
+      "records": 345,
+      "samples": 59,
+      "bins": 7,
+      "activeSecondsInBins": 49,
+      "recorderEvents": 279,
+      "urlsWithQueryOrFragment": 0,
+      "recordsWithTextField": 0,
+      "pageTextLinesChecked": 85,
+      "pageTextLinesFound": 0
+    }
+  }
+}

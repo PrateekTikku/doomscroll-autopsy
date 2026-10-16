@@ -1,0 +1,51 @@
+{
+  "dtype": "q4f16",
+  "device": "webgpu",
+  "vision": true,
+  "ua": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/155.0.0.0 Safari/537.36",
+  "webgpu": {
+    "available": true,
+    "adapter": true,
+    "shaderF16": true
+  },
+  "loadMs": 35045,
+  "downloadPercentSeen": 100,
+  "text": {
+    "n": 40,
+    "median": 16.400000005960464,
+    "p95": 55.8999999910593,
+    "max": 109.20000000298023,
+    "nonFinite": 0,
+    "dim": 768
+  },
+  "semantic": {
+    "sameTopic": 0.9926871057103648,
+    "otherTopic": 0.7460348373832701
+  },
+  "image": {
+    "n": 10,
+    "median": 213.09999999403954,
+    "p95": 225.1000000089407,
+    "max": 225.1000000089407,
+    "nonFinite": 0
+  },
+  "interleaved": {
+    "n": 10,
+    "median": 216.29999999701977,
+    "p95": 217.59999999403954,
+    "max": 217.59999999403954,
+    "nonFinite": 0
+  },
+  "jsHeapMB": 145,
+  "s3": {
+    "backend": "webgpu",
+    "ms": 765,
+    "firstLoss": 0.7076404094696045,
+    "lastLoss": 0.5696294903755188,
+    "embedAfterOk": true
+  },
+  "done": true,
+  "rssBeforeMB": 941,
+  "rssPeakMB": 2280,
+  "rssAfterMB": 2280
+}

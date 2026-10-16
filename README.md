@@ -30,6 +30,7 @@ Already-open tabs are picked up on install. Pages Chrome can't script (`chrome:/
 cd extension && npm test            # Vitest
 cd extension && npm run smoke       # headless Chrome: load the build, open popup/dashboard (after npm run build)
 cd extension && npm run probe:s1    # headless Chrome: scroll public sites, count detected items, check privacy (~7 min)
+cd extension && npm run build:spike && npm run probe:s2   # EmbeddingGemma 2 latency / NaN / memory (downloads ~255 MB once)
 cd training && uv run pytest        # Python 3.13 via uv
 ```
 

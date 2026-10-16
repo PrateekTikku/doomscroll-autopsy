@@ -35,10 +35,25 @@ Findings:
 **Not yet recorded (owner, ~10 min):** item counts on Instagram (feed and Reels, V-12), X (home timeline) and Reddit (feed). They need a login, and Reddit walls headless Chrome. How to check: dashboard → Developer → dev mode on, then count `[doomscroll] item …` lines in the page's DevTools console over ~10 scrolls (about one per scroll is a pass; Reels keys should be `u:`). Tracked as K-04.
 
 ## S2 — EmbeddingGemma 2 text + vision in the extension (M2)
-_Not run yet._ Also resolves V-01, V-02, V-03, V-07.
+**Result: pass** (2026-10-15, M4 Max, Chrome 155 headless, Transformers.js 4.3.1, ORT Web 1.31 dev). Also resolves V-01, V-02, V-03, V-07. Raw JSON: `docs/showcase/M2/s2-*.json`; harness `entrypoints/spike` (`npm run build:spike`), driver `npm run probe:s2`.
+
+| Config | Load (first, incl. ~255 MB download) | Text median / p95 | Image median / p95 | Text + image median | NaN | Peak RSS (all Chrome procs; baseline ~940) |
+|---|---|---|---|---|---|---|
+| **q4f16, WebGPU** (chosen) | 35 s | **16 ms** / 56 ms | **213 ms** / 225 ms | 216 ms | 0 / 60 | 2,280 MB (≈ +1.3 GB) |
+| q4, WebGPU | 40 s | 17 ms / 53 ms | 358 ms / 366 ms | 353 ms | 0 / 60 | 2,259 MB |
+| q4f16 or q8, WASM (CPU) | fails: no `GatherBlockQuantized` kernel on the CPU provider | | | | | |
+
+- **V-01 (host):** WebGPU works in an extension page; the offscreen document is the host (no service-worker attempt needed, S2 passed there). `shader-f16` is available, so q4f16 works.
+- **V-02 (vision API):** `AutoProcessor` + `AutoModel`, config with `audio_config = null`. The model takes text and image **interleaved in one pass**: text with `<|image|>` and `images = [[RawImage]]` → one `sentence_embedding`. No averaging fallback needed. Text-only skips the vision encoder's compute but it stays loaded.
+- **V-03 (prefix):** `task: clustering | query: {text}` for samples, from `config_sentence_transformers.json` at the pinned revision; prefixes apply to text only.
+- **V-07:** `chrome.offscreen` accepts `reasons: ['WORKERS']` for the ML host.
+- **Sanity:** same-topic cosine 0.993 vs different-topic 0.746 at 256d.
+- **Pinned revision (D-26):** `onnx-community/embeddinggemma-2-ONNX@daa72c51243991dfcaf9f9137d2c573d8f7790c0`; files used: `model_q4f16` and `vision_encoder_q4f16` (+ `.onnx_data`), ≈ 255 MB.
+- **Findings:** (1) Transformers.js loads the ORT wasm from jsDelivr by default; the extension serves it from `/ort/` instead (`scripts/copy-ort.mjs`), so Hugging Face is the only network host. (2) Without WebGPU there is no usable path (quantized models need GPU kernels); the product reports "unavailable" and samples stay vectorless. (3) Images cost ~13x text (213 ms vs 16 ms); at ≤ 1 capture per 3 s that is ≤ 7% duty.
+- **Budget (PDD 9.9):** median embed < 300 ms ✅ (16 ms text, 213 ms image); memory < 1.5 GB ✅ for the model page (≈ +1.3 GB over an idle headless Chrome; whole-browser RSS in the owner's profile still to be read in Activity Monitor); observer cost unchanged (M1).
 
 ## S3 — Transformers.js + TF.js WebGPU in one context (M2)
-_Not run yet._
+**Result: pass** (2026-10-15). In the same page, with EmbeddingGemma 2 already on WebGPU: `@tensorflow/tfjs` 4.x with `tfjs-backend-webgpu` initialised (`backend: webgpu`), trained a 2-layer dense net for 10 epochs on synthetic data in 765 ms (loss 0.71 → 0.57), and Transformers.js still produced a finite embedding afterwards. The GRU (M8) can use the TF.js WebGPU backend. TF.js is a dev dependency used only by the spike harness; it is not in the production bundle.
 
 ## S4 — Teacher throughput (T1)
 **Result:** pass with MTP (2026-10-15): **17.1 tok/s** single stream with the separate MTP drafter, against 10.1 without it and a bar of 15. Also resolves V-04. Details: `docs/showcase/T1/s4-throughput*.md`.

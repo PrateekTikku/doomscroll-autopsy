@@ -1,0 +1,15 @@
+{
+  "dtype": "q8",
+  "device": "wasm",
+  "vision": false,
+  "ua": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/155.0.0.0 Safari/537.36",
+  "webgpu": {
+    "available": true,
+    "adapter": true,
+    "shaderF16": true
+  },
+  "error": "Error: Can't create a session. ERROR_CODE: 9, ERROR_MESSAGE: Could not find an implementation for GatherBlockQuantized(1) node with name '/model/embed_tokens/Gather_Quant'\nError: Can't create a session. ERROR_CODE: 9, ERROR_MESSAGE: Could not find an implementation for GatherBlockQuantized(1) node with name '/model/embed_tokens/Gather_Quant'\n    at k (chrome-extension://nbkphlmnbhhpomeljhmhlppjbojhiaoo/chunks/transformers.web-CpF2hwsT.js:5:30821)\n    at wn (chrome-extension://nbkphlmnbhhpomeljhmhlppjbojhiaoo/chunks/transformers.web-CpF2hwsT.js:6:21806)\n    at async Qn.loadModel (chrome-extension://nbkphlmnbhhpomeljhmhlppjbojhiaoo/chunks/transformers.web-CpF2hwsT.js:6:34414)\n    at async nr.createInferenceSessionHandler (chrome-extension://nbkphlmnbhhpomeljhmhlppjbojhiaoo/chunks/transformers.web-CpF2hwsT.js:6:36099)\n    at async e.create (chrome-extension://nbkphlmnbhhpomeljhmhlppjbojhiaoo/chunks/transformers.web-CpF2hwsT.js:1:19516)\n    at async Hl (chrome-extension://nbkphlmnbhhpomeljhmhlppjbojhiaoo/chunks/transformers.web-CpF2hwsT.js:16:31633)\n    at async chrome-extension://nbkphlmnbhhpomeljhmhlppjbojhiaoo/chunks/transformers.web-CpF2hwsT.js:40:17830\n    at async Promise.all (index 0)\n    at async qh (chrome-extension://nbkphlmnbhhpomeljhmhlppjbojhiaoo/chunks/transformers.web-CpF2hwsT.js:40:17680)\n    at async Promise.all (index 0)",
+  "rssBeforeMB": 913,
+  "rssPeakMB": 2008,
+  "rssAfterMB": 2008
+}

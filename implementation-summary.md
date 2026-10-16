@@ -9,7 +9,7 @@
 | Planning | ✅ Done | 2026-10-15 | — | PDD v2, milestone plan, workflow skills |
 | M0 Scaffold + contracts | ✅ Done | 2026-10-15 | — | WXT + Preact scaffold, IndexedDB v1, settings in chrome.storage.local (D-52), shared schemas v1, uv project |
 | M1 Observer + bins | ✅ Done | 2026-10-15 | — | Generic observer, 30 s bins and samples in IndexedDB, pause + badge, popup live counts, dev recorder, S1 headless pass; owner's daily profile runs `.live/chrome-mv3` |
-| M2 Embedding engine | 🟡 In progress | | | docs/plans/M2.md |
+| M2 Embedding engine | ✅ Done | 2026-10-16 | — | EmbeddingGemma 2 (q4f16, WebGPU) in the offscreen document: text 16 ms, image 213 ms median; vectors (256d) written to samples; S2/S3 pass; no WASM fallback. docs/plans/M2.md |
 | M3 Territories + labeling | ⬜ Not started | | L1 | |
 | M4 Prediction + nudges + replay | ⬜ Not started | | L2 | |
 | M5 Metrics + dashboard + privacy | ⬜ Not started | | L3 | |
@@ -34,6 +34,9 @@ Status values: ⬜ Not started · 📝 Plan awaiting approval · 🟡 In progres
 - **K-04** (M1): S1 per-site item counts for logged-in Instagram (feed, Reels), X and Reddit are not recorded; headless probes can't reach them. Record them in `experiments/spikes.md` when the owner checks (steps there). Owner: owner, any Lane A chat.
 - **K-05** (M1): the open 30 s bin is lost when Chrome quits (state lives in `chrome.storage.session`). Up to 30 s per browser session. Owner: M5 if it matters for metrics.
 - **K-06** (M1): `chrome.idle` uses a 120 s threshold, so up to 120 s at the start of each idle stretch counts as active. Owner: M5 (account for it in metrics, or lower the threshold).
+- **K-11** (M2): without WebGPU there are no embeddings at all (quantized models have no CPU kernels; S2). The popup says "unavailable" and samples stay vectorless. Owner: M7 (mention in onboarding / requirements).
+- **K-12** (M2): not every sample gets a vector, by design: items above 20 embeds/min are sub-sampled, and a visual item with no text and no free screenshot slot (1 per 3 s) is skipped. In a scripted run 93% had vectors (100% of those with input). M3 must assign territories to vectorless samples by carrying the previous item's territory (PDD 9.9). Owner: M3.
+- **K-13** (M2): memory in the owner's real profile is unmeasured (about +1.3 GB in headless Chrome vs the 1.5 GB budget). The vision encoder stays loaded even for text-only use; loading it on the first screenshot would save part of that. The 10-minute idle unload is unit-tested only. The popup's `embed-status` reads today's samples (with vectors) every 4 s; fine now, heavy later. Owner: M7 / any Lane A chat.
 
 ---
 
@@ -297,3 +300,66 @@ None needs a decision-log entry; these fill gaps the PDD leaves open:
 - **Adding background handlers:** follow `registerObserver(router)`; it must run before `router.listen()` in `entrypoints/background.ts`.
 - **Don't add a manifest `content_scripts` entry** for the observer; registration is dynamic so the blocklist stays an `excludeMatches` list. After changing the blocklist logic, test with `npm run probe:s1` (it checks a settings-added blocklisted domain).
 - **Daily profile:** the owner's data lives under the `.live/chrome-mv3` install. Ask the owner to run `npm run live` and reload after your changes; never point `live` elsewhere or move the folder (the extension ID, and so the data, is tied to the path).
+
+---
+
+## M2 — Embedding engine (EmbeddingGemma 2 in the browser)
+**Status:** ✅ Done
+**Date:** 2026-10-16 · **Commits:** `9eca9c7` (plan) plus the three `M2:` commits after it
+**Approved plan:** `docs/plans/M2.md` (approved 2026-10-15) · **Work approved:** 2026-10-16 18:58
+
+### What was built
+- **Embedder (`lib/ml/embedder.ts`):** `onnx-community/embeddinggemma-2-ONNX` pinned to revision `daa72c51243991dfcaf9f9137d2c573d8f7790c0`, `q4f16` for the text model and the vision encoder (≈ 157 + 98 MB, audio never loaded), `device: webgpu`. Prefix `task: clustering | query: ` (text only); text is capped at 1,500 characters; a screenshot is interleaved with `<|image|>` and `images=[[RawImage]]` in one pass. Output 768d, rejected if any value is non-finite.
+- **Model host in the offscreen document (`lib/ml/host.ts`):** lazy load on the first embed, download progress, latency stats (median / p95 over the last 200), `unload`. If WebGPU is missing it reports an error and downloads nothing.
+- **Service worker side (`lib/ml/service.ts`, `background.ts`):** every `item` event is handed to the embed service with its text (or title if the text is empty) before `scrubEvent` drops it. Screenshots: `captureVisibleTab` (JPEG q60) only for visual items in the active tab of the focused window, ≤ 1 per 3 s. Queue (`queue.ts`): one in flight, ≤ 20 embeds/min (others skipped), > 10 queued drops the oldest images first, then the oldest jobs. Result → truncate to 256d (768d in dev mode) and re-normalise (`truncate.ts`) → written to the matching sample (same tab, nearest `ts` within ±3 s, vector still null, up to 4 retries). Text and image references are nulled after each job. An alarm unloads the model after 10 idle minutes.
+- **Popup:** a model line ("downloading N%", "ready, NN ms per item", "unavailable. …") and "Embedded today: X of Y items" via the `embed-status` message.
+- **ORT runtime served locally:** Transformers.js loads ORT's wasm from jsDelivr by default; `scripts/copy-ort.mjs` copies the asyncify `.mjs` + `.wasm` into `public/ort/` (git-ignored) before build/dev/live, and `env.backends.onnx.wasm.wasmPaths` points there. A `build:done` hook removes a duplicate 26 MB wasm that the bundler emits.
+- **Spike harness** (`entrypoints/spike`, built only with `npm run build:spike`) and `scripts/s2-probe.mjs`.
+
+### Key files
+- `extension/lib/ml/{embedder,host,queue,truncate,capture,service,background,messages}.ts` (+ tests)
+- `extension/entrypoints/offscreen/main.ts`: registers `embed`, `embedder-status`, `embedder-unload`
+- `extension/lib/observer/background.ts`: the one hand-off line into `submitItem`
+- `extension/scripts/{copy-ort,s2-probe}.mjs`, `extension/entrypoints/spike/`
+
+### How to run / verify
+- `cd extension && npm run build && npm test && npm run compile && npm run smoke`: 21 files, 98 tests; smoke 0 exceptions.
+- `npm run build:spike && S3=1 npm run probe:s2` (downloads ≈ 255 MB once; `DTYPE`, `DEVICE`, `VISION`, `OUT`), then `npm run build` again for the normal build.
+- `ONLY='shorts|mdn|wikipedia' OUT=../docs/showcase/M2/m2-probe.json npm run probe:s1` after a normal build: now also reports embedding coverage.
+- Manual: `npm run live`, reload, browse; popup shows the model line and "Embedded today".
+
+### Acceptance criteria
+- [x] Unit tests for truncation + re-normalisation and queue backpressure / sub-sampling: `truncate.test.ts`, `queue.test.ts` (plus `service`, `host`, `capture`).
+- [~] ≥ 95% of new samples have finite vectors after browsing: scripted run 55 of 59 (93%), all finite and unit length; the 4 without were skipped by the 20/min cap (100% of samples that had input). Not measured over 10 minutes in the owner's profile.
+- [x] Median embed latency recorded: text 16 ms, image 213 ms (S2); 49 ms median / 236 ms p95 in the live pipeline.
+- [x] No item text or images in storage: `service.test.ts` scans every store; probe found 0 records with text, 0 URLs with `?`/`#`, 0 of 85 page-text lines.
+- [x] PDD 9.9 budget measured: median < 300 ms met; memory about +1.3 GB in headless Chrome (budget 1.5 GB; real profile unmeasured, K-13).
+
+### Deviations from the approved plan
+- Title used as text when the item body is empty (raised coverage from 78% to 93%).
+- Service-worker hosting not tried (a worker cannot `import()`, and the offscreen page passed).
+- Added `host.ts`/`host.test.ts` (testable model host), `scripts/copy-ort.mjs`, the `build:done` hook, and an `OUT` option plus an embedding-coverage report in `scripts/s1-probe.mjs`.
+- The averaging fallback for non-interleaved input was not needed. No WASM fallback exists (K-11).
+
+### Decisions and deviations from the PDD
+- D-26 updated in the PDD with the pinned revision, dtype and the local ORT runtime. V-01, V-02, V-03, V-07 marked resolved; §9.1 and §12.2 updated.
+- The only network host is huggingface.co (ORT wasm is local).
+
+### Spike / measurement results
+- **S2 pass.** q4f16 WebGPU: text 16 / 56 ms (median / p95), image 213 / 225 ms, text + image 216 ms, 0 NaN in 60; q4: images 358 ms; WASM fails (no `GatherBlockQuantized` kernel). Same-topic cosine 0.993 vs 0.746. Peak RSS 2.28 GB (≈ +1.3 GB). **S3 pass:** TF.js WebGPU trains next to Transformers.js. Details: `experiments/spikes.md`, `docs/showcase/M2/results.md`.
+
+### Contracts changed
+- None in `shared/` or `DB_VERSION`. New messages in `lib/ml/messages.ts`: `embed`, `embedder-status`, `embedder-unload` (background → offscreen) and `embed-status` (popup → background). `samples.vector` is now filled (256d, or 768d in dev mode); `models` store unused so far.
+
+### Known issues
+- K-11, K-12, K-13 (above).
+
+### Showcase evidence
+- `docs/showcase/M2/`: `results.md`, raw `s2-*.json` and `m2-probe.json`, `CAPTURE.md` (download progress, ready popup, Activity Monitor memory, optional GIF).
+
+### Notes for the next milestone
+- **M3:** read `samples` where `vector !== null` (Float32Array, 256d, unit length; dev-mode rows are 768d, so truncate or skip). Vectorless samples are normal (K-12): assign them the previous item's territory. Pre-M2 samples never get vectors. Use the same `truncateAndNormalize` for any centroid maths. Topic phrases should use the same prefix (`CLUSTERING_PREFIX`); embed them through `embed` (text only).
+- **Calling the model from other modules:** `send('offscreen', 'embed', { text, image })` after `ensureOffscreenDocument()`; it returns 768d. M6 can host the 270M in the same offscreen document; unload one model before loading the other (PDD 9.9).
+- **Build:** `npm run build/dev/live` run `copy-ort.mjs` first; if you call `wxt` directly, run it yourself or the model won't load. First embed downloads ≈ 255 MB, so a fresh profile needs a minute before vectors appear.
+- **Daily profile:** ask the owner to run `npm run live` and reload to get embeddings.
+
