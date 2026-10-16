@@ -17,7 +17,7 @@ export async function ensureOffscreenDocument(): Promise<void> {
   creating ??= browser.offscreen
     .createDocument({
       url,
-      // Placeholder until spike S2 confirms the accepted reason for ML work (V-07).
+      // WORKERS: S2 confirmed Chrome accepts it for the ML host (V-07). There is no ML-specific reason.
       reasons: [browser.offscreen.Reason.WORKERS],
       justification: 'Runs on-device Gemma models (EmbeddingGemma 2, Gemma 3 270M) with WebGPU.',
     })

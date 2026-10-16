@@ -15,7 +15,7 @@ import { fileURLToPath } from 'node:url';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const ext = resolve(here, '../.output/chrome-mv3');
-const outFile = resolve(here, '../../docs/showcase/M1/s1-probe.json');
+const outFile = process.env.OUT ? resolve(process.env.OUT) : resolve(here, '../../docs/showcase/M1/s1-probe.json');
 const SCROLLS = Number(process.env.SCROLLS ?? 20);
 const PAUSE_MS = 2500;
 const UA = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36';
@@ -99,7 +99,9 @@ async function openPage(url) {
 const DUMP = `(async () => {
   const db = await new Promise((res, rej) => { const r = indexedDB.open('doomscroll-autopsy'); r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error); });
   const all = (s) => new Promise((res, rej) => { const q = db.transaction(s).objectStore(s).getAll(); q.onsuccess = () => res(q.result); q.onerror = () => rej(q.error); });
-  const dump = { samples: await all('samples'), bins: await all('bins'), recorderEvents: await all('recorderEvents') };
+  // Vectors are summarised in-page (a Float32Array doesn't survive JSON): length, finite, unit norm.
+  const samples = (await all('samples')).map((s) => ({ ...s, vector: s.vector ? { len: s.vector.length, finite: s.vector.every(Number.isFinite), norm: Math.hypot(...s.vector) } : null }));
+  const dump = { samples, bins: await all('bins'), recorderEvents: await all('recorderEvents') };
   db.close();
   return JSON.stringify(dump);
 })()`;
@@ -247,6 +249,15 @@ try {
       const where = withoutTitles.find((r) => JSON.stringify(r).includes(t));
       console.log('page text found in a stored record:', JSON.stringify({ line: t.slice(0, 80), fields: Object.keys(where ?? {}).filter((k) => JSON.stringify(where[k]).includes(t)) }));
     }
+    const vec = dump.samples.filter((x) => x.vector);
+    results.checks.embedding = {
+      samples: dump.samples.length,
+      withVector: vec.length,
+      finiteUnitNorm: vec.filter((x) => x.vector.finite && Math.abs(x.vector.norm - 1) < 1e-3).length,
+      dims: [...new Set(vec.map((x) => x.vector.len))],
+      status: await evaluate(control, `chrome.runtime.sendMessage({ target: 'background', type: 'embed-status' }).then((r) => r?.data ?? r)`).catch((e) => String(e)),
+    };
+    console.log('embedding:', JSON.stringify(results.checks.embedding));
     results.checks.privacy = {
       records: records.length,
       samples: dump.samples.length,

@@ -5,8 +5,8 @@
   "version": "0.1.0",
   "type": "module",
   "scripts": {
-    "dev": "wxt",
-    "build": "wxt build",
+    "dev": "node scripts/copy-ort.mjs && wxt",
+    "build": "node scripts/copy-ort.mjs && wxt build",
     "zip": "wxt zip",
     "compile": "tsc --noEmit",
     "test": "vitest run",
@@ -15,16 +15,21 @@
     "postinstall": "wxt prepare",
     "smoke": "node scripts/smoke-chrome.mjs",
     "check:types": "npm run gen:types && git diff --exit-code ../shared/types.ts",
-    "live": "wxt build && node scripts/live.mjs",
-    "probe:s1": "node scripts/s1-probe.mjs"
+    "live": "node scripts/copy-ort.mjs && wxt build && node scripts/live.mjs",
+    "probe:s1": "node scripts/s1-probe.mjs",
+    "build:spike": "node scripts/copy-ort.mjs && SPIKE=1 wxt build",
+    "probe:s2": "node scripts/s2-probe.mjs"
   },
   "dependencies": {
+    "@huggingface/transformers": "^4.3.1",
     "idb": "^8.0.4",
     "preact": "^11.0.1"
   },
   "devDependencies": {
     "@babel/core": "^7.29.7",
     "@preact/preset-vite": "^2.10.6",
+    "@tensorflow/tfjs": "^4.22.0",
+    "@tensorflow/tfjs-backend-webgpu": "^4.22.0",
     "@types/node": "^24.19.2",
     "ajv": "^8.20.0",
     "fake-indexeddb": "^6.2.5",
