@@ -13,7 +13,7 @@ export const SYNC_ALARM = 'territories-sync';
 
 type Router = ReturnType<typeof createRouter>;
 
-async function checkDue(): Promise<void> {
+export async function checkDue(): Promise<void> {
   const meta = await getMeta();
   const vectors = await countVectors(MIN_FIRST_CLUSTER_VECTORS);
   if (isReclusterDue(meta, vectors, Date.now())) {
