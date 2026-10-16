@@ -49,6 +49,14 @@ finetune.py  →  data/runs/<tag>/merged   →  export_onnx.py  →  onnx_test/r
 
 Generation settings that were evaluated (M6 must use the same): chat template applied to the single user turn, greedy decoding, `max_new_tokens` 120 (naming) / 400 (autopsy).
 
+## T3 pipeline (targeted retrain: corrected data, same recipe)
+
+1. `uv run python clean.py` writes `data/train_v3.jsonl` (drops the strict-check failures, rewrites the nudge paragraph from the facts, adds 160 real-use nudge variants, drops texts over 172 words) and the held-out `data/eval_nudge/{cases.json,facts.jsonl}` (40 ignored-heavy prompts, independent seed).
+2. `uv run python finetune.py --train data/train_v3.jsonl --tag run3`, then export and browser-test as in T2 (`data/runs/run3/...`; use `data/eval_nudge/cases.json` as the cases file for the nudge set).
+3. `uv run python -m eval.compare_runs run1=<eval.json>,<nudge.json> run3=<eval.json>,<nudge.json>` writes `docs/showcase/T3/comparison.{md,json}`.
+
+The extension bundles `data/runs/run3/onnx_final` (`extension/scripts/copy-model.mjs`; `DOOMSCROLL_MODEL_DIR` overrides).
+
 ## Tests
 
 `uv run pytest`

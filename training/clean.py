@@ -3,7 +3,7 @@
     uv run python clean.py [--seed 3] [--augment 160]
 
 Reads data/train.jsonl and data/eval.jsonl (T1) and writes
-    data/train_v2.jsonl        dropped bad examples, canonical nudge paragraph, nudge-state variants
+    data/train_v3.jsonl        dropped bad examples, canonical nudge paragraph, nudge-state variants
     data/eval_nudge/cases.json held-out prompts with ignored-heavy nudges (browser test page format)
     data/eval_nudge/facts.jsonl the same facts, for scoring
 
@@ -28,6 +28,7 @@ from common import AUTOPSY, compact_json, student_prompt  # noqa: E402
 from eval.metrics import strict_autopsy_errors  # noqa: E402
 from validators import check_autopsy  # noqa: E402
 
+MAX_TRAIN_WORDS = 172
 NUDGE_PARAGRAPH = 3  # zero-based: headline, stretch+totals, triggers, nudges, suggestion
 
 
@@ -35,20 +36,48 @@ def _plural(n: float, one: str, many: str | None = None) -> str:
     return f"{n:g} {one if n == 1 else (many or one + 's')}"
 
 
+EXTRA = " Every response is logged, so you can see which nudges are worth keeping."
+
+
 def nudge_sentence(n: dict, variant: int = 0) -> str:
-    """Canonical text for the nudge paragraph, from facts.nudges. Always passes the strict checks."""
+    """Canonical text for the nudge paragraph, from facts.nudges. Always passes the strict checks.
+
+    Variants 0-3 differ in wording and length (0 shortest; +2 adds a closing sentence), so a rewrite can
+    keep the whole autopsy about as long as the teacher's original (see `rewrite_nudge_paragraph`)."""
     if n["shown"] == 0:
-        return "No nudges were shown today."
+        return ["No nudges were shown today.", "No nudges were shown today, so there is nothing to review there."][variant % 4 // 2]
     shown = _plural(n["shown"], "nudge")
     a, s, i = n["accepted"], n["snoozed"], n["ignored"]
-    if variant == 0:
+    if variant % 2 == 0:
         base = f"{shown} appeared: {a} accepted, {s} snoozed and {i} ignored."
     else:
         verb = "was" if a == 1 else "were"
         base = f"Of the {shown} shown, {a} {verb} accepted, {s} snoozed and {i} ignored."
     if n["medianReturnMin"] is not None and a > 0:
         base += f" After an accepted nudge you were back in deep work within a median of {_plural(n['medianReturnMin'], 'minute')}."
-    return base
+    return base + (EXTRA if variant // 2 == 1 else "")
+
+
+def words(text: str) -> int:
+    return len(text.split())
+
+
+def rewrite_nudge_paragraph(text: str, facts: dict, nudges: dict, salt: int = 0) -> str | None:
+    """Rewrite the nudge paragraph for `nudges` with the shortest valid wording.
+
+    T3 run2 showed why: the teacher texts already sit near the 180-word ceiling (mean 167), and a student
+    trained on them overshoots it about a quarter of the time. Shortest wording keeps the training
+    distribution lower; `clean_examples` also drops texts over MAX_TRAIN_WORDS."""
+    best: tuple[int, int, str] | None = None
+    v = {**facts, "nudges": nudges}
+    for variant in range(4):
+        new = replace_nudge_paragraph(text, nudge_sentence(nudges, variant))
+        if new is None or errors_of(new, v):
+            continue
+        key = (words(new), (variant + salt) % 4)
+        if best is None or key < best[:2]:
+            best = (key[0], key[1], new)
+    return best[2] if best else None
 
 
 def nudge_paragraph_index(text: str) -> int | None:
@@ -96,7 +125,7 @@ def split_user(content: str) -> tuple[str, dict]:
 def clean_examples(rows: list[dict], rng: random.Random, augment: int) -> tuple[list[dict], dict]:
     """Returns (new rows, stats). Naming rows pass through untouched."""
     out: list[dict] = []
-    stats = {"autopsy_in": 0, "dropped_strict": 0, "rewritten": 0, "kept_as_is": 0, "augmented": 0}
+    stats = {"autopsy_in": 0, "dropped_long": 0, "dropped_strict": 0, "rewritten": 0, "kept_as_is": 0, "augmented": 0}
     bases: list[tuple[dict, dict, str]] = []
     for r in rows:
         if r["task"] != AUTOPSY:
@@ -108,12 +137,15 @@ def clean_examples(rows: list[dict], rng: random.Random, augment: int) -> tuple[
         if strict_autopsy_errors(text, facts):
             stats["dropped_strict"] += 1
             continue
-        new = replace_nudge_paragraph(text, nudge_sentence(facts["nudges"], zlib.crc32(r["id"].encode()) % 2))
-        if new is not None and not errors_of(new, facts):
+        new = rewrite_nudge_paragraph(text, facts, facts["nudges"], zlib.crc32(r["id"].encode()))
+        if new is not None:
             text = new
             stats["rewritten"] += 1
         else:
             stats["kept_as_is"] += 1
+        if words(text) > MAX_TRAIN_WORDS:
+            stats["dropped_long"] += 1
+            continue
         row = {**r, "messages": [r["messages"][0], {"role": "assistant", "content": text}]}
         out.append(row)
         bases.append((row, facts, text))
@@ -128,8 +160,8 @@ def clean_examples(rows: list[dict], rng: random.Random, augment: int) -> tuple[
             if nudges == facts["nudges"]:
                 continue
             v = {**facts, "nudges": nudges}
-            new = replace_nudge_paragraph(text, nudge_sentence(nudges, rng.randint(0, 1)))
-            if new is None or errors_of(new, v):
+            new = rewrite_nudge_paragraph(text, facts, nudges, rng.randint(0, 3))
+            if new is None:
                 continue
             out.append({**row, "id": f"{row['id']}-n{stats['augmented']:03d}",
                         "meta": {**row.get("meta", {}), "augmented": "nudges"},
@@ -160,15 +192,16 @@ def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--seed", type=int, default=3)
     ap.add_argument("--augment", type=int, default=160)
+    ap.add_argument("--out", type=Path, default=HERE / "data/train_v3.jsonl")
     args = ap.parse_args()
     rng = random.Random(args.seed)
     rows = read_jsonl(HERE / "data/train.jsonl")
     out, stats = clean_examples(rows, rng, args.augment)
     rng.shuffle(out)
-    with (HERE / "data/train_v2.jsonl").open("w") as f:
+    with args.out.open("w") as f:
         for r in out:
             f.write(json.dumps(r, ensure_ascii=False) + "\n")
-    cases = nudge_eval_cases(read_jsonl(HERE / "data/eval.jsonl"), rng)
+    cases = nudge_eval_cases(read_jsonl(HERE / "data/eval.jsonl"), random.Random(1000))  # independent of the training draws: the check set never moves
     d = HERE / "data/eval_nudge"
     d.mkdir(exist_ok=True)
     (d / "cases.json").write_text(json.dumps([{k: c[k] for k in ("id", "prompt", "maxNew")} for c in cases], ensure_ascii=False))

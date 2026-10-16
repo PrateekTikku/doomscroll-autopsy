@@ -54,6 +54,14 @@ Transformers.js on WebGPU. Judge: Gemma 4 31B, blind, 1-5 on faithfulness, struc
 | **This model (8-bit ONNX)** | **97% / 97%** | **92% / 88%** | **4.99 / 4.51** |
 | Teacher (Gemma 4 31B) | 100% / 100% | 100% / 100% | 5.00 / 4.93 |
 
+**Retrain (T3, the version bundled with the extension: `run3`).** The table above is the first fine-tune
+(`run1`). `run3` uses the same recipe on corrected data: the 32 autopsies the strict checks flag were dropped,
+the nudge paragraph was rewritten from the facts and varied (160 variants with real-use nudge states), and texts
+over 172 words were dropped. On the same 100 held-out prompts plus 40 ignored-heavy nudge prompts (automatic
+metrics only; the judge was not re-run): naming valid / grounded / label correct 100% / 100% / 100% (run1:
+97% / 97% / 95%); autopsy grounded 100% (92%); strict-clean on the nudge-heavy prompts 95% (60%); outside-browser
+mentions 0. Details: `docs/showcase/T3/results.md`.
+
 No output mentioned time outside the browser. On autopsy the model writes better prose than a fill-in
 template but is less faithful (4.45 vs 5.0): it sometimes attaches a real number to the wrong thing (swapped
 nudge counts, a wrong-direction change against the 7-day average, an invented trigger). Validate its output

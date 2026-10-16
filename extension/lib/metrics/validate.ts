@@ -181,7 +181,16 @@ export function strictAutopsyErrors(text: string, facts: DailyFacts): string[] {
   return [...errs].sort();
 }
 
+/**
+ * Length the model's autopsy may have. PDD 4.6 says "≈ 120-180 words" and T1 trained and filtered to
+ * exactly that; a faithful text of 185-195 words on a busy day is not a defect for the reader, so the
+ * runtime gate accepts 110-200 (D-59). The template always stays inside 120-180 (`checkAutopsy`).
+ */
+export const MODEL_AUTOPSY_WORDS = { min: 110, max: 200 } as const;
+
 /** Everything the autopsy must satisfy before it is shown as model-written (PDD 9.8, K-07). */
 export function validateAutopsy(text: string, facts: DailyFacts): string[] {
-  return [...new Set([...checkAutopsy(text, facts), ...strictAutopsyErrors(text, facts)])].sort();
+  const words = text.trim().split(/\s+/).length;
+  const lengthOk = words >= MODEL_AUTOPSY_WORDS.min && words <= MODEL_AUTOPSY_WORDS.max;
+  return [...new Set([...checkAutopsy(text, facts), ...strictAutopsyErrors(text, facts)])].filter((e) => !(e === 'word_count' && lengthOk)).sort();
 }

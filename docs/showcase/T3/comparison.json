@@ -1,0 +1,117 @@
+{
+ "run1/eval naming": {
+  "n": 60,
+  "valid_json": 0.967,
+  "grounded": 0.967,
+  "outside_browser": 0.0,
+  "label_correct": 0.95,
+  "clean": 0.967
+ },
+ "run1/eval autopsy": {
+  "n": 40,
+  "valid_json": 1.0,
+  "length_ok": 0.95,
+  "plain_text": 1.0,
+  "grounded": 0.925,
+  "outside_browser": 0.0,
+  "structure_ok": 1.0,
+  "clean": 0.875,
+  "strict_clean": 0.7,
+  "words_mean": 163.8
+ },
+ "run1/nudge-heavy autopsy": {
+  "n": 40,
+  "valid_json": 1.0,
+  "length_ok": 0.9,
+  "plain_text": 1.0,
+  "grounded": 0.95,
+  "outside_browser": 0.0,
+  "structure_ok": 1.0,
+  "clean": 0.85,
+  "strict_clean": 0.6,
+  "words_mean": 166.9
+ },
+ "run1/errors": {
+  "delta_sign_wrong": 6,
+  "nudge_state_wrong": 8,
+  "claims_over_allowance": 3,
+  "invented_trigger": 6,
+  "ungrounded_clock": 5,
+  "word_count": 6,
+  "nudge_count_wrong": 4,
+  "ungrounded_number": 1
+ },
+ "run2/eval naming": {
+  "n": 60,
+  "valid_json": 1.0,
+  "grounded": 1.0,
+  "outside_browser": 0.0,
+  "label_correct": 1.0,
+  "clean": 1.0
+ },
+ "run2/eval autopsy": {
+  "n": 40,
+  "valid_json": 1.0,
+  "length_ok": 0.725,
+  "plain_text": 1.0,
+  "grounded": 1.0,
+  "outside_browser": 0.0,
+  "structure_ok": 1.0,
+  "clean": 0.725,
+  "strict_clean": 0.675,
+  "words_mean": 168.2
+ },
+ "run2/nudge-heavy autopsy": {
+  "n": 40,
+  "valid_json": 1.0,
+  "length_ok": 0.975,
+  "plain_text": 1.0,
+  "grounded": 1.0,
+  "outside_browser": 0.0,
+  "structure_ok": 1.0,
+  "clean": 0.975,
+  "strict_clean": 0.95,
+  "words_mean": 163.3
+ },
+ "run2/errors": {
+  "word_count": 12,
+  "delta_sign_wrong": 2,
+  "claims_over_allowance": 1
+ },
+ "run3/eval naming": {
+  "n": 60,
+  "valid_json": 1.0,
+  "grounded": 1.0,
+  "outside_browser": 0.0,
+  "label_correct": 1.0,
+  "clean": 1.0
+ },
+ "run3/eval autopsy": {
+  "n": 40,
+  "valid_json": 1.0,
+  "length_ok": 0.725,
+  "plain_text": 1.0,
+  "grounded": 1.0,
+  "outside_browser": 0.0,
+  "structure_ok": 1.0,
+  "clean": 0.725,
+  "strict_clean": 0.7,
+  "words_mean": 168.5
+ },
+ "run3/nudge-heavy autopsy": {
+  "n": 40,
+  "valid_json": 1.0,
+  "length_ok": 0.95,
+  "plain_text": 1.0,
+  "grounded": 1.0,
+  "outside_browser": 0.0,
+  "structure_ok": 1.0,
+  "clean": 0.95,
+  "strict_clean": 0.95,
+  "words_mean": 161.2
+ },
+ "run3/errors": {
+  "word_count": 13,
+  "delta_sign_wrong": 1
+ }
+}

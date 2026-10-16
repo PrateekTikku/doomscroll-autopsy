@@ -12,7 +12,8 @@ import { fileURLToPath } from 'node:url';
 const here = dirname(fileURLToPath(import.meta.url));
 const ext = resolve(here, '../.output/chrome-mv3');
 const cases = JSON.parse(readFileSync(resolve(here, '../../training/data/runs/run1/cases_eval.json'), 'utf8'));
-const t2 = JSON.parse(readFileSync(resolve(here, '../../training/data/runs/run1/browser_eval_final.json'), 'utf8'));
+const RUN = process.env.RUN ?? 'run3'; // the run whose export is bundled (see scripts/copy-model.mjs)
+const t2 = JSON.parse(readFileSync(resolve(here, `../../training/data/runs/${RUN}/browser_eval${RUN === 'run1' ? '_final' : ''}.json`), 'utf8'));
 const N = Number(process.argv[2] ?? 5);
 // the first N naming and the first N autopsy cases
 const pick = [...cases.filter((c) => c.id.startsWith('naming')).slice(0, N), ...cases.filter((c) => c.id.startsWith('autopsy')).slice(0, N)];

@@ -4,7 +4,7 @@ import random
 import pytest
 
 from clean import (clean_examples, nudge_eval_cases, nudge_paragraph_index, nudge_sentence, random_nudges,
-                   replace_nudge_paragraph, errors_of)
+                   replace_nudge_paragraph, rewrite_nudge_paragraph, errors_of, words)
 from common import AUTOPSY, student_prompt
 
 FACTS = {
@@ -43,7 +43,7 @@ def with_nudges(n):
     return {**FACTS, "nudges": n}
 
 
-@pytest.mark.parametrize("variant", [0, 1])
+@pytest.mark.parametrize("variant", [0, 1, 2, 3])
 @pytest.mark.parametrize("n", [
     {"shown": 0, "accepted": 0, "snoozed": 0, "ignored": 0, "medianReturnMin": None},
     {"shown": 1, "accepted": 0, "snoozed": 0, "ignored": 1, "medianReturnMin": None},
@@ -115,3 +115,26 @@ def test_nudge_eval_cases_are_ignored_heavy_and_deterministic():
     assert sum(1 for c in a if c["facts"]["nudges"]["ignored"] == c["facts"]["nudges"]["shown"]) >= 9
     for c in a:
         assert c["prompt"].startswith("Write tonight's autopsy")
+
+
+def test_rewrite_picks_the_shortest_valid_wording():
+    for n in ({"shown": 1, "accepted": 0, "snoozed": 0, "ignored": 1, "medianReturnMin": None},
+              {"shown": 2, "accepted": 1, "snoozed": 0, "ignored": 1, "medianReturnMin": 4.0}):
+        f = with_nudges(n)
+        new = rewrite_nudge_paragraph(GOOD, f, n)
+        assert new is not None and errors_of(new, f) == []
+        sizes = [words(replace_nudge_paragraph(GOOD, nudge_sentence(n, v))) for v in range(4)]
+        assert words(new) == min(sizes)
+
+
+def test_overlong_texts_are_dropped_from_training():
+    long_text = GOOD.replace("Tomorrow,", "Tomorrow, " + "and also " * 20 + "")
+    rows = [row("keep", FACTS, GOOD), row("long", FACTS, long_text)]
+    out, stats = clean_examples(rows, random.Random(1), augment=0)
+    assert [r["id"] for r in out] == ["keep"] and stats["dropped_long"] <= 1
+
+
+def test_zero_nudge_variants():
+    n = {"shown": 0, "accepted": 0, "snoozed": 0, "ignored": 0, "medianReturnMin": None}
+    assert nudge_sentence(n, 0) == "No nudges were shown today."
+    assert nudge_sentence(n, 2).startswith("No nudges were shown today, so")

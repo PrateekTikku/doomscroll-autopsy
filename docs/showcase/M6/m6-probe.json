@@ -1,5 +1,5 @@
 {
- "date": "2026-10-16T17:12:37.419Z",
+ "date": "2026-10-16T17:59:54.198Z",
  "checks": {
   "offscreen document starts": {
    "ok": true
@@ -27,14 +27,14 @@
   "at least some autopsies are model-written and pass every validator": {
    "ok": true,
    "detail": {
-    "modelReps": 15,
+    "modelReps": 20,
     "reports": 23,
-    "fallbackRate": 34.8
+    "fallbackRate": 13
    }
   },
   "the writer model loaded in under 10 s": {
    "ok": true,
-   "detail": 4385
+   "detail": 2700
   },
   "the writer model unloads after use": {
    "ok": true,
@@ -49,7 +49,7 @@
    "detail": [
     "Writer model: asleep (loads when it writes) · Gemma 3 270M (fine-tuned)",
     "Names: 6 of 6 from the model, 0 fell back (0%)",
-    "Autopsies: 1 of 3 from the model, 2 fell back (67%)"
+    "Autopsies: 3 of 3 from the model, 0 fell back (0%)"
    ]
   },
   "territory rows say whether a name came from the model": {
@@ -83,25 +83,22 @@
    "model": 42,
    "fallback": 0,
    "unavailable": 0,
-   "generations": 43,
-   "errors": {
-    "schema": 1
-   }
+   "generations": 42,
+   "errors": {}
   },
   "autopsy": {
    "items": 23,
-   "model": 15,
-   "fallback": 8,
+   "model": 20,
+   "fallback": 3,
    "unavailable": 0,
-   "generations": 39,
+   "generations": 27,
    "errors": {
-    "nudge_state_wrong": 18,
-    "word_count": 6,
-    "invented_trigger": 4,
-    "ungrounded_number": 1
+    "invented_trigger": 2,
+    "ungrounded_clock": 3,
+    "ungrounded_number": 2
    }
   }
  },
- "firstLoadMs": 4385,
+ "firstLoadMs": 2700,
  "failed": []
 }

@@ -10,7 +10,7 @@ export const GEN_SOURCE: GenSource = { kind: 'bundled', path: 'doomscroll-270m' 
 
 /** Recorded in `reports.modelVersion` and shown in the dashboard. */
 export const GEN_MODEL_NAME = 'Gemma 3 270M (fine-tuned)';
-export const GEN_MODEL_VERSION = 'doomscroll-gemma-3-270m run1 (fp16 activations, 8-bit weights)';
+export const GEN_MODEL_VERSION = 'doomscroll-gemma-3-270m run3 (fp16 activations, 8-bit weights)';
 
 /** Exactly the evaluated settings (T2): chat template on one user turn, greedy decoding. */
 export const GEN_DTYPE = 'fp16' as const;

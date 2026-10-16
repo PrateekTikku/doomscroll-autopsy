@@ -49,9 +49,30 @@ describe('TypeScript validators match the Python ones', () => {
     expect(rows).toBeGreaterThan(300);
   });
 
-  it('validateAutopsy is the union of both', () => {
+  it('validateAutopsy is the union of both (the length tolerance aside)', () => {
+    for (const a of autopsies) {
+      for (const r of a.rows as Array<{ text: string; errors: string[]; strict: string[] }>) {
+        const words = r.text.trim().split(/\s+/).length;
+        const expected = [...new Set([...r.errors, ...r.strict])].filter((e) => !(e === 'word_count' && words >= 110 && words <= 200)).sort();
+        expect(validateAutopsy(r.text, a.input as never), a.id).toEqual(expected);
+      }
+    }
+  });
+
+  it('accepts a faithful text of 181-200 words and refuses shorter or longer ones (D-59)', () => {
     const a = autopsies[0]!;
-    const row = (a.rows as Array<{ text: string; errors: string[]; strict: string[] }>)[0]!;
-    expect(validateAutopsy(row.text, a.input as never)).toEqual([...new Set([...row.errors, ...row.strict])].sort());
+    const facts = a.input as never;
+    const good = (a.rows as Array<{ text: string; errors: string[] }>)[0]!;
+    const filler = ' Small, steady changes in what you open next usually matter more than effort in the moment.';
+    let text = good.text;
+    while (text.split(/\s+/).length <= 181) text += filler;
+    const n = text.split(/\s+/).length;
+    expect(n).toBeGreaterThan(180);
+    expect(n).toBeLessThanOrEqual(200);
+    expect(checkAutopsy(text, facts)).toContain('word_count'); // the strict T1 check still says so
+    expect(validateAutopsy(text, facts)).not.toContain('word_count');
+    while (text.split(/\s+/).length <= 200) text += filler;
+    expect(validateAutopsy(text, facts)).toContain('word_count');
+    expect(validateAutopsy('Too short.', facts)).toContain('word_count');
   });
 });

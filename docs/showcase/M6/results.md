@@ -1,9 +1,11 @@
 # M6 results
 
+> Numbers below were measured twice: with T2's model (run1) and, after the T3 retrain, with the shipped model (run3). The run3 numbers are the current ones.
+
 ## What was measured (`probe:m6`, replayed personas, real extension + bundled model)
 - **G1 (spike):** the bundled 270M loads in the offscreen document from `chrome-extension://` files and reproduces T2's browser output byte for byte on 6 prompts; model load 2.7 s; median 116 tokens/s.
 - **Naming:** 42 of 53 persona territories named by the model; the 11 others had under one minute of activity and kept their baseline name (no model failure: 0 fallbacks after validation). All 42 suggested labels matched the persona's ground truth. See `naming-examples.md`.
-- **Autopsies:** 23 replayed persona days (developer 8, five other personas 3 each): **15 written by the model, 8 by the template (34.8% fallback)**. Refusal codes over both attempts: `nudge_state_wrong` 18, `word_count` 6, `invented_trigger` 4, `ungrounded_number` 1. Median 5.0 s per autopsy including a possible regeneration; the model unloads after use. See `autopsy-vs-template.md`, `fallback-rate.json`.
+- **Autopsies (run3, shipped):** 23 replayed persona days: **20 written by the model, 3 by the template (13.0% fallback)**, refusal codes `ungrounded_clock` 3, `invented_trigger` 2, `ungrounded_number` 2; median 2.6 s. The same run with T2's model (run1) gave: 23 replayed persona days (developer 8, five other personas 3 each): **15 written by the model, 8 by the template (34.8% fallback)**. Refusal codes over both attempts: `nudge_state_wrong` 18, `word_count` 6, `invented_trigger` 4, `ungrounded_number` 1. Median 5.0 s per autopsy including a possible regeneration; the model unloads after use. See `autopsy-vs-template.md`, `fallback-rate.json`.
 - **Contract tests:** the student prompt matches 50 real training prompts byte for byte; the TypeScript validators give identical results to the Python ones on 660 variants of the real eval set (including mutated ones).
 
 ## Honest caveats
