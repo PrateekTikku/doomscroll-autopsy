@@ -14,7 +14,7 @@
 | M4 Prediction + nudges + replay | ⬜ Not started | | L2 | |
 | M5 Metrics + dashboard + privacy | ⬜ Not started | | L3 | |
 | T1 Teacher data | 🔍 Awaiting owner review | | | 1,073 valid examples (660 naming, 413 autopsy) split 973 train / 100 eval in `training/data/`; S4 resolved (MTP ≈17–19 tok/s, concurrency 1). docs/plans/T1.md |
-| T2 Fine-tune + ONNX | 🟡 In progress | | | docs/plans/T2.md |
+| T2 Fine-tune + ONNX | ✅ Done | 2026-10-16 | — | Fine-tuned 270M meets the PDD 10.4 ship bar; ONNX 8-bit (324 MB, genai builder) generates in the browser at ~118 tok/s; 4-bit loses quality; autopsy edge over template is small. docs/plans/T2.md |
 | M6 Integrate 270M | ⬜ Not started | | L4 | |
 | M7 Release + first user | ⬜ Not started | | L5 | |
 | M8 Should-tier extras | ⬜ Not started | | L6 | |
@@ -34,6 +34,10 @@ Status values: ⬜ Not started · 📝 Plan awaiting approval · 🟡 In progres
 - **K-04** (M1): S1 per-site item counts for logged-in Instagram (feed, Reels), X and Reddit are not recorded; headless probes can't reach them. Record them in `experiments/spikes.md` when the owner checks (steps there). Owner: owner, any Lane A chat.
 - **K-05** (M1): the open 30 s bin is lost when Chrome quits (state lives in `chrome.storage.session`). Up to 30 s per browser session. Owner: M5 if it matters for metrics.
 - **K-06** (M1): `chrome.idle` uses a 120 s threshold, so up to 120 s at the start of each idle stretch counts as active. Owner: M5 (account for it in metrics, or lower the threshold).
+- **K-07** (T2): the model attaches real numbers to the wrong thing in autopsies (swapped nudge counts, wrong nudge state, invented trigger pair, allowance claim with none, wrong-direction 7-day comparison). T1's `check_autopsy` catches only some. Port the strict checks in `training/eval/metrics.py::strict_autopsy_errors` with the validators and fall back to the template on failure. Owner: M6.
+- **K-08** (T2): T1 training data has wrong-direction 7-day comparisons (29 of 202 teacher sentences, 14%); 32 of 373 training autopsies are flagged by the strict checks. A retrain with them dropped was proposed but not run. Owner: owner decision (≈1 h incl. export, eval, judge).
+- **K-09** (T2): 4-bit builds lost too much quality; the control (published base q4f16) was not run, so it is unknown whether 4-bit is inherently bad or the recipe. Model memory during generation not measured. Eval has only 100 examples. Owner: M6 (memory), optional.
+- **K-10** (T2): `training/model_card.md` is a DRAFT (needs the full `GEMMA_TERMS.md`, HF repo name V-10, pinned hash); nothing published. Owner: M7/owner.
 - **K-11** (M2): without WebGPU there are no embeddings at all (quantized models have no CPU kernels; S2). The popup says "unavailable" and samples stay vectorless. Owner: M7 (mention in onboarding / requirements).
 - **K-12** (M2): not every sample gets a vector, by design: items above 20 embeds/min are sub-sampled, and a visual item with no text and no free screenshot slot (1 per 3 s) is skipped. In a scripted run 93% had vectors (100% of those with input). M3 must assign territories to vectorless samples by carrying the previous item's territory (PDD 9.9). Owner: M3.
 - **K-13** (M2): memory in the owner's real profile is unmeasured (about +1.3 GB in headless Chrome vs the 1.5 GB budget). The vision encoder stays loaded even for text-only use; loading it on the first screenshot would save part of that. The 10-minute idle unload is unit-tested only. The popup's `embed-status` reads today's samples (with vectors) every 4 s; fine now, heavy later. Owner: M7 / any Lane A chat.
@@ -363,3 +367,65 @@ None needs a decision-log entry; these fill gaps the PDD leaves open:
 - **Build:** `npm run build/dev/live` run `copy-ort.mjs` first; if you call `wxt` directly, run it yourself or the model won't load. First embed downloads ≈ 255 MB, so a fresh profile needs a minute before vectors appear.
 - **Daily profile:** ask the owner to run `npm run live` and reload to get embeddings.
 
+
+---
+
+## T2 — Fine-tune, evaluate and convert Gemma 3 270M
+**Status:** ✅ Done
+**Date:** 2026-10-16 · **Commits:** `2f3a5bc`..(commit 4, see `git log`)
+**Approved plan:** `docs/plans/T2.md` (approved, commit `75fc69e`) · **Work approved:** 2026-10-16 (owner: "I approve")
+
+### What was built
+- Fine-tuned Gemma 3 270M with Unsloth Studio CLI (MLX): LoRA r16/α32, lr 2e-4, 3 epochs, batch 4, 732 steps, ~15 min on the T1 train split. Merged HF model in `training/data/runs/run1/merged` (gitignored).
+- ONNX export to **324 MB** (`onnx/model_fp16.onnx`, 8-bit weights, fp16 activations) using onnxruntime-genai's builder plus a graph edit that stores the vocabulary table once at 8 bits. Generates in headless Chrome on WebGPU via Transformers.js 4.3.1: 100/100 eval prompts, median ~118 tok/s, load 1.2 s, deterministic.
+- Evaluation harness: T1 validators, extra strict semantic checks, blind Gemma 4 31B judge, Wilson CIs, paired comparison, template baseline, 20-example side-by-side review file.
+- Draft model card (not published).
+
+### Key files
+- `training/finetune.py` — scripted Unsloth training; writes curve.csv and merged model
+- `training/export_onnx.py` — `--builder genai|optimum`, `--bits 8|4`; copies tokenizer/config, embeds chat template, adds `transformers.js_config`
+- `training/onnx_test/run.mjs` — browser generation test (CDP, headless Chrome)
+- `training/eval/` — `metrics.py` (incl. `strict_autopsy_errors`), `build_outputs.py`, `gen_hf.py`, `judge.py`, `report.py`, `rubric.md`, `report.md`, `review_20.md`
+- `training/tests/test_eval.py` — 63 tests total pass (`cd training && uv run --group export pytest tests -q`)
+- `docs/showcase/T2/` — `eval-table.md`, `s5-notes.md`, `model-size.md`, `training-curve.csv`, `CAPTURE.md`
+- `training/model_card.md` — DRAFT
+
+### How to run / verify
+- See `training/README.md` "T2 pipeline". Export: `cd training && uv run --group export python export_onnx.py data/runs/run1/merged data/runs/run1/onnx_final`. Browser: `DTYPE=fp16 node onnx_test/run.mjs data/runs/run1/onnx_final data/runs/run1/cases_eval.json out.json`. Report: `uv run python -m eval.report`.
+
+### Acceptance criteria
+- [x] ≥ 95% valid output — worst task 97% (naming 97%, autopsy 100%)
+- [x] ≥ 90% grounding — autopsy 92% (95% CI 80–97%, thin), naming 97%
+- [x] Judge mean ≥ 3.5 — 4.75 (naming 4.99, autopsy 4.51)
+- [x] Beats baseline — naming 4.99 vs 2.92, autopsy 4.51 vs 4.30
+- [x] Outside-browser mentions = 0
+- [x] ONNX generates in the browser page — 100/100, ~118 tok/s
+- [x] S5 recorded — `experiments/spikes.md`
+- [x] pytest — 63 passed
+
+### Deviations from the approved plan
+- Added `onnxruntime-genai==0.18.0` to the `export` dependency group (`pyproject.toml`, `uv.lock`). Builder runs from a patched temp copy (stubbed transformers-5 imports, `rope_scaling or {}`); the installed package is untouched.
+- Shipped export switched from the optimum route (622 MB) to the genai route (324 MB) after the owner asked to investigate the size gap; optimum path kept (`--builder optimum`).
+- Added eval-only strict semantic checks; judged the fp32 fine-tune as well.
+- No second training run (retrain proposed, not done).
+
+### Decisions and deviations from the PDD
+- PDD updated: size 530 → 580 MB total in pitch/onboarding, 9.5 model line (8-bit, `dtype: "fp16"`, ≈324 MB, ≈118 tok/s), D-07 row (324 MB, why 4-bit failed), V-05/V-06 resolved.
+
+### Spike / measurement results
+- **S5** pass: see `experiments/spikes.md` and `docs/showcase/T2/s5-notes.md` (build sweep). Judge: shipped 4.51 autopsy vs fp32 4.58; vs optimum 8-bit paired −0.04 (95 same, 5 lower, none higher). Strict-clean autopsies 70%; validators + strict checks caught 8/8 judge-low autopsies; none of 28 fully passing were judged low; judge missed 2 real errors. Shared 8-bit vocab within 1.3% of original (cosine ≥ 0.9999).
+
+### Contracts changed
+- None in `shared/`. Student prompt contract (T1) unchanged.
+
+### Known issues
+- K-07 to K-10 (above).
+
+### Showcase evidence
+- `docs/showcase/T2/` as listed; `CAPTURE.md` lists what to capture (headed browser generation, training curve, side-by-side examples).
+
+### Notes for the next milestone
+- **M6:** load with Transformers.js `dtype: "fp16"` (file `onnx/model_fp16.onnx`, external data `model_fp16.onnx_data`); `kv_cache_dtype` is set in `transformers.js_config` in config. Use exactly the evaluated settings: chat template on the single user turn, greedy, `max_new_tokens` 120 (naming) / 400 (autopsy), prompt from `common.student_prompt` (T1 contract).
+- Always validate autopsy output (T1 validators plus the strict checks in `training/eval/metrics.py`) and fall back to the template; the model is less faithful than the template (4.45 vs 5.0 judge faithfulness).
+- Record model memory during generation; not measured here. Total download with EmbeddingGemma ≈580 MB.
+- Hosting: nothing is on Hugging Face yet; publishing needs the owner's explicit yes (repo name V-10, full `GEMMA_TERMS.md`, pinned hash).

@@ -48,7 +48,7 @@
 - **It nudges** with an escalating in-page intervention: a banner, then a blurred feed, then (optionally) a 30-second breathing pause.
 - **It explains** your day each night in a short **autopsy** written by **Gemma 3 270M, fine-tuned by us** with Unsloth on data written by Gemma 4 31B. The headline is your **deep blocks** and your **attention residue**.
 
-Pitch line: *"Two Gemma models, about 530 MB, running entirely inside your browser, protecting your deep work."*
+Pitch line: *"Two Gemma models, about 580 MB, running entirely inside your browser, protecting your deep work."*
 
 **Scope boundary:** the product reports only what happens in the browser. It never shows, counts or describes time spent outside the browser (D-45).
 
@@ -138,7 +138,7 @@ All copy (nudges, autopsy, UI text) is a **calm, factual coach**: short, specifi
 
 ### 4.3 First run
 1. Install the extension (for the hackathon: "Load unpacked" or a zip; D-26).
-2. An onboarding page explains what is observed, what is stored, and the one-time model download (~530 MB from Hugging Face, the only network traffic the extension ever makes). The user can edit the default privacy blocklist.
+2. An onboarding page explains what is observed, what is stored, and the one-time model download (~580 MB from Hugging Face, the only network traffic the extension ever makes). The user can edit the default privacy blocklist.
 3. Models download and are cached. From then on the extension works offline.
 4. **Cold start (staged, D-14):**
    - **Hour 0:** rule-based spiral detection (velocity + known feed sites) drives nudges.
@@ -359,7 +359,7 @@ No vector database. At ~3–6k samples/day × 256 float32 = ~3–6 MB/day, brute
 - *(Could)* **Evaluation:** the Gemma 4 31B teacher (vision on) writes reference captions for ~50 of the owner's screenshots, collected with explicit consent in dev mode. Measure top-3 agreement.
 
 ### 9.4 Territory naming and suggested labels
-- **Model:** our fine-tuned Gemma 3 270M (ONNX q4f16, ≈273 MB) via Transformers.js on WebGPU.
+- **Model:** our fine-tuned Gemma 3 270M (ONNX, 8-bit weights + fp16 activations, ≈324 MB, `dtype: "fp16"`) via Transformers.js on WebGPU, ≈118 tok/s (T2).
 - **Input (text only):** top origins/paths with counts, up to 5 sample titles (if stored), top 3 topic tags with scores (if available), and velocity profile (items/min, skip rate, mean dwell).
 - **Output (JSON):** `{"name": "...", "suggested_label": "deep|shallow|drain", "why": "..."}`, with `name` ≤ 6 words.
 - **Validation:** parse the JSON. If invalid, retry once, then fall back to the baseline name `"<top origin> · <top topic>"` with no suggestion.
@@ -628,7 +628,7 @@ Offer a post-mortem on DEV only with the owner's yes. Never publish anything wit
 | D-04 | Chromium only for v1 | Safari memory limits and separate extension model | Safari, Firefox |
 | D-05 | **Drop Tinker**; Gemma only | Tinker has no Gemma models; one coherent all-Gemma story; we fine-tune locally ourselves. One win per challenge anyway | Tinker LoRA on Qwen3.5-4B |
 | D-06 | No other partner categories | Focus; genuine use only | .tech domain, Render, GitHub Copilot, Tiger Data, MongoDB |
-| D-07 | Generation model: **Gemma 3 270M, fine-tuned** | 273 MB q4f16 in browser; Google's on-device fine-tune path exists; narrow tasks suit it. Text-only is fine: vision is handled by EmbeddingGemma 2 (9.3) | Gemma 4 E2B (≈2.3–3.1 GB in ONNX; possible future optional upgrade) |
+| D-07 | Generation model: **Gemma 3 270M, fine-tuned** | **324 MB** ONNX with 8-bit weights in the browser (T2: every 4-bit build of the fine-tune lost too much quality; the 273 MB figure was the published base model at 4 bits), ≈118 tok/s; Google's on-device fine-tune path exists; narrow tasks suit it. Text-only is fine: vision is handled by EmbeddingGemma 2 (9.3) | Gemma 4 E2B (≈2.3–3.1 GB in ONNX; possible future optional upgrade) |
 | D-08 | Not Chrome's built-in Gemini Nano | Not open-weight, not Gemma | Prompt API |
 | D-09 | Local training uses **Unsloth** | Owner's choice; official Mac training via Studio/Desktop (MLX) | Plain MLX-LM, PEFT on MPS |
 | D-10 | Teacher: **Gemma 4 31B GGUF UD-Q4_K_XL, vision, MTP** | Highest-quality local Gemma; fits 64 GB; MTP speed-up; all-Gemma and open | Gemma 4 12B, E4B, 26B-A4B; Claude (closed) |
@@ -681,8 +681,8 @@ Offer a post-mortem on DEV only with the owner's yes. Never publish anything wit
 | V-02 | EmbeddingGemma 2 vision encoder via Transformers.js inside an extension; interleaved text + image input API | S2 — Resolved (S2): `AutoProcessor` + `AutoModel`; text with `<|image|>` and `images=[[img]]` gives one embedding. |
 | V-03 | Exact task-prefix strings for EmbeddingGemma 2 (copy from model card) | S2 — Resolved (S2): `task: clustering | query: `. |
 | V-04 | Teacher tokens/s with MTP on the M4 Max; whether Unsloth Studio exposes an API | S4 |
-| V-05 | Unsloth Core scripted training on Apple Silicon vs Studio-only | S5 |
-| V-06 | ONNX conversion of the fine-tuned 270M loads and generates in Transformers.js | S5 |
+| V-05 | Unsloth Core scripted training on Apple Silicon vs Studio-only | S5 — Resolved (S5): scripted `unsloth train` from Studio 2026.10.5 (MLX backend); 732 steps in ~15 min. |
+| V-06 | ONNX conversion of the fine-tuned 270M loads and generates in Transformers.js | S5 — Resolved (S5): onnxruntime-genai builder, 8-bit weights, 324 MB, `dtype: "fp16"`, ~118 tok/s. 4-bit loses too much quality. |
 | V-07 | Offscreen document `reasons` value accepted for ML workloads | S2 — Resolved (S2): `WORKERS`. |
 | V-08 | Week 2 rules: new-project and one-entry rules carried over from Week 1 (assumed) | Check the challenge page before publishing |
 | V-09 | Required post template content for Side Hustle | Challenge page, Oct 18 |
