@@ -1,5 +1,7 @@
 import { defineBackground } from '#imports';
 import { createRouter, send } from '@/lib/messaging';
+import { registerMetrics } from '@/lib/metrics/background';
+import { registerPrivacy } from '@/lib/privacy/background';
 import { registerObserver } from '@/lib/observer/background';
 import { registerTerritories } from '@/lib/ml/territories-background';
 import { registerNudges } from '@/lib/nudge/background';
@@ -25,6 +27,8 @@ export default defineBackground(() => {
   registerObserver(router);
   registerTerritories(router);
   registerNudges(router);
+  registerMetrics(router);
+  registerPrivacy(router);
 
   router.listen();
 });
