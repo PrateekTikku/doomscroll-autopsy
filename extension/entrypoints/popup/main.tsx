@@ -9,10 +9,12 @@ import type { SpiralStatus } from '@/lib/nudge/messages';
 import '@/lib/observer/messages';
 import { pauseUntil, type PauseOption } from '@/lib/observer/pause';
 import type { LiveStats } from '@/lib/observer/service';
+import { popupSummary, type PopupSummary } from '@/lib/metrics/service';
 import { isPaused, updateSettings, type Settings } from '@/lib/settings';
 
 const POLL_MS = 2000;
 const MODEL_POLL_MS = 4000;
+const SUMMARY_POLL_MS = 10_000;
 
 /** One calm line about the on-device model (PDD 4.2 voice). */
 export function modelLine(m: EmbedStatusView | null): string {
@@ -31,6 +33,20 @@ export function modelLine(m: EmbedStatusView | null): string {
     default:
       return 'Model: starts with your next item';
   }
+}
+
+/** The popup's focus metrics (PDD 4.4): deep blocks, attention residue, Drain past allowance, nudges that worked. */
+export function summaryLines(m: PopupSummary | null) {
+  if (!m) return null;
+  return {
+    deepBlocks: String(m.deepBlocks),
+    deepSub: m.deepBlocks ? `longest ${m.longestMin} min` : 'none yet',
+    residue: String(m.switchesOutOfDeep),
+    residueSub: m.meanMinBackToDeep == null ? 'switches out of Deep' : `switches · ${m.meanMinBackToDeep} min to get back`,
+    drain: `${m.drainOverMin} min`,
+    nudges: m.nudgesShown ? `${m.nudgesWorked} of ${m.nudgesShown}` : '–',
+    nudgesSub: m.nudgesShown ? (m.medianReturnMin != null ? `back in ${m.medianReturnMin} min` : `${m.nudgesShown} shown`) : 'none shown',
+  };
 }
 
 /** One line about the prediction mode and the current spiral score (PDD 4.4). */
@@ -62,6 +78,7 @@ function Popup() {
   const [model, setModel] = useState<EmbedStatusView | null>(null);
   const [spiral, setSpiral] = useState<SpiralStatus | null>(null);
   const [replaying, setReplaying] = useState(false);
+  const [summary, setSummary] = useState<PopupSummary | null>(null);
 
   const refresh = () =>
     send('background', 'live-stats')
@@ -100,11 +117,19 @@ function Popup() {
     return () => clearInterval(id);
   }, []);
 
+  useEffect(() => {
+    const poll = () => void popupSummary().then(setSummary).catch(() => undefined);
+    poll();
+    const id = setInterval(poll, SUMMARY_POLL_MS);
+    return () => clearInterval(id);
+  }, []);
+
   const pause = async (option: PauseOption | null) => {
     await updateSettings({ pausedUntil: option ? pauseUntil(option) : null });
     await refresh();
   };
 
+  const lines = summaryLines(summary);
   const paused = stats ? isPaused({ pausedUntil: stats.pausedUntil } as Settings) : false;
 
   return (
@@ -137,6 +162,30 @@ function Popup() {
         </tbody>
       </table>
 
+      {lines && (
+        <div class="popup-grid" aria-label="Focus today">
+          <div>
+            <div class="muted">Deep blocks</div>
+            <div class="big">{lines.deepBlocks}</div>
+            <div class="muted">{lines.deepSub}</div>
+          </div>
+          <div>
+            <div class="muted">Attention residue</div>
+            <div class="big">{lines.residue}</div>
+            <div class="muted">{lines.residueSub}</div>
+          </div>
+          <div>
+            <div class="muted">Drain past allowance</div>
+            <div class="big">{lines.drain}</div>
+          </div>
+          <div>
+            <div class="muted">Nudges that worked</div>
+            <div class="big">{lines.nudges}</div>
+            <div class="muted">{lines.nudgesSub}</div>
+          </div>
+        </div>
+      )}
+
       <p class="muted" title={spiral?.modeReason ?? undefined}>
         {spiralLine(spiral)}
       </p>
@@ -165,7 +214,7 @@ function Popup() {
       <p>
         <button onClick={() => browser.tabs.create({ url: browser.runtime.getURL('/dashboard.html') })}>Open dashboard</button>
       </p>
-      <p class="muted">v{browser.runtime.getManifest().version} · observer, territories, nudges (M4)</p>
+      <p class="muted">v{browser.runtime.getManifest().version} · focus metrics, privacy controls (M5)</p>
     </main>
   );
 }

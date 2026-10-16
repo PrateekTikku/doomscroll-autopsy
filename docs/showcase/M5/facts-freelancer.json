@@ -1,0 +1,57 @@
+{
+ "date": "2026-10-12",
+ "deepBlocks": {
+  "count": 1,
+  "longestMin": 62,
+  "totalMin": 62,
+  "blocks": [
+   {
+    "start": "08:30",
+    "end": "09:32",
+    "minutes": 62,
+    "territory": "notion.so · home"
+   }
+  ]
+ },
+ "residue": {
+  "switchesOutOfDeep": 1,
+  "meanMinBackToDeep": null
+ },
+ "totalsMin": {
+  "deep": 62,
+  "shallow": 404,
+  "drain": 30
+ },
+ "drainOverAllowance": [
+  {
+   "territory": "linkedin.com · feed",
+   "allowanceMin": 15,
+   "minutesOver": 15
+  }
+ ],
+ "topTriggers": [
+  {
+   "fromTerritory": "notion.so · home",
+   "toTerritory": "calendar.google.com · calendar",
+   "hour": 9,
+   "count": 1
+  }
+ ],
+ "strongestStretch": {
+  "territory": "notion.so · home",
+  "start": "08:30",
+  "end": "09:32",
+  "minutes": 62
+ },
+ "nudges": {
+  "shown": 2,
+  "accepted": 1,
+  "snoozed": 0,
+  "ignored": 1,
+  "medianReturnMin": 1.5
+ },
+ "vs7Day": {
+  "deepBlocksDelta": -0.3,
+  "drainOverDelta": 6.3
+ }
+}

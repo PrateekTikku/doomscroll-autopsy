@@ -122,7 +122,7 @@ export function Territories() {
   };
 
   return (
-    <section>
+    <section class="card" id="territories">
       <h2>Territories</h2>
       <p class="muted">
         Groups of what you look at, found by the on-device model. Names are placeholders until the fine-tuned model arrives.

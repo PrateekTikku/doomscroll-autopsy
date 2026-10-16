@@ -1,0 +1,74 @@
+{
+ "date": "2026-10-12",
+ "deepBlocks": {
+  "count": 2,
+  "longestMin": 94,
+  "totalMin": 138,
+  "blocks": [
+   {
+    "start": "10:00",
+    "end": "11:34",
+    "minutes": 94,
+    "territory": "scholar.google.com · scholar"
+   },
+   {
+    "start": "11:43",
+    "end": "12:27",
+    "minutes": 44,
+    "territory": "overleaf.com · project"
+   }
+  ]
+ },
+ "residue": {
+  "switchesOutOfDeep": 2,
+  "meanMinBackToDeep": 9
+ },
+ "totalsMin": {
+  "deep": 138,
+  "shallow": 378,
+  "drain": 35
+ },
+ "drainOverAllowance": [
+  {
+   "territory": "x.com · home",
+   "allowanceMin": 15,
+   "minutesOver": 3
+  },
+  {
+   "territory": "news.ycombinator.com · home",
+   "allowanceMin": 15,
+   "minutesOver": 2
+  }
+ ],
+ "topTriggers": [
+  {
+   "fromTerritory": "overleaf.com · project",
+   "toTerritory": "app.slack.com · client",
+   "hour": 11,
+   "count": 1
+  },
+  {
+   "fromTerritory": "arxiv.org · abs",
+   "toTerritory": "x.com · home",
+   "hour": 12,
+   "count": 1
+  }
+ ],
+ "strongestStretch": {
+  "territory": "scholar.google.com · scholar",
+  "start": "10:00",
+  "end": "11:34",
+  "minutes": 94
+ },
+ "nudges": {
+  "shown": 2,
+  "accepted": 0,
+  "snoozed": 0,
+  "ignored": 2,
+  "medianReturnMin": null
+ },
+ "vs7Day": {
+  "deepBlocksDelta": -0.3,
+  "drainOverDelta": -31.3
+ }
+}

@@ -1,0 +1,57 @@
+{
+ "date": "2026-10-12",
+ "deepBlocks": {
+  "count": 1,
+  "longestMin": 63,
+  "totalMin": 63,
+  "blocks": [
+   {
+    "start": "11:00",
+    "end": "12:03",
+    "minutes": 63,
+    "territory": "khanacademy.org · math"
+   }
+  ]
+ },
+ "residue": {
+  "switchesOutOfDeep": 1,
+  "meanMinBackToDeep": null
+ },
+ "totalsMin": {
+  "deep": 63,
+  "shallow": 590,
+  "drain": 66
+ },
+ "drainOverAllowance": [
+  {
+   "territory": "instagram.com · reels",
+   "allowanceMin": 15,
+   "minutesOver": 51
+  }
+ ],
+ "topTriggers": [
+  {
+   "fromTerritory": "khanacademy.org · math",
+   "toTerritory": "canvas.instructure.com · courses",
+   "hour": 12,
+   "count": 1
+  }
+ ],
+ "strongestStretch": {
+  "territory": "khanacademy.org · math",
+  "start": "11:00",
+  "end": "12:03",
+  "minutes": 63
+ },
+ "nudges": {
+  "shown": 4,
+  "accepted": 2,
+  "snoozed": 0,
+  "ignored": 2,
+  "medianReturnMin": 1.5
+ },
+ "vs7Day": {
+  "deepBlocksDelta": 0.3,
+  "drainOverDelta": 19.3
+ }
+}

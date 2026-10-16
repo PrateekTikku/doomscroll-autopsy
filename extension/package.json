@@ -20,7 +20,9 @@
     "build:spike": "node scripts/copy-ort.mjs && SPIKE=1 wxt build",
     "probe:s2": "node scripts/s2-probe.mjs",
     "eval:m4": "M4_EVAL=1 vitest run lib/replay/synthetic-eval.test.ts",
-    "probe:m4": "node scripts/m4-probe.mjs"
+    "probe:m4": "node scripts/m4-probe.mjs",
+    "eval:m5": "M5_EVAL=1 vitest run lib/metrics/replayed.test.ts",
+    "probe:m5": "node scripts/m5-probe.mjs"
   },
   "dependencies": {
     "@huggingface/transformers": "^4.3.1",

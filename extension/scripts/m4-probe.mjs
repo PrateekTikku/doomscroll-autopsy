@@ -216,7 +216,7 @@ try {
     // been hidden for 5+ minutes get intensive timer throttling, which would stall the replay clock.
     await send('Target.activateTarget', { targetId: results.controlTarget });
     await sleep(500);
-    await evaluate(control, `(() => { const sel = document.querySelector('select'); sel.value = '120'; sel.dispatchEvent(new Event('change', { bubbles: true })); return true; })()`);
+    await evaluate(control, `(() => { const sel = document.querySelector('#prediction select'); sel.value = '120'; sel.dispatchEvent(new Event('change', { bubbles: true })); return true; })()`);
     await sleep(300);
     await evaluate(control, `[...document.querySelectorAll('button')].find((b) => b.textContent.includes('Start demo')).click()`);
     await send('Page.bringToFront', {}, page.session);

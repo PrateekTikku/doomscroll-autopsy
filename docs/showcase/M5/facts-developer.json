@@ -1,0 +1,69 @@
+{
+ "date": "2026-10-12",
+ "deepBlocks": {
+  "count": 2,
+  "longestMin": 88,
+  "totalMin": 158,
+  "blocks": [
+   {
+    "start": "09:30",
+    "end": "10:58",
+    "minutes": 88,
+    "territory": "docs.python.org · 3"
+   },
+   {
+    "start": "11:27",
+    "end": "12:37",
+    "minutes": 70,
+    "territory": "github.com · home"
+   }
+  ]
+ },
+ "residue": {
+  "switchesOutOfDeep": 2,
+  "meanMinBackToDeep": 29
+ },
+ "totalsMin": {
+  "deep": 157,
+  "shallow": 352,
+  "drain": 20
+ },
+ "drainOverAllowance": [
+  {
+   "territory": "x.com · home",
+   "allowanceMin": 15,
+   "minutesOver": 5
+  }
+ ],
+ "topTriggers": [
+  {
+   "fromTerritory": "docs.python.org · 3",
+   "toTerritory": "app.slack.com · client",
+   "hour": 10,
+   "count": 1
+  },
+  {
+   "fromTerritory": "developer.mozilla.org · en-US",
+   "toTerritory": "linear.app · team",
+   "hour": 13,
+   "count": 1
+  }
+ ],
+ "strongestStretch": {
+  "territory": "docs.python.org · 3",
+  "start": "09:39",
+  "end": "10:58",
+  "minutes": 79
+ },
+ "nudges": {
+  "shown": 1,
+  "accepted": 0,
+  "snoozed": 0,
+  "ignored": 1,
+  "medianReturnMin": null
+ },
+ "vs7Day": {
+  "deepBlocksDelta": -0.3,
+  "drainOverDelta": -0.3
+ }
+}

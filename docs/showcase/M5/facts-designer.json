@@ -1,0 +1,74 @@
+{
+ "date": "2026-10-12",
+ "deepBlocks": {
+  "count": 2,
+  "longestMin": 94,
+  "totalMin": 171,
+  "blocks": [
+   {
+    "start": "09:00",
+    "end": "10:34",
+    "minutes": 94,
+    "territory": "m3.material.io · components"
+   },
+   {
+    "start": "11:12",
+    "end": "12:29",
+    "minutes": 77,
+    "territory": "figma.com · design"
+   }
+  ]
+ },
+ "residue": {
+  "switchesOutOfDeep": 2,
+  "meanMinBackToDeep": 38
+ },
+ "totalsMin": {
+  "deep": 171,
+  "shallow": 250,
+  "drain": 71
+ },
+ "drainOverAllowance": [
+  {
+   "territory": "tiktok.com · foryou",
+   "allowanceMin": 15,
+   "minutesOver": 26
+  },
+  {
+   "territory": "dribbble.com · shots",
+   "allowanceMin": 15,
+   "minutesOver": 15
+  }
+ ],
+ "topTriggers": [
+  {
+   "fromTerritory": "m3.material.io · components",
+   "toTerritory": "dribbble.com · shots",
+   "hour": 10,
+   "count": 1
+  },
+  {
+   "fromTerritory": "figma.com · design",
+   "toTerritory": "linear.app · team",
+   "hour": 12,
+   "count": 1
+  }
+ ],
+ "strongestStretch": {
+  "territory": "m3.material.io · components",
+  "start": "09:00",
+  "end": "10:34",
+  "minutes": 94
+ },
+ "nudges": {
+  "shown": 4,
+  "accepted": 2,
+  "snoozed": 0,
+  "ignored": 2,
+  "medianReturnMin": 1.5
+ },
+ "vs7Day": {
+  "deepBlocksDelta": -0.3,
+  "drainOverDelta": -1.3
+ }
+}

@@ -1,0 +1,69 @@
+{
+ "date": "2026-10-12",
+ "deepBlocks": {
+  "count": 2,
+  "longestMin": 74,
+  "totalMin": 116,
+  "blocks": [
+   {
+    "start": "08:00",
+    "end": "09:14",
+    "minutes": 74,
+    "territory": "theatlantic.com · ideas"
+   },
+   {
+    "start": "09:23",
+    "end": "10:05",
+    "minutes": 42,
+    "territory": "en.wikipedia.org · wiki"
+   }
+  ]
+ },
+ "residue": {
+  "switchesOutOfDeep": 2,
+  "meanMinBackToDeep": 9
+ },
+ "totalsMin": {
+  "deep": 116,
+  "shallow": 286,
+  "drain": 20
+ },
+ "drainOverAllowance": [
+  {
+   "territory": "instagram.com · reels",
+   "allowanceMin": 15,
+   "minutesOver": 5
+  }
+ ],
+ "topTriggers": [
+  {
+   "fromTerritory": "en.wikipedia.org · wiki",
+   "toTerritory": "app.slack.com · client",
+   "hour": 9,
+   "count": 1
+  },
+  {
+   "fromTerritory": "docs.google.com · document",
+   "toTerritory": "app.slack.com · client",
+   "hour": 10,
+   "count": 1
+  }
+ ],
+ "strongestStretch": {
+  "territory": "theatlantic.com · ideas",
+  "start": "08:00",
+  "end": "09:14",
+  "minutes": 74
+ },
+ "nudges": {
+  "shown": 1,
+  "accepted": 0,
+  "snoozed": 0,
+  "ignored": 1,
+  "medianReturnMin": null
+ },
+ "vs7Day": {
+  "deepBlocksDelta": 0,
+  "drainOverDelta": -13.4
+ }
+}

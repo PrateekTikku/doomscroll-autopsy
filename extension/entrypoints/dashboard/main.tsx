@@ -5,7 +5,9 @@ import { clearRecorder, exportJsonl, recorderCount } from '@/lib/replay/recorder
 import { getSettings, onSettingsChanged, updateSettings } from '@/lib/settings';
 import { Evidence } from './evidence';
 import { ReplayPanel } from './replay';
+import { Privacy } from './privacy';
 import { Territories } from './territories';
+import { Today } from './today';
 
 /** Dev-mode recorder controls (PDD 7.7). The full dashboard arrives in M3 and M5. */
 function Developer() {
@@ -43,7 +45,7 @@ function Developer() {
   };
 
   return (
-    <section>
+    <section class="card" id="developer">
       <h2>Developer</h2>
       <label>
         <input
@@ -86,17 +88,27 @@ function Dashboard() {
   }, []);
 
   return (
-    <main>
-      <h1>Doomscroll Autopsy dashboard</h1>
-      <p class="muted">The timeline and autopsy arrive in later milestones.</p>
-      <p>
-        IndexedDB <code>{DB_NAME}</code> v{DB_VERSION}:{' '}
-        {error ? <span class="bad">{error}</span> : stores ? stores.join(', ') : <span class="muted">opening…</span>}
-      </p>
+    <main class="dash">
+      <h1>Doomscroll Autopsy</h1>
+      <nav class="nav" aria-label="Sections">
+        <a href="#today">Today</a>
+        <a href="#autopsy">Autopsy</a>
+        <a href="#success">How it's going</a>
+        <a href="#territories">Territories</a>
+        <a href="#privacy">Privacy</a>
+        <a href="#prediction">Prediction and replay</a>
+        <a href="#developer">Developer</a>
+      </nav>
+      <Today />
       <Territories />
+      <Privacy />
       <ReplayPanel />
       {dev && <Evidence />}
       <Developer />
+      <p class="muted">
+        IndexedDB <code>{DB_NAME}</code> v{DB_VERSION}:{' '}
+        {error ? <span class="bad">{error}</span> : stores ? stores.join(', ') : <span class="muted">opening…</span>}
+      </p>
     </main>
   );
 }

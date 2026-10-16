@@ -179,7 +179,7 @@ export function ReplayPanel() {
   };
 
   return (
-    <section>
+    <section class="card" id="prediction">
       <h2>Prediction and replay</h2>
       <p>
         Active mode: <strong>{mode ? (mode.mode === 'markov' ? 'Markov' : 'Rules') : '…'}</strong>

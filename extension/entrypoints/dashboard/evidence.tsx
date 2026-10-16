@@ -30,7 +30,7 @@ export function Evidence() {
   };
 
   return (
-    <section>
+    <section class="card" id="evidence">
       <h2>Evidence: domains vs territories</h2>
       <p class="muted">
         Compares grouping by domain with grouping by territory on the same vectors. The JSON lists domains and path names with counts

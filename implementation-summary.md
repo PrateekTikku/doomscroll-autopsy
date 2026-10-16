@@ -12,8 +12,8 @@
 | M2 Embedding engine | ✅ Done | 2026-10-16 | — | EmbeddingGemma 2 (q4f16, WebGPU) in the offscreen document: text 16 ms, image 213 ms median; vectors (256d) written to samples; S2/S3 pass; no WASM fallback. docs/plans/M2.md |
 | M3 Territories + labeling | ✅ Done | 2026-10-16 | L1 | Own spherical k-means + silhouette k, Hungarian matching keeps IDs/labels (D-53), online assignment, dashboard Territories + dev Evidence. Real-data checks (C2 drift, domain split) still pending on the owner's profile. docs/plans/M3.md |
 | M4 Prediction + nudges + replay | ✅ Done | 2026-10-16 | L2 | Rules + Markov scoring with allowances, evaluation harness, banner + blur nudges, replayer, synthetic days, demo mode (banner at 57:00, blur at 72:00 of replay time). Real-data rules-vs-Markov numbers still pending on the owner's profile. docs/plans/M4.md |
-| M5 Metrics + dashboard + privacy | 🟡 In progress | | L3 | docs/plans/M5.md (plan approved) |
-| T1 Teacher data | 🔍 Awaiting owner review | | | 1,073 valid examples (660 naming, 413 autopsy) split 973 train / 100 eval in `training/data/`; S4 resolved (MTP ≈17–19 tok/s, concurrency 1). docs/plans/T1.md |
+| M5 Metrics + dashboard + privacy | ✅ Done | 2026-10-16 | L3 | Deep blocks, residue, daily facts, validated template autopsy (120-180 words), timeline dashboard, popup metrics, nightly job, full privacy controls (forget range/site, blocklist editor, retention, titles, wipe). Verified on replayed synthetic days in headless Chrome (`probe:m5`); real-data look is the owner's. docs/plans/M5.md |
+| T1 Teacher data | ✅ Done | 2026-10-16 | — | 1,073 valid examples (660 naming, 413 autopsy) split 973 train / 100 eval in `training/data/`; S4 resolved (MTP ≈17–19 tok/s, concurrency 1); fed T2's fine-tune, which met the ship bar. Closed by self-review (owner delegated). docs/plans/T1.md |
 | T2 Fine-tune + ONNX | ✅ Done | 2026-10-16 | — | Fine-tuned 270M meets the PDD 10.4 ship bar; ONNX 8-bit (324 MB, genai builder) generates in the browser at ~118 tok/s; 4-bit loses quality; autopsy edge over template is small. docs/plans/T2.md |
 | M6 Integrate 270M | ⬜ Not started | | L4 | |
 | M7 Release + first user | ⬜ Not started | | L5 | |
@@ -23,7 +23,7 @@
 Status values: ⬜ Not started · 📝 Plan awaiting approval · 🟡 In progress (plan approved) · 🔍 Awaiting review · ✅ Done · ⚠️ Done with gaps · ❌ Blocked
 
 ## Current showcase level
-**Level 2 (M4).** The loop works: observe → embed → territories → predict (rules + Markov) → in-page nudges, with replay/demo mode. The "one domain, many territories" and real-data rules-vs-Markov evidence still need the owner's real data. (Update this line whenever a milestone raises the level; see `implementation-milestones.md` 0.4.)
+**Level 3 (M5).** Full product without the fine-tune: deep blocks, attention residue, daily facts, template autopsy, timeline, popup metrics and the Must privacy controls (M4's loop is underneath: observe → embed → territories → predict (rules + Markov) → in-page nudges, with replay/demo mode). The "one domain, many territories" and real-data rules-vs-Markov evidence still need the owner's real data. (Update this line whenever a milestone raises the level; see `implementation-milestones.md` 0.4.)
 
 ## Known issues and open follow-ups
 (Each entry: ID, found in, description, suggested owner milestone.)
@@ -46,6 +46,9 @@ Status values: ⬜ Not started · 📝 Plan awaiting approval · 🟡 In progres
 - **K-16** (M3): bin territories are set by a 1-minute sweep, not live. M4 may want them event-driven. Owner: M4. **Resolved in M4 for nudging** (the live score uses the latest sample's online territory); bins still lag a minute for M5.
 - **K-17** (M4): rules-vs-Markov on the owner's real data not run (needs the daily profile): Dashboard → Prediction and replay → "Evaluate on my data". With one day of data it uses a 70/30 split of that day and AUC may be n/a. Owner: owner / M9.
 - **K-18** (M4): synthetic evaluation saturates (AUC ≈ 0.99–1.00 for both modes, top-1 identical) because the generator makes spirals long runs on one site; only top-3 on switches separates the modes (80.4% rules vs 88.9% Markov). Do not present it as predictive skill. Owner: M9.
+- **K-20** (M5): metrics were verified on replayed synthetic days and fixtures, not on the owner's real browsing; today's last minute can still move because bin territories are assigned by the 1-minute sweep (K-16). Owner: owner (look at Dashboard → Today on real data).
+- **K-21** (M5): the 30-minute gap rule for deep blocks (D-55) and the "first to last Deep bin, interruptions included" minute counting are my definitions; PDD 4.1 only says "away pauses the clock". Owner: owner if he disagrees.
+- **K-22** (M5): the nightly job runs only while Chrome is running (first check after 03:00); a report for a day is otherwise generated on demand ("Write today's autopsy now") or at the next start. `vs7Day` stays null until 7 earlier days exist. Owner: M7 (mention in onboarding).
 - **K-19** (M4): real nudge delivery in the owner's daily profile is unverified (headless probe only); a nudge cannot show over fullscreen video. The 24 h / 240-bin threshold for switching to Markov and the 60 min escalation window are my choices, not PDD numbers. The "unassigned feed" spent counter lives in `chrome.storage.session` and resets with the browser. Owner: owner / M7.
 
 ---
@@ -544,3 +547,92 @@ None needs a decision-log entry; these fill gaps the PDD leaves open:
 - **M6:** nothing here depends on the 270M; the nudge copy is deterministic. **M7:** nudges need a page with the observer; test real delivery in a fresh profile and mention fullscreen limit.
 - **M8:** GRU plugs into `selectMode`/`scoreSpiral` (`ScoreContext.mode`) and `evaluateModes` (add a third mode); breathing step: raise `IMPLEMENTED_MAX_STEP` in `policy.ts` and add the UI/copy.
 - The M5 chat may run in parallel; both edit `entrypoints/dashboard/main.tsx` (one line each) and `background.ts`.
+
+---
+
+## M5 — Metrics, dashboard timeline, template autopsy and privacy controls
+**Status:** ✅ Done
+**Date:** 2026-10-16 · **Commits:** `705cc86` (plan) plus the three `M5:` commits after it (see `git log`)
+**Approved plan:** `docs/plans/M5.md` (approved 2026-10-16 22:30, delegated by the owner: "I will not be available for any review or to take any decisions and count upon you") · **Work approved:** 2026-10-16 (self-review under that delegation; the owner reviews later)
+
+### What was built
+- **Facts** (`lib/metrics/facts.ts`): deep blocks, attention residue, totals by label, drain over allowance, top triggers, strongest stretch, nudge outcomes, 7-day comparison, all from stored bins in browsing time (away/idle/unobserved bins are gaps). Output validates against `shared/daily-facts.schema.json`.
+- **Template autopsy** (`autopsy.ts`): coach voice, PDD 4.6 structure, always 120-180 words, passes `validate.ts` (a TS port of T1's `check_autopsy`, hand-written so it runs under the MV3 CSP: the shared validator M6 reuses).
+- **Reports and nightly job** (`service.ts`, `background.ts`): facts + autopsy stored in `reports` (`modelVersion: "template"`); nightly job (first check after 03:00) = retention → re-cluster if due → prediction refresh → reports for every finished day; "Write it now" on demand.
+- **Dashboard**: Today (four metric tiles, browser-time line, 7-day comparison, history picker), a plain-SVG Timeline (territory lanes coloured by label, velocity line, deep-block outlines, nudge markers, away = plain gap), Autopsy (preview or stored, source pill, "numbers behind it"), "How it's going" (PDD 4.7 success metrics over 7 days), Privacy, plus the earlier panels now in cards with a nav.
+- **Popup**: deep blocks (count + longest), attention residue, drain past allowance, nudges that worked.
+- **Privacy** (`lib/privacy/`): forget a time range / a site (+ always skip) with the PDD 11.4 cascade, blocklist editor (add/remove domains and keywords, shipped defaults removable), retention (7-90 days, applied nightly and on demand), store-titles toggle + "remove titles already stored", wipe everything (typed confirmation; every store, Cache API, session and local storage), a short forget log (kind only), pause from the dashboard.
+
+### Key files
+- `extension/lib/metrics/{facts,autopsy,validate,timeline,service,background,replayed,time,messages}.ts` (+ tests, `testutil.ts`)
+- `extension/lib/privacy/{forget,retention,wipe,blocklist-edit,background,messages}.ts` (+ `privacy.test.ts`)
+- `extension/entrypoints/dashboard/{today,timeline,autopsy,privacy}.tsx`, `main.tsx`; `entrypoints/popup/main.tsx`; `assets/base.css`
+- `extension/scripts/m5-probe.mjs`, `extension/tests/browser-only.test.ts`, `docs/showcase/M5/`
+
+### How to run / verify
+- `cd extension && npm run build && npm test && npm run compile && npm run smoke && npm run check:types` (40 files, 346 tests + 2 gated; smoke 0 exceptions).
+- `npm run eval:m5` (writes `docs/showcase/M5/*` and `.output/probe-seed.json`), then `npm run probe:m5` (23 checks, headless Chrome with the seeded history; screenshots next to `m5-probe.json`).
+- Regression: `npm run probe:m4` (all pass), `M3=1 npm run probe:s1` (see Known issues if it didn't finish).
+- Owner: `npm run live`, reload the extension, open Dashboard → Today (timeline, tiles), "Write today's autopsy now", Privacy → Forget → Last hour.
+
+### Acceptance criteria
+- [x] Unit tests: deep-block edge cases (exactly 2 min interruption; away/idle/unobserved gaps; 30-min gap ends a block; across midnight), residue, allowance overage, facts validate against the schema, forget cascade removes data and updates territories (`facts.test.ts`, `privacy.test.ts`).
+- [x] Grep-style test: no UI string or autopsy template mentions time outside the browser (`tests/browser-only.test.ts`, 40 checks; template fuzz in `autopsy.test.ts`).
+- [~] The owner can see today's timeline, metrics and a template autopsy for his real data: built and verified end to end on replayed days in headless Chrome; the real-profile look is the owner's (K-20).
+
+### Deviations from the approved plan
+- Plain SVG instead of D3 (declared in the plan, **D-56**). Added `lib/metrics/replayed.ts` (replays a persona into facts; used by tests, the evidence export and the probe seed) and `eval:m5`/`probe:m5`. `computeDayFacts` computes missing earlier days live for `vs7Day` (not only stored reports), found by the probe. A one-line fix in `scripts/m4-probe.mjs` (the demo speed selector is now `#prediction select`, because the dashboard has a second `<select>`). `checkDue` in `territories-background.ts` is exported for the nightly job. `ReportRecord.generatedAt?` added (optional, no `DB_VERSION` bump).
+- Stub `index.test.ts` files of `lib/metrics` and `lib/privacy` removed (real tests replace them).
+
+### Decisions and deviations from the PDD
+- **D-55** (metric definitions incl. the 30-minute gap rule), **D-56** (template is a validated always-valid fallback; no D3), **D-57** (privacy cascade details). PDD 6.3 and 11.4 got "As built" notes.
+
+### Spike / measurement results
+- No spikes. Probe: 8,561 seeded bins render a timeline with 39 segments, 2 deep-block outlines, 107 velocity points; the template autopsy is 133 words; the whole 23-check probe takes ~1 min.
+
+### Contracts changed
+- No `shared/` change; no `DB_VERSION` bump. `ReportRecord.generatedAt?: number`. New messages: `report-generate`, `privacy-forget-range`, `privacy-forget-site`, `privacy-wipe`, `privacy-retention`, `privacy-strip-titles`. New `models` record `nightly-meta`.
+
+### Known issues
+- K-20, K-21, K-22 (above).
+
+### Showcase evidence
+- `docs/showcase/M5/`: `results.md`, `persona-days.md`, `facts-<persona>.json`, `autopsy-<persona>.md`, `m5-probe.json`, screenshots (`dashboard-today.png`, `popup.png`, `dashboard-privacy.png`, `dashboard-after-wipe.png`), `CAPTURE.md` (owner: timeline hover GIF, autopsy, forget flow).
+
+### Notes for the next milestone
+- **M6:** `lib/metrics/validate.ts::checkAutopsy` is the shared autopsy validator (port of `check_autopsy`); add the strict checks from `training/eval/metrics.py::strict_autopsy_errors` there (K-07). `lib/metrics/service.ts::generateReport` writes `reports` with `modelVersion: "template"`: M6 should try the model first and keep the template as fallback, recording the model id in `modelVersion` (the dashboard already shows "Written by <modelVersion>" for anything other than `template`). `ensureReports` skips reports generated after their day ended, so model-written reports survive the nightly job. Territory names that M6 writes must keep `labelConfirmed` semantics (unconfirmed only).
+- The nightly job (`lib/metrics/background.ts::runNightly`) has the slot for PDD 6.3 step 4 (naming) between re-cluster and reports.
+- Dashboard sections are `<section class="card" id=...>`; add new ones the same way and a nav link in `main.tsx`.
+
+---
+
+## T1 — Teacher data generation
+**Status:** ✅ Done
+**Date:** 2026-10-15/16 · **Commits:** `b96428c` (plan), `95b7cf8`, `12c049a`, `0d876f2`, `340b1fc`
+**Approved plan:** `docs/plans/T1.md` (approved 2026-10-15 11:40) · **Work approved:** 2026-10-16 (closed in a self-review under the owner's delegation, after T2 had already consumed the data and met its ship bar; the code was committed earlier, only this summary was missing)
+
+### What was built
+- `training/validators.py` (`parse_naming`, `check_autopsy`: JSON/schema, number and clock grounding, outside-browser, tone, null/zero consistency, structure, 120-180 words), `gen_inputs.py` (660 territory descriptions, 440 daily facts, schema-valid, six personas, edge cases), `gen_teacher.py` (resumable, OpenAI-style API to the local Gemma 4 31B with MTP), `filter.py` (re-validate, de-duplicate, stratified 900/100-style split), `bench_teacher.py`, `prompts/`, `README.md`.
+- Dataset: **660 naming (100% valid) + 413 autopsy (93.9% valid after retries) = 1,073 examples → 973 train / 100 eval** (`training/data/train.jsonl`, `eval.jsonl`, gitignored). Autopsy word count 139-180 (median 167).
+
+### How to run / verify
+- `cd training && uv run pytest` (63 passed on 2026-10-16). Pipeline commands are in `training/README.md` ("T1 pipeline"). Dataset stats: `docs/showcase/T1/dataset-stats.md`; samples: `sample-report.md`; pilot: `pilot-report.md`.
+
+### Acceptance criteria
+- [x] pytest: generators produce schema-valid objects; validators catch planted errors (invented number, outside-browser mention, bad JSON).
+- [x] `train.jsonl` and `eval.jsonl` exist (973 / 100 lines).
+
+### Deviations, decisions, contracts
+- As recorded in T2's section: the student prompt (`common.student_prompt`) is the contract M6 must reproduce exactly. No `shared/` change.
+
+### Spike / measurement results
+- **S4:** MTP ≈17-19 tok/s at concurrency 1 vs ≈10 without; see `experiments/spikes.md` and `docs/showcase/T1/s4-throughput*.md`. Generation tok/s in the real run: naming 6.3, autopsy 18.8.
+
+### Known issues
+- **K-08** (14% of teacher autopsy sentences compare the 7-day numbers in the wrong direction; the retrain proposed in T2 is optional) and K-07 apply to this data.
+
+### Showcase evidence
+- `docs/showcase/T1/` (S4 throughput, dataset stats with three examples per task, pilot and sample reports, `CAPTURE.md`).
+
+### Notes for the next milestone
+- M6 must build prompts exactly as `common.student_prompt` and run model text through `lib/metrics/validate.ts::checkAutopsy` (M5's TS port of `check_autopsy`).
