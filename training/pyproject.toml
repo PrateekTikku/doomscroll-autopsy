@@ -10,6 +10,17 @@ dev = [
     "pytest>=8",
     "jsonschema>=4.23",
 ]
+export = [
+    "onnx>=1.23.2",
+    "onnxconverter-common>=1.16.0",
+    "onnxruntime-genai==0.18.0",
+    "onnxscript>=0.7.2",
+    "optimum-onnx[onnxruntime]>=0.1.0",
+    "peft>=0.21.2",
+    "safetensors>=0.8.0",
+    "torch>=2.14.1",
+    "transformers>=4.57.6",
+]
 
 [tool.uv]
 package = false

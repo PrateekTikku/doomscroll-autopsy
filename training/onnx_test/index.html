@@ -1,0 +1,41 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>T2 ONNX test page</title>
+<pre id="log">loading…</pre>
+<script type="importmap">{"imports":{"onnxruntime-web/webgpu":"/vendor/ort/ort.webgpu.bundle.min.mjs","onnxruntime-common":"/vendor/common/index.js"}}</script>
+<script type="module">
+import { AutoTokenizer, AutoModelForCausalLM, env } from '/vendor/transformers.web.js';
+env.allowRemoteModels = false;
+env.allowLocalModels = true;
+env.localModelPath = '/';
+env.backends.onnx.wasm.wasmPaths = '/vendor/ort/';
+const log = (s) => { document.getElementById('log').textContent += '\n' + s; };
+const q = new URLSearchParams(location.search);
+const dtype = q.get('dtype') ?? 'q4f16';
+const device = q.get('device') ?? 'webgpu';
+const out = { dtype, device, runs: [] };
+try {
+  const t0 = performance.now();
+  log('tokenizer…');
+  const tok = await AutoTokenizer.from_pretrained('model');
+  log('tokenizer ok; model…');
+  const model = await AutoModelForCausalLM.from_pretrained('model', { dtype, device, progress_callback: (p) => { if (p.status === 'done' || p.status === 'ready') log(p.status + ' ' + (p.file ?? '')); } });
+  log('model ok'); out.loadMs = Math.round(performance.now() - t0);
+  const cases = await (await fetch('/cases.json')).json();
+  for (const c of cases) {
+    const prompt = tok.apply_chat_template([{ role: 'user', content: c.prompt }], { add_generation_prompt: true, tokenize: false });
+    const inputs = tok(prompt, { return_tensor: true, add_special_tokens: false });
+    const t1 = performance.now();
+    const ids = await model.generate({ ...inputs, max_new_tokens: c.maxNew, do_sample: false });
+    const ms = performance.now() - t1;
+    const inLen = inputs.input_ids.dims[1];
+    const newIds = ids.slice(null, [inLen, null]);
+    const text = tok.batch_decode(newIds, { skip_special_tokens: true })[0];
+    const nNew = newIds.dims[1];
+    out.runs.push({ id: c.id, text, firstIds: Array.from(newIds.data, Number).slice(0, 12), promptTokens: inLen, newTokens: nNew, ms: Math.round(ms), tokPerS: +(nNew / (ms / 1000)).toFixed(1) });
+    log(c.id + ' ' + nNew + ' tok');
+  }
+} catch (e) { out.error = String(e && e.stack || e); }
+window.__result = out;
+log('done');
+</script>
