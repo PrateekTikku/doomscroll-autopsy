@@ -1,0 +1,310 @@
+{
+  "date": "2026-10-16T14:14:43.012Z",
+  "scrollsPerSite": 60,
+  "sites": [
+    {
+      "site": "YouTube Shorts",
+      "origin": "https://www.youtube.com",
+      "finalPath": "/shorts/6qcd-HJ8ak0",
+      "scrolls": 60,
+      "items": 60,
+      "ratio": 1,
+      "distinctKeys": 60,
+      "visual": 59,
+      "keyTypes": {
+        "t:": 1,
+        "u:": 59
+      },
+      "videoEvents": 173,
+      "perf": "[doomscroll] perf: scroll handler p95=0.90ms max=2.10ms n=1386 · item detection p95=1.30ms max=1.80ms n=414 · text (idle) p95=0.10ms max=0.10ms n=56"
+    },
+    {
+      "site": "Mastodon (public feed, X-like)",
+      "origin": "https://mastodon.social",
+      "finalPath": "/explore",
+      "scrolls": 60,
+      "items": 55,
+      "ratio": 0.92,
+      "distinctKeys": 55,
+      "visual": 13,
+      "keyTypes": {
+        "t:": 23,
+        "m:": 25,
+        "v:": 7
+      },
+      "videoEvents": 0,
+      "perf": "[doomscroll] perf: scroll handler p95=0.30ms max=0.30ms n=72 · item detection p95=1.40ms max=1.80ms n=320 · text (idle) p95=0.20ms max=0.20ms n=50"
+    },
+    {
+      "site": "Bluesky (public profile feed)",
+      "origin": "https://bsky.app",
+      "finalPath": "/profile/bsky.app",
+      "scrolls": 60,
+      "items": 59,
+      "ratio": 0.98,
+      "distinctKeys": 54,
+      "visual": 6,
+      "keyTypes": {
+        "t:": 46,
+        "m:": 13
+      },
+      "videoEvents": 9,
+      "perf": "[doomscroll] perf: scroll handler p95=0.30ms max=0.30ms n=55 · item detection p95=4.40ms max=8.90ms n=318 · text (idle) p95=1.20ms max=3.20ms n=54"
+    },
+    {
+      "site": "MDN docs",
+      "origin": "https://developer.mozilla.org",
+      "finalPath": "/en-US/docs/Web/API/Intersection_Observer_API",
+      "scrolls": 60,
+      "items": 30,
+      "ratio": 0.5,
+      "distinctKeys": 30,
+      "visual": 0,
+      "keyTypes": {
+        "v:": 21,
+        "t:": 9
+      },
+      "videoEvents": 0,
+      "perf": "[doomscroll] perf: scroll handler p95=0.30ms max=0.30ms n=31 · item detection p95=4.80ms max=5.60ms n=232 · text (idle) p95=0.20ms max=0.20ms n=29"
+    },
+    {
+      "site": "Wikipedia article",
+      "origin": "https://en.wikipedia.org",
+      "finalPath": "/wiki/Attention",
+      "scrolls": 60,
+      "items": 19,
+      "ratio": 0.32,
+      "distinctKeys": 16,
+      "visual": 0,
+      "keyTypes": {
+        "t:": 19
+      },
+      "videoEvents": 0,
+      "perf": "[doomscroll] perf: scroll handler p95=0.30ms max=0.30ms n=26 · item detection p95=2.40ms max=2.70ms n=211 · text (idle) p95=6.40ms max=6.40ms n=19"
+    }
+  ],
+  "checks": {
+    "registeredContentScripts": [
+      {
+        "id": "observer",
+        "js": [
+          "observer.js"
+        ],
+        "excludes": 107
+      }
+    ],
+    "injectedIntoOpenTab": true,
+    "blocklistedEvents": 0,
+    "pausedBadge": "II",
+    "pausedEvents": 0,
+    "pausedSamples": 0,
+    "embedding": {
+      "samples": 225,
+      "withVector": 202,
+      "finiteUnitNorm": 202,
+      "dims": [
+        768
+      ],
+      "status": {
+        "state": "ready",
+        "percent": 100,
+        "device": "webgpu",
+        "dtype": "q4f16",
+        "vision": true,
+        "error": null,
+        "embeds": 202,
+        "failed": 0,
+        "medianMs": 46.1000000089407,
+        "p95Ms": 241.80000001192093,
+        "queued": 0,
+        "skipped": 23,
+        "droppedImages": 0,
+        "droppedJobs": 0,
+        "submitted": 225,
+        "written": 202,
+        "noInput": 0,
+        "noInputVisual": 0,
+        "unmatched": 0,
+        "nonFinite": 0,
+        "errors": 0,
+        "samplesToday": 225,
+        "vectorsToday": 202
+      }
+    },
+    "territories": {
+      "report": {
+        "ok": true,
+        "k": 6,
+        "territories": 6,
+        "matched": 0,
+        "created": 6,
+        "dormant": 0,
+        "samples": 202,
+        "silhouette": 0.1962979707841923,
+        "similarities": [],
+        "ms": 123
+      },
+      "territories": [
+        {
+          "id": "t-04df6a5f",
+          "name": "developer.mozilla.org · en-us",
+          "size": 27,
+          "radius": 0.1525118639741052,
+          "suggestedLabel": null,
+          "label": null
+        },
+        {
+          "id": "t-26cdbbe1",
+          "name": "bsky.app · profile",
+          "size": 86,
+          "radius": 0.2042910721336512,
+          "suggestedLabel": null,
+          "label": null
+        },
+        {
+          "id": "t-72f51109",
+          "name": "mastodon.social · explore",
+          "size": 29,
+          "radius": 0.0864036542510524,
+          "suggestedLabel": null,
+          "label": null
+        },
+        {
+          "id": "t-d13043fe",
+          "name": "en.wikipedia.org · wiki",
+          "size": 16,
+          "radius": 0.15269148412122235,
+          "suggestedLabel": null,
+          "label": null
+        },
+        {
+          "id": "t-f58125fd",
+          "name": "youtube.com · shorts",
+          "size": 62,
+          "radius": 0.13981806190555904,
+          "suggestedLabel": "drain",
+          "label": null
+        },
+        {
+          "id": "t-fdacf49a",
+          "name": "en.wikipedia.org · wiki 2",
+          "size": 5,
+          "radius": 0.09029940340758338,
+          "suggestedLabel": null,
+          "label": null
+        }
+      ],
+      "samplesWithTerritory": 225,
+      "samples": 225,
+      "binsWithTerritory": 21,
+      "bins": 21,
+      "byOrigin": {
+        "https://en.wikipedia.org": {
+          "samples": 21,
+          "territories": {
+            "t-fdacf49a": 5,
+            "t-d13043fe": 16
+          }
+        },
+        "https://www.youtube.com": {
+          "samples": 60,
+          "territories": {
+            "t-f58125fd": 60
+          }
+        },
+        "https://mastodon.social": {
+          "samples": 55,
+          "territories": {
+            "t-26cdbbe1": 26,
+            "t-72f51109": 29
+          }
+        },
+        "https://bsky.app": {
+          "samples": 59,
+          "territories": {
+            "t-26cdbbe1": 57,
+            "t-f58125fd": 2
+          }
+        },
+        "https://developer.mozilla.org": {
+          "samples": 30,
+          "territories": {
+            "t-04df6a5f": 27,
+            "t-26cdbbe1": 3
+          }
+        }
+      }
+    },
+    "territoriesUi": {
+      "tableChars": 690,
+      "tableHead": [
+        "Territory\tItems\tToday (min)\tLabel\tAllowance",
+        "bsky.app · profile",
+        "bsky.app (57), mastodon.social (26), developer.mozilla.org (3)",
+        "\t86\t0.3\t",
+        "Deep",
+        "Shallow",
+        "Drain",
+        "no suggestion yet",
+        "\t-",
+        "youtube.com · shorts",
+        "youtube.com (60), bsky.app (2)",
+        "\t62\t2.4\t"
+      ],
+      "confirmedBefore": [
+        {
+          "id": "t-26cdbbe1",
+          "label": "deep",
+          "confirmed": true,
+          "allowanceMin": null
+        },
+        {
+          "id": "t-f58125fd",
+          "label": "drain",
+          "confirmed": true,
+          "allowanceMin": 15
+        }
+      ],
+      "secondRun": {
+        "ok": true,
+        "matched": 6,
+        "created": 0,
+        "dormant": 0,
+        "similarities": [
+          0.9999999994338672,
+          1.0000000079209435,
+          1.0000000030499099,
+          0.9999999744138303,
+          1.0000000233910735,
+          0.9999999940251988
+        ]
+      },
+      "confirmedAfter": [
+        {
+          "id": "t-26cdbbe1",
+          "label": "deep",
+          "confirmed": true,
+          "allowanceMin": null
+        },
+        {
+          "id": "t-f58125fd",
+          "label": "drain",
+          "confirmed": true,
+          "allowanceMin": 15
+        }
+      ],
+      "labelsSurvived": true
+    },
+    "privacy": {
+      "records": 1221,
+      "samples": 225,
+      "bins": 21,
+      "activeSecondsInBins": 159,
+      "recorderEvents": 975,
+      "urlsWithQueryOrFragment": 0,
+      "recordsWithTextField": 0,
+      "pageTextLinesChecked": 163,
+      "pageTextLinesFound": 0
+    }
+  }
+}

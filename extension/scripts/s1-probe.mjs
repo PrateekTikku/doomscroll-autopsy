@@ -258,6 +258,60 @@ try {
       status: await evaluate(control, `chrome.runtime.sendMessage({ target: 'background', type: 'embed-status' }).then((r) => r?.data ?? r)`).catch((e) => String(e)),
     };
     console.log('embedding:', JSON.stringify(results.checks.embedding));
+    if (process.env.M3) {
+      // M3: force a re-cluster on what was just embedded, then summarise territories per origin.
+      const report = JSON.parse(await evaluate(control, `chrome.runtime.sendMessage({ target: 'background', type: 'territories-recluster', payload: { force: true } }).then((r) => JSON.stringify(r?.data ?? r))`));
+      const view = JSON.parse(
+        await evaluate(
+          control,
+          `(async () => {
+            const db = await new Promise((res, rej) => { const r = indexedDB.open('doomscroll-autopsy'); r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error); });
+            const all = (s) => new Promise((res, rej) => { const q = db.transaction(s).objectStore(s).getAll(); q.onsuccess = () => res(q.result); q.onerror = () => rej(q.error); });
+            const territories = (await all('territories')).map((t) => ({ id: t.id, name: t.name, size: t.size, radius: t.radius, suggestedLabel: t.suggestedLabel, label: t.label }));
+            const samples = (await all('samples')).map((s) => ({ origin: s.origin, path: s.path, territoryId: s.territoryId, hasVector: !!s.vector }));
+            const bins = (await all('bins')).map((b) => ({ territoryId: b.territoryId, active_s: b.active_s }));
+            db.close();
+            return JSON.stringify({ territories, samples, bins });
+          })()`,
+        ),
+      );
+      const byOrigin = {};
+      for (const x of view.samples) {
+        const o = (byOrigin[x.origin] ??= { samples: 0, territories: {} });
+        o.samples++;
+        const k = x.territoryId ?? 'unassigned';
+        o.territories[k] = (o.territories[k] ?? 0) + 1;
+      }
+      results.checks.territories = {
+        report,
+        territories: view.territories,
+        samplesWithTerritory: view.samples.filter((x) => x.territoryId).length,
+        samples: view.samples.length,
+        binsWithTerritory: view.bins.filter((b) => b.territoryId).length,
+        bins: view.bins.length,
+        byOrigin,
+      };
+      console.log('territories:', JSON.stringify(results.checks.territories, null, 1));
+      // Dashboard UI: the list renders, labels can be clicked, and survive a second forced re-cluster.
+      await sleep(16_000); // the list refreshes every 15 s
+      const text = await evaluate(control, `document.querySelector('table.territories')?.innerText ?? 'NO TABLE'`);
+      await evaluate(control, `(() => { const rows = document.querySelectorAll('table.territories tbody tr'); rows[0].querySelectorAll('.label-btn')[0].click(); rows[1].querySelectorAll('.label-btn')[2].click(); return true; })()`);
+      await sleep(1500);
+      const labelsOf = async () =>
+        JSON.parse(await evaluate(control, `(async () => { const db = await new Promise((res, rej) => { const r = indexedDB.open('doomscroll-autopsy'); r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error); }); const q = db.transaction('territories').objectStore('territories').getAll(); return new Promise((res) => { q.onsuccess = () => { db.close(); res(JSON.stringify(q.result.map((t) => ({ id: t.id, label: t.label, confirmed: t.labelConfirmed, allowanceMin: t.allowanceMin })).filter((t) => t.confirmed))); }; }); })()`));
+      const before = await labelsOf();
+      const second = JSON.parse(await evaluate(control, `chrome.runtime.sendMessage({ target: 'background', type: 'territories-recluster', payload: { force: true } }).then((r) => JSON.stringify(r?.data ?? r))`));
+      const after = await labelsOf();
+      results.checks.territoriesUi = {
+        tableChars: text.length,
+        tableHead: text.split('\n').slice(0, 12),
+        confirmedBefore: before,
+        secondRun: { ok: second.ok, matched: second.matched, created: second.created, dormant: second.dormant, similarities: second.similarities },
+        confirmedAfter: after,
+        labelsSurvived: JSON.stringify(before.sort((a, b) => a.id.localeCompare(b.id))) === JSON.stringify(after.sort((a, b) => a.id.localeCompare(b.id))) && before.length === 2,
+      };
+      console.log('territoriesUi:', JSON.stringify(results.checks.territoriesUi, null, 1));
+    }
     results.checks.privacy = {
       records: records.length,
       samples: dump.samples.length,

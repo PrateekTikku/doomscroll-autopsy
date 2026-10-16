@@ -3,6 +3,8 @@ import { useEffect, useState } from 'preact/hooks';
 import { count, DB_NAME, DB_VERSION, openDb } from '@/lib/db';
 import { clearRecorder, exportJsonl, recorderCount } from '@/lib/replay/recorder';
 import { getSettings, onSettingsChanged, updateSettings } from '@/lib/settings';
+import { Evidence } from './evidence';
+import { Territories } from './territories';
 
 /** Dev-mode recorder controls (PDD 7.7). The full dashboard arrives in M3 and M5. */
 function Developer() {
@@ -71,21 +73,27 @@ function Developer() {
 function Dashboard() {
   const [stores, setStores] = useState<string[] | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [dev, setDev] = useState(false);
 
   useEffect(() => {
+    void getSettings().then((s) => setDev(s.devMode));
+    const off = onSettingsChanged((s) => setDev(s.devMode));
     openDb()
       .then((db) => setStores([...db.objectStoreNames]))
       .catch((err: Error) => setError(err.message));
+    return off;
   }, []);
 
   return (
     <main>
       <h1>Doomscroll Autopsy dashboard</h1>
-      <p class="muted">The timeline, territories and autopsy arrive in later milestones.</p>
+      <p class="muted">The timeline and autopsy arrive in later milestones.</p>
       <p>
         IndexedDB <code>{DB_NAME}</code> v{DB_VERSION}:{' '}
         {error ? <span class="bad">{error}</span> : stores ? stores.join(', ') : <span class="muted">opening…</span>}
       </p>
+      <Territories />
+      {dev && <Evidence />}
       <Developer />
     </main>
   );

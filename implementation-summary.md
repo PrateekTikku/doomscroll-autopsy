@@ -10,7 +10,7 @@
 | M0 Scaffold + contracts | ✅ Done | 2026-10-15 | — | WXT + Preact scaffold, IndexedDB v1, settings in chrome.storage.local (D-52), shared schemas v1, uv project |
 | M1 Observer + bins | ✅ Done | 2026-10-15 | — | Generic observer, 30 s bins and samples in IndexedDB, pause + badge, popup live counts, dev recorder, S1 headless pass; owner's daily profile runs `.live/chrome-mv3` |
 | M2 Embedding engine | ✅ Done | 2026-10-16 | — | EmbeddingGemma 2 (q4f16, WebGPU) in the offscreen document: text 16 ms, image 213 ms median; vectors (256d) written to samples; S2/S3 pass; no WASM fallback. docs/plans/M2.md |
-| M3 Territories + labeling | 🟡 In progress | | L1 | docs/plans/M3.md |
+| M3 Territories + labeling | ✅ Done | 2026-10-16 | L1 | Own spherical k-means + silhouette k, Hungarian matching keeps IDs/labels (D-53), online assignment, dashboard Territories + dev Evidence. Real-data checks (C2 drift, domain split) still pending on the owner's profile. docs/plans/M3.md |
 | M4 Prediction + nudges + replay | ⬜ Not started | | L2 | |
 | M5 Metrics + dashboard + privacy | ⬜ Not started | | L3 | |
 | T1 Teacher data | 🔍 Awaiting owner review | | | 1,073 valid examples (660 naming, 413 autopsy) split 973 train / 100 eval in `training/data/`; S4 resolved (MTP ≈17–19 tok/s, concurrency 1). docs/plans/T1.md |
@@ -23,7 +23,7 @@
 Status values: ⬜ Not started · 📝 Plan awaiting approval · 🟡 In progress (plan approved) · 🔍 Awaiting review · ✅ Done · ⚠️ Done with gaps · ❌ Blocked
 
 ## Current showcase level
-**None yet.** (Update this line whenever a milestone raises the level; see `implementation-milestones.md` 0.4.)
+**Level 1 (M3).** Territories exist and can be labeled; the "one domain, many territories" evidence still needs the owner's real data. (Update this line whenever a milestone raises the level; see `implementation-milestones.md` 0.4.)
 
 ## Known issues and open follow-ups
 (Each entry: ID, found in, description, suggested owner milestone.)
@@ -41,6 +41,9 @@ Status values: ⬜ Not started · 📝 Plan awaiting approval · 🟡 In progres
 - **K-11** (M2): without WebGPU there are no embeddings at all (quantized models have no CPU kernels; S2). The popup says "unavailable" and samples stay vectorless. Owner: M7 (mention in onboarding / requirements).
 - **K-12** (M2): not every sample gets a vector, by design: items above 20 embeds/min are sub-sampled, and a visual item with no text and no free screenshot slot (1 per 3 s) is skipped. In a scripted run 93% had vectors (100% of those with input). M3 must assign territories to vectorless samples by carrying the previous item's territory (PDD 9.9). Owner: M3.
 - **K-13** (M2): memory in the owner's real profile is unmeasured (about +1.3 GB in headless Chrome vs the 1.5 GB budget). The vision encoder stays loaded even for text-only use; loading it on the first screenshot would save part of that. The 10-minute idle unload is unit-tested only. The popup's `embed-status` reads today's samples (with vectors) every 4 s; fine now, heavy later. Owner: M7 / any Lane A chat.
+- **K-14** (M3): spike C2 not done on changing real data: the 0.8 centroid-match threshold under drift is unmeasured (a repeat run on identical data gives similarity ≈ 1.0). The dashboard status shows the weakest match after "Re-cluster now". Owner: owner / M5.
+- **K-15** (M3): the chosen k varies with the data (6 vs 10 on the same headless 200 vectors, different subsamples); "one domain, many territories" is not yet shown on the owner's data (Dashboard → Developer → dev mode → Compute evidence; read the JSON before using it in the post). Real-profile timing and memory unmeasured. Owner: owner / M9.
+- **K-16** (M3): bin territories are set by a 1-minute sweep, not live. M4 may want them event-driven. Owner: M4.
 
 ---
 
@@ -429,3 +432,58 @@ None needs a decision-log entry; these fill gaps the PDD leaves open:
 - Always validate autopsy output (T1 validators plus the strict checks in `training/eval/metrics.py`) and fall back to the template; the model is less faithful than the template (4.45 vs 5.0 judge faithfulness).
 - Record model memory during generation; not measured here. Total download with EmbeddingGemma ≈580 MB.
 - Hosting: nothing is on Hugging Face yet; publishing needs the owner's explicit yes (repo name V-10, full `GEMMA_TERMS.md`, pinned hash).
+
+---
+
+## M3 — Territories and labeling
+**Status:** ✅ Done (real-data checks pending, K-14/K-15)
+**Date:** 2026-10-16 · **Commits:** the three `M3:` commits after `588225e` (see `git log`)
+**Approved plan:** `docs/plans/M3.md` (approved 2026-10-16 20:00) · **Work approved:** 2026-10-16, owner: "I am not in a mood to review… complete the milestone and commit it" (review steps skipped by the owner; I verified what I could myself)
+
+### What was built
+- Own spherical k-means (k-means++, seeded), exact O(n·k·d) silhouette, `chooseK` over [4, 30] (≤ ⌊n/15⌋, smallest k within 0.02 of best; chosen on a ≤ 1,200 subsample, final fit on the latest ≤ 6,000 vectors); clusters under max(5, 0.5%) dissolved.
+- Hungarian matching on centroid cosine: > 0.8 keeps ID, name, label, allowance. Owner-confirmed territories without a match stay dormant (size 0), unconfirmed ones are dropped (D-53).
+- Online assignment right after a vector is written (nearest centroid, `radius` = p95 × 1.25, beyond it `territoryId: null`; `territoryDist` always stored). A 1-min sweep assigns vectorless samples (carry previous territory, K-12) and sets bin territories (majority by time overlap).
+- Schedule: first run at ≥ 300 vectors, every 2 h for 24 h after the first run, then nightly after 03:00; 30-min alarm decides. Forced re-cluster needs ≥ 60 vectors.
+- Baseline names `host · top path segment` (duplicates numbered); rule-based suggested labels (feed origins → drain; `assets/shallow-origins.json` → shallow), stored as `suggestedLabel` only.
+- Dashboard: Territories section (items, today's minutes, Deep/Shallow/Drain, Drain allowance default 15, Re-cluster now, delete dormant); dev-mode Evidence (silhouette by domain vs territory, path-agreement NMI, Deep/Drain split example, JSON download with counts only).
+
+### Key files
+- `extension/lib/ml/{kmeans,hungarian,names,territories-core,territories,territories-background,territories-messages,evidence,testutil}.ts` (+ tests), `extension/assets/shallow-origins.json`
+- `extension/entrypoints/dashboard/{territories,evidence}.tsx`; hooks in `lib/ml/{service,background}.ts`, `entrypoints/background.ts`, `dashboard/main.tsx`
+- `extension/scripts/{c1-bench.ts,s1-probe.mjs}` (`M3=1` flag), `docs/showcase/M3/`, `experiments/spikes.md` (C1)
+
+### How to run / verify
+- `cd extension && npm run build && npm test && npm run compile && npm run smoke`; `npm run check:types`
+- `M3=1 npm run probe:s1` (headless: forces re-cluster, labels via dashboard, re-clusters, checks persistence); `npx tsx scripts/c1-bench.ts 6000`
+- Owner: `npm run live`, reload, browse, Dashboard → Territories → Re-cluster now; dev mode → Compute evidence.
+
+### Acceptance criteria
+- [x] Unit tests: planted clusters recovered, `chooseK`, Hungarian permutation, IDs/labels survive re-cluster (27 files / 167 tests pass).
+- [~] Real data: territories appear and labels persist across a forced re-cluster, verified in headless Chrome with real EmbeddingGemma vectors (202 items, 225/225 samples and 21/21 bins assigned, labels and allowance kept). Not run in the owner's daily profile.
+- [x] Privacy: store-scan test, probe (0 URLs with ?/#, 0 text records), no new network calls.
+
+### Deviations from the approved plan
+- Silhouette is exact via per-cluster vector sums instead of subsampled (only k selection subsamples).
+- `uniqueNames` suffixes duplicate baseline names; added `testutil.ts`, `c1-bench.ts` (needs `npx tsx`, not a declared dependency), the `M3=1` probe mode, and weakest-match in the dashboard status.
+- Owner skipped the review step; C2 (drift) and the real-profile run were not done.
+
+### Decisions and deviations from the PDD
+- D-53 added to the decision log (dormant owner-confirmed territories); PDD 9.2 "As built" note.
+
+### Spike / measurement results
+- C1: choose k + cluster in Node: 1.4 s at 1.5k, 1.6 s at 3k, 1.7 s at 6k vectors (bar 10 s). Headless real run: k=6 (once 10) from 202 vectors in 123 ms. See `experiments/spikes.md`, `docs/showcase/M3/results.md`.
+
+### Contracts changed
+- `TerritoryRecord.radius?: number` (types only; no `DB_VERSION` bump, no `shared/` change). New messages `territories-recluster`, `territories-sync`. `writeVector`/`EmbedServiceDeps` gain an optional `assign`.
+
+### Known issues
+- K-14, K-15, K-16 (above).
+
+### Showcase evidence
+- `docs/showcase/M3/{results.md,CAPTURE.md,m3-probe.json}`. Owner should capture the Territories list and a domain split across labels (see CAPTURE.md).
+
+### Notes for the next milestone
+- **M4/M5:** `samples.territoryId` (null = unassigned/none), `territoryDist`, `bins.territoryId`, and `territories` (`label`, `allowance`, `suggestedLabel`, `size`; size 0 = dormant) are filled. Bin territories lag up to a minute. Use `loadTerritoryView` in `territories.ts` for dashboard data. Drain allowance is minutes per day, 0–1440, Drain only.
+- Territory IDs are stable across re-clusters only through matching; treat `null` label as unconfirmed and use `suggestedLabel` only as a hint.
+- Re-cluster state is in `models` under `territories-meta`.

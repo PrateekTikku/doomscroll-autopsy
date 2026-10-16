@@ -350,6 +350,7 @@ No vector database. At ~3–6k samples/day × 256 float32 = ~3–6 MB/day, brute
 - **Stability:** each nightly result is matched to the previous territories with the **Hungarian algorithm** on centroid cosine similarity. Matches above 0.8 similarity keep their ID, name, label and allowance. Unmatched clusters become new territories.
 - **Online assignment** between nightly runs: nearest centroid. If the distance exceeds a threshold, the sample is marked "unassigned" until the next re-cluster.
 - **First clustering:** once ≥ 300 samples exist (≈2 h of browsing), re-run every 2 h on day 1, then nightly.
+- **As built (M3, D-53):** k is chosen on a ≤ 1,200-point subsample (the smallest k whose silhouette is within 0.02 of the best); the final fit uses the most recent ≤ 6,000 vectors, and clusters under 5 members are dissolved into the nearest one. The silhouette is exact but computed in O(n·k·d) from per-cluster vector sums. Owner-confirmed territories that no new cluster matches are kept as *dormant*, never deleted. A 30-minute alarm decides when a run is due (the nightly run happens at the first check after 03:00, so a sleeping laptop catches up); a 1-minute alarm assigns new samples and bins. Territory names that collide get a numeric suffix.
 - *(Should)* **2D map:** `umap-js` on territory-sampled points, for display only.
 
 ### 9.3 Topic tags: zero-shot, cross-modal (Should)
@@ -671,6 +672,7 @@ Offer a post-mortem on DEV only with the owner's yes. Never publish anything wit
 | D-50 | Honest privacy wording: vectors are not anonymous; claim is "never leaves your device"; titles optional | Embedding inversion is a known technique | "Anonymous numbers" claim |
 | D-51 | MV3 platform details (12.2): `wasm-unsafe-eval`, HF host access, `unlimitedStorage`, WebGPU sharing check, blocklist checked first in content scripts | Avoid day-one surprises | — |
 | D-52 | **Settings in `chrome.storage.local`**, not IndexedDB (M0, 2026-10-15) | Content scripts run in the page's origin and can't read the extension's IndexedDB; pause and blocklist must be checked there first, without waking the service worker | `settings` store in IndexedDB mirrored to `chrome.storage.local`; content scripts asking the service worker on every page load |
+| D-53 | **Territory re-clustering keeps owner-confirmed territories** (M3, 2026-10-16): k chosen on a subsample, clusters < 5 members dissolved, unmatched confirmed territories stay dormant instead of being deleted | A changed k must never silently erase a label the owner confirmed; full-data k selection cost ~100 G multiply-adds | Delete unmatched territories (PDD 9.2 as first written) |
 
 (D-37 to D-39 intentionally unused.)
 
