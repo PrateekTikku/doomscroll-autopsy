@@ -31,6 +31,12 @@ const DAY_MS = 24 * 3600_000;
 let reclustering = false;
 export const isReclustering = () => reclustering;
 
+let afterRecluster: (() => Promise<unknown>) | null = null;
+/** M6: the writer model names territories after every successful re-cluster (registered by lib/gen/background). */
+export function onReclustered(fn: () => Promise<unknown>): void {
+  afterRecluster = fn;
+}
+
 export async function getMeta(): Promise<TerritoryMeta> {
   const rec = await get('models', META_KEY);
   return { ...EMPTY_META, ...(rec?.data as Partial<TerritoryMeta> | undefined) };
@@ -130,6 +136,7 @@ export async function recluster(opts: { force?: boolean; now?: number } = {}): P
 
     const meta = await getMeta();
     await putMeta({ ...meta, lastRunAt: now, firstRunAt: meta.firstRunAt ?? now, lastSyncTs: now, k: fit.k });
+    if (afterRecluster) void afterRecluster().catch((e) => console.warn('[doomscroll] naming after re-cluster failed:', e));
     return {
       ok: true,
       k: fit.k,

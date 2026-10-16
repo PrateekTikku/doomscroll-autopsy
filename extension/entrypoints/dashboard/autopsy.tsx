@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'preact/hooks';
 import type { DailyFacts } from '@shared/types';
 import type { ReportRecord } from '@/lib/db';
+import { autopsySourceLabel } from '@/lib/gen/labels';
 import { send } from '@/lib/messaging';
-import { renderAutopsy, TEMPLATE_VERSION } from '@/lib/metrics/autopsy';
+import { renderAutopsy } from '@/lib/metrics/autopsy';
 import { computeDayFacts, getReport } from '@/lib/metrics/service';
 import '@/lib/metrics/messages';
 
@@ -42,7 +43,7 @@ export function Autopsy({ date, isToday }: { date: string; isToday: boolean }) {
 
   const text = report?.autopsy ?? preview?.text ?? '';
   const facts = report?.facts ?? preview?.facts;
-  const source = report ? (report.modelVersion === TEMPLATE_VERSION ? 'Written from a template' : `Written by ${report.modelVersion}`) : 'Preview, not saved yet';
+  const source = report ? autopsySourceLabel(report) : 'Preview, not saved yet';
 
   return (
     <div class="autopsy">

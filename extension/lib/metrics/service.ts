@@ -62,10 +62,28 @@ export async function getReport(date: string): Promise<ReportRecord | undefined>
   return get('reports', date);
 }
 
-/** Facts + template autopsy for `date`, stored in `reports`. */
-export async function generateReport(date: string, now = Date.now()): Promise<ReportRecord> {
+/** Writes the autopsy text for `facts`: the template here, the fine-tuned model once M6 registers its writer. */
+export interface AutopsyWriterResult {
+  text: string;
+  /** `template` or the model version. */
+  version: string;
+  source?: ReportRecord['source'];
+}
+export type AutopsyWriter = (facts: DailyFacts) => Promise<AutopsyWriterResult>;
+
+export const templateWriter: AutopsyWriter = async (facts) => ({ text: renderAutopsy(facts), version: TEMPLATE_VERSION, source: { kind: 'template', attempts: 0, errors: [] } });
+
+let activeWriter: AutopsyWriter = templateWriter;
+/** M6 registers the model-first writer; the template stays the fallback inside it. */
+export function setAutopsyWriter(writer: AutopsyWriter): void {
+  activeWriter = writer;
+}
+
+/** Facts + autopsy for `date`, stored in `reports`. */
+export async function generateReport(date: string, now = Date.now(), writer: AutopsyWriter = activeWriter): Promise<ReportRecord> {
   const facts = await computeDayFacts(date);
-  const record: ReportRecord = { date, facts, autopsy: renderAutopsy(facts), modelVersion: TEMPLATE_VERSION, generatedAt: now };
+  const written = await writer(facts);
+  const record: ReportRecord = { date, facts, autopsy: written.text, modelVersion: written.version, generatedAt: now, ...(written.source ? { source: written.source } : {}) };
   await put('reports', record);
   return record;
 }
@@ -108,7 +126,7 @@ export async function regenerateReports(dates: string[], now = Date.now()): Prom
   for (const date of [...new Set(dates)].sort()) {
     const hasData = (await getRange('bins', dayStart(date), dayEnd(date) - 1)).length > 0;
     if (hasData) {
-      await generateReport(date, now);
+      await generateReport(date, now, templateWriter); // quick: a forget shouldn't wait for the model
       done.push(date);
     } else {
       await (await openDb()).delete('reports', date);

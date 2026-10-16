@@ -25,3 +25,4 @@ training/data/*
 *.safetensors
 *.bin
 extension/public/ort/
+extension/public/models/

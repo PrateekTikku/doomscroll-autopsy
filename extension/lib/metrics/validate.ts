@@ -143,3 +143,45 @@ export function checkAutopsy(text: string, facts: DailyFacts): string[] {
   if (!/\btomorrow\b/i.test(t)) errors.push('missing_suggestion');
   return [...new Set(errors)].sort();
 }
+
+/**
+ * Strict semantic checks (K-07): `checkAutopsy` grounds every *number*, but a real number can still be
+ * attached to the wrong thing. These catch the slips seen in the T2 review: swapped nudge counts or
+ * states, a wrong-direction 7-day change, an allowance claim with none, an invented trigger pair.
+ * Port of `training/eval/metrics.py::strict_autopsy_errors`. The model's autopsy must pass both.
+ */
+export function strictAutopsyErrors(text: string, facts: DailyFacts): string[] {
+  const errs = new Set<string>();
+  const nud = facts.nudges as unknown as Record<string, number>;
+  for (const m of text.matchAll(/\b(\d+) (?:nudges? )?(?:was|were) (accepted|snoozed|ignored)\b/gi)) {
+    if (Number(m[1]) !== nud[m[2]!.toLowerCase()]) errs.add('nudge_count_wrong');
+  }
+  for (const m of text.matchAll(/\bnudge (?:was|got) (accepted|snoozed|ignored)\b/gi)) {
+    if (nud[m[1]!.toLowerCase()] === 0) errs.add('nudge_state_wrong');
+  }
+  const v = facts.vs7Day;
+  if (v) {
+    for (const m of text.matchAll(/\b(\d+(?:\.\d+)?) (more|fewer) deep blocks?\b/gi)) {
+      if ((m[2]!.toLowerCase() === 'more') !== v.deepBlocksDelta > 0) errs.add('delta_sign_wrong');
+    }
+    for (const m of text.matchAll(/\bdrain over allowance was (up|down)\b/gi)) {
+      if ((m[1]!.toLowerCase() === 'up') !== v.drainOverDelta > 0) errs.add('delta_sign_wrong');
+    }
+  }
+  if (
+    facts.drainOverAllowance.length === 0 &&
+    /\b(exceeded|ran over|went over|over) (your|the) (\d+ minute )?allowance|\d+ minutes over\b/i.test(text)
+  ) {
+    errs.add('claims_over_allowance');
+  }
+  const pairs = new Set(facts.topTriggers.map((x) => `${x.fromTerritory.toLowerCase()}\u0000${x.toTerritory.toLowerCase()}`));
+  for (const m of text.matchAll(/\b(?:moved|switched|going) from (.+?) to (.+?)(?:\s+\d+ times?|[.,]|\s+(?:at|in|during)\b)/gi)) {
+    if (!pairs.has(`${m[1]!.trim().toLowerCase()}\u0000${m[2]!.trim().toLowerCase()}`)) errs.add('invented_trigger');
+  }
+  return [...errs].sort();
+}
+
+/** Everything the autopsy must satisfy before it is shown as model-written (PDD 9.8, K-07). */
+export function validateAutopsy(text: string, facts: DailyFacts): string[] {
+  return [...new Set([...checkAutopsy(text, facts), ...strictAutopsyErrors(text, facts)])].sort();
+}

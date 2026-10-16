@@ -86,6 +86,22 @@ describe('buildTerritories', () => {
     expect(names.get(old[1]!.id)).toMatch(/example/);
   });
 
+  it('keeps a model-written name while the origins are unchanged, and resets it when they change', () => {
+    const a = setup();
+    const fit = fitClusters(a.points, { seed: 1 });
+    const first = buildTerritories({ fit, samples: a.samples, old: [], now: 1, newId: a.newId });
+    expect(first.territories.every((t) => t.nameSource === 'baseline' && t.nameKey && t.suggestionSource === 'rules')).toBe(true);
+    const named = first.territories.map((t) => ({ ...t, name: `Model name ${t.id}`, nameSource: 'model' as const, suggestedLabel: 'deep' as const, suggestionSource: 'model' as const }));
+    const same = buildTerritories({ fit, samples: a.samples, old: named, now: 2, newId: a.newId });
+    for (const t of same.territories) expect(t).toMatchObject({ name: `Model name ${t.id}`, nameSource: 'model', suggestedLabel: 'deep', suggestionSource: 'model' });
+    // another origin takes over one territory: its model name goes back to the baseline
+    const changedKey = named.map((t, i) => (i === 0 ? { ...t, nameKey: 'https://other.example' } : t));
+    const after = buildTerritories({ fit, samples: a.samples, old: changedKey, now: 3, newId: a.newId });
+    const t0 = after.territories.find((t) => t.id === changedKey[0]!.id)!;
+    expect(t0.name).toMatch(/example/);
+    expect(t0).toMatchObject({ nameSource: 'baseline', suggestionSource: 'rules' });
+  });
+
   it('suggests drain for a territory made of feed pages', () => {
     const { points, newId } = setup(4, 30);
     const fit = fitClusters(points, { seed: 1 });

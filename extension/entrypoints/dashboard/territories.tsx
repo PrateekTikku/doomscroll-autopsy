@@ -2,6 +2,8 @@ import { useEffect, useState } from 'preact/hooks';
 import type { Label } from '@/lib/db';
 import { send } from '@/lib/messaging';
 import '@/lib/ml/territories-messages';
+import '@/lib/gen/messages';
+import { nameSourceLabel } from '@/lib/gen/labels';
 import { hostOf } from '@/lib/ml/names';
 import { deleteTerritory, loadTerritoryView, setTerritoryAllowance, setTerritoryLabel, type TerritoryView } from '@/lib/ml/territories';
 
@@ -28,6 +30,7 @@ function Row({ v, onChange }: { v: TerritoryView; onChange: () => void }) {
     <tr class={v.dormant ? 'dormant' : ''}>
       <td>
         <strong>{t.name}</strong>
+        <span class="muted" title="Who wrote this name"> · {nameSourceLabel(t)}</span>
         {v.dormant && <span class="muted"> · dormant (confirmed earlier, no members now)</span>}
         <div class="muted">
           {v.topOrigins.length ? v.topOrigins.map((o) => `${hostOf(o.origin)} (${o.count})`).join(', ') : 'no recent items'}
@@ -121,16 +124,38 @@ export function Territories() {
     }
   };
 
+  const nameThem = async () => {
+    setBusy(true);
+    setStatus('Asking the on-device writer model…');
+    try {
+      const r = await send('background', 'gen-name-territories', { force: true });
+      setStatus(
+        r.unavailable
+          ? 'The writer model could not run here, so names stay as they were.'
+          : `${r.named} named by the model, ${r.fallback} kept their baseline name, ${r.skipped} skipped (${(r.ms / 1000).toFixed(1)} s).`,
+      );
+      await refresh();
+    } catch (err) {
+      setStatus(err instanceof Error ? err.message : String(err));
+    } finally {
+      setBusy(false);
+    }
+  };
+
   return (
     <section class="card" id="territories">
       <h2>Territories</h2>
       <p class="muted">
-        Groups of what you look at, found by the on-device model. Names are placeholders until the fine-tuned model arrives.
-        Suggested labels are rules, not judgements: you decide. Drain time beyond its allowance is what triggers nudges later.
+        Groups of what you look at, found by the on-device model and named by the fine-tuned Gemma 3 270M (a plain
+        "site · section" name where its answer didn't pass the checks). Suggested labels are suggestions, not judgements: you
+        decide. Drain time beyond its allowance is what triggers nudges.
       </p>
       <div class="row">
         <button onClick={recluster} disabled={busy}>
           Re-cluster now
+        </button>
+        <button onClick={nameThem} disabled={busy}>
+          Name territories with Gemma
         </button>
         <span class="muted">{status}</span>
       </div>

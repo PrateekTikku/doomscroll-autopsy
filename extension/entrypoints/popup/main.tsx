@@ -2,6 +2,9 @@ import { render } from 'preact';
 import { useEffect, useState } from 'preact/hooks';
 import { browser } from 'wxt/browser';
 import { send } from '@/lib/messaging';
+import '@/lib/gen/messages';
+import type { GenStatus } from '@/lib/gen/messages';
+import { writerLine } from '@/lib/gen/labels';
 import '@/lib/ml/messages';
 import type { EmbedStatusView } from '@/lib/ml/messages';
 import '@/lib/nudge/messages';
@@ -79,6 +82,7 @@ function Popup() {
   const [spiral, setSpiral] = useState<SpiralStatus | null>(null);
   const [replaying, setReplaying] = useState(false);
   const [summary, setSummary] = useState<PopupSummary | null>(null);
+  const [writer, setWriter] = useState<GenStatus | null>(null);
 
   const refresh = () =>
     send('background', 'live-stats')
@@ -121,6 +125,13 @@ function Popup() {
     const poll = () => void popupSummary().then(setSummary).catch(() => undefined);
     poll();
     const id = setInterval(poll, SUMMARY_POLL_MS);
+    return () => clearInterval(id);
+  }, []);
+
+  useEffect(() => {
+    const poll = () => void send('background', 'gen-overview').then((o) => setWriter(o.status)).catch(() => undefined);
+    poll();
+    const id = setInterval(poll, MODEL_POLL_MS);
     return () => clearInterval(id);
   }, []);
 
@@ -192,6 +203,7 @@ function Popup() {
       {replaying && <p class="warn">Replay running: nudges you see now come from a recorded or synthetic day.</p>}
 
       <p class={model?.state === 'error' ? 'warn' : 'muted'}>{modelLine(model)}</p>
+      <p class={writer?.state === 'error' ? 'warn' : 'muted'}>{writerLine(writer)}</p>
       {model && model.samplesToday > 0 && (
         <p class="muted">
           Embedded today: {model.vectorsToday} of {model.samplesToday} items

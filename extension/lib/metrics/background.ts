@@ -7,14 +7,17 @@ import { checkDue } from '@/lib/ml/territories-background';
 import { lastNightlyBoundary } from '@/lib/ml/territories-core';
 import { exclusive } from '@/lib/privacy/background';
 import { applyRetention } from '@/lib/privacy/retention';
+import { generateViaOffscreen, unloadWriter } from '@/lib/gen/client';
+import { nameTerritories } from '@/lib/gen/naming-service';
 import { getSettings } from '@/lib/settings';
 import './messages';
 import { ensureReports, generateReport } from './service';
 
 /**
  * The nightly job (PDD 6.3): at the first check after 03:00 local (a sleeping laptop catches up):
- *   1. retention, 2. re-cluster if due, 7. facts and the autopsy for every finished day.
- * Steps 3-6 belong to later milestones (tags, naming by the 270M, GRU, UMAP).
+ *   1. retention, 2. re-cluster if due, 4. name territories with the 270M (M6), 7. facts and the
+ *   autopsy (model first, template fallback) for every finished day.
+ * Steps 3, 5 and 6 belong to later milestones (tags, GRU, UMAP).
  */
 export const NIGHTLY_ALARM = 'metrics-nightly';
 export const NIGHTLY_META = 'nightly-meta';
@@ -36,7 +39,13 @@ export function isNightlyDue(lastRunAt: number | null, now: number): boolean {
 }
 
 /** Runs the nightly steps in order; each step is isolated so one failure doesn't skip the rest. */
-export async function runNightly(now = Date.now()): Promise<NightlyMeta> {
+export interface NightlyDeps {
+  /** Step 4; defaults to the writer model in the offscreen document. */
+  name?: () => Promise<unknown>;
+  unload?: () => Promise<void>;
+}
+
+export async function runNightly(now = Date.now(), deps: NightlyDeps = {}): Promise<NightlyMeta> {
   const errors: string[] = [];
   const step = async (name: string, fn: () => Promise<unknown>) => {
     try {
@@ -51,10 +60,12 @@ export async function runNightly(now = Date.now()): Promise<NightlyMeta> {
     await checkDue();
     await syncAssignments(now);
   });
+  await step('naming', () => (deps.name ?? (() => nameTerritories(generateViaOffscreen, { now })))());
   await step('prediction', () => refreshPrediction(now));
   await step('reports', async () => {
     written = await ensureReports(now);
   });
+  await (deps.unload ?? unloadWriter)().catch(() => undefined);
   const meta: NightlyMeta = { lastRunAt: now, reportsWritten: written, error: errors.length ? errors.join('; ') : null };
   await put('models', { name: NIGHTLY_META, updatedAt: now, data: meta });
   return meta;

@@ -46,6 +46,14 @@ export function topOrigins(samples: SampleLike[], n = 3): Array<{ origin: string
   return topBy(samples, (s) => s.origin, n).map((t) => ({ origin: t.key, count: t.count }));
 }
 
+/** Identifies what a territory is about: its top 3 origins. A model-written name is kept while this holds (M6). */
+export function descriptionKey(samples: SampleLike[]): string {
+  return topOrigins(samples, 3)
+    .map((o) => o.origin)
+    .sort()
+    .join('|');
+}
+
 /** Baseline territory name (PDD 9.10): "<top origin> · <top path segment>"; "home" for root-only paths. */
 export function baselineName(samples: SampleLike[]): string {
   const top = topOrigins(samples, 1)[0];

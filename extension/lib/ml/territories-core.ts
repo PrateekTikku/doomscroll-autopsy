@@ -1,7 +1,7 @@
 import type { Label, SampleRecord, TerritoryRecord } from '@/lib/db';
 import { nearestCentroid, type FitResult } from './kmeans';
 import { matchCentroids } from './hungarian';
-import { baselineName, suggestLabel, type Feed } from './names';
+import { baselineName, descriptionKey, suggestLabel, type Feed } from './names';
 
 /** Pure territory logic (PDD 9.2): no storage, no browser APIs. */
 
@@ -87,15 +87,24 @@ export function buildTerritories(input: BuildInput): BuildResult {
     if (prev) {
       usedOld.add(oldIdx!);
       similarities.push(match.similarity[c]!);
+      // Unconfirmed territories refresh their name and suggestion; confirmed ones keep theirs. A
+      // model-written name (M6) is kept as long as the territory is still about the same origins.
+      const key = descriptionKey(members);
+      const keepModel = !prev.labelConfirmed && prev.nameSource === 'model' && prev.nameKey === key;
+      const keep = prev.labelConfirmed || keepModel;
       out.push({
         ...prev,
         centroid,
         size: members.length,
         radius,
         lastSeen: Math.max(prev.lastSeen, lastSeen),
-        // Unconfirmed territories refresh their name and suggestion; confirmed ones keep theirs.
-        name: prev.labelConfirmed ? prev.name : baselineName(members),
-        suggestedLabel: prev.labelConfirmed ? prev.suggestedLabel : suggested,
+        name: keep ? prev.name : baselineName(members),
+        suggestedLabel: keep ? prev.suggestedLabel : suggested,
+        ...(prev.labelConfirmed
+          ? {}
+          : keepModel
+            ? {}
+            : { nameSource: 'baseline' as const, nameKey: key, suggestionSource: 'rules' as const }),
       });
     } else {
       created++;
@@ -104,6 +113,9 @@ export function buildTerritories(input: BuildInput): BuildResult {
         centroid,
         size: members.length,
         name: baselineName(members),
+        nameSource: 'baseline',
+        nameKey: descriptionKey(members),
+        suggestionSource: 'rules',
         topicTags: [],
         suggestedLabel: suggested,
         label: null,

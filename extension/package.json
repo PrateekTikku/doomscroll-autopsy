@@ -5,8 +5,8 @@
   "version": "0.1.0",
   "type": "module",
   "scripts": {
-    "dev": "node scripts/copy-ort.mjs && wxt",
-    "build": "node scripts/copy-ort.mjs && wxt build",
+    "dev": "node scripts/copy-ort.mjs && node scripts/copy-model.mjs && wxt",
+    "build": "node scripts/copy-ort.mjs && node scripts/copy-model.mjs && wxt build",
     "zip": "wxt zip",
     "compile": "tsc --noEmit",
     "test": "vitest run",
@@ -15,14 +15,17 @@
     "postinstall": "wxt prepare",
     "smoke": "node scripts/smoke-chrome.mjs",
     "check:types": "npm run gen:types && git diff --exit-code ../shared/types.ts",
-    "live": "node scripts/copy-ort.mjs && wxt build && node scripts/live.mjs",
+    "live": "node scripts/copy-ort.mjs && node scripts/copy-model.mjs && wxt build && node scripts/live.mjs",
     "probe:s1": "node scripts/s1-probe.mjs",
     "build:spike": "node scripts/copy-ort.mjs && SPIKE=1 wxt build",
     "probe:s2": "node scripts/s2-probe.mjs",
     "eval:m4": "M4_EVAL=1 vitest run lib/replay/synthetic-eval.test.ts",
     "probe:m4": "node scripts/m4-probe.mjs",
     "eval:m5": "M5_EVAL=1 vitest run lib/metrics/replayed.test.ts",
-    "probe:m5": "node scripts/m5-probe.mjs"
+    "probe:m5": "node scripts/m5-probe.mjs",
+    "eval:m6": "M6_EVAL=1 vitest run lib/gen/evidence.test.ts",
+    "probe:m6": "node scripts/m6-probe.mjs",
+    "report:m6": "M6_REPORT=1 vitest run lib/gen/evidence.test.ts"
   },
   "dependencies": {
     "@huggingface/transformers": "^4.3.1",

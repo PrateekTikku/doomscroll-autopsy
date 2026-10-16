@@ -6,6 +6,7 @@ import { computeDayFacts, datesWithData, successMetrics, type SuccessMetrics } f
 import { dateKey } from '@/lib/metrics/time';
 import { Autopsy } from './autopsy';
 import { Timeline } from './timeline';
+import { Writer } from './writer';
 
 const REFRESH_MS = 30_000;
 
@@ -153,6 +154,7 @@ export function Today() {
       <section class="card" id="autopsy">
         <h2 style={{ marginTop: 0 }}>Autopsy</h2>
         <Autopsy date={date} isToday={isToday} />
+        <Writer />
       </section>
 
       <section class="card" id="success">{success ? <Success m={success} /> : <p class="muted">Loading…</p>}</section>
