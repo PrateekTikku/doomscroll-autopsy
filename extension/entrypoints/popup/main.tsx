@@ -2,12 +2,34 @@ import { render } from 'preact';
 import { useEffect, useState } from 'preact/hooks';
 import { browser } from 'wxt/browser';
 import { send } from '@/lib/messaging';
+import '@/lib/ml/messages';
+import type { EmbedStatusView } from '@/lib/ml/messages';
 import '@/lib/observer/messages';
 import { pauseUntil, type PauseOption } from '@/lib/observer/pause';
 import type { LiveStats } from '@/lib/observer/service';
 import { isPaused, updateSettings, type Settings } from '@/lib/settings';
 
 const POLL_MS = 2000;
+const MODEL_POLL_MS = 4000;
+
+/** One calm line about the on-device model (PDD 4.2 voice). */
+export function modelLine(m: EmbedStatusView | null): string {
+  if (!m) return 'Model: checking…';
+  switch (m.state) {
+    case 'downloading':
+      return `Model: downloading, ${Math.round(m.percent)}% (one-time, from Hugging Face)`;
+    case 'loading':
+      return 'Model: starting…';
+    case 'ready':
+      return `Model: ready${m.medianMs != null ? `, ${Math.round(m.medianMs)} ms per item` : ''}`;
+    case 'unloaded':
+      return 'Model: asleep (wakes with your next item)';
+    case 'error':
+      return `Model: unavailable. ${m.error ?? ''}`.trim();
+    default:
+      return 'Model: starts with your next item';
+  }
+}
 
 const PAUSE_OPTIONS: Array<[PauseOption, string]> = [
   ['15m', '15 min'],
@@ -27,6 +49,7 @@ function pausedLabel(until: Settings['pausedUntil']): string {
 function Popup() {
   const [stats, setStats] = useState<LiveStats | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [model, setModel] = useState<EmbedStatusView | null>(null);
 
   const refresh = () =>
     send('background', 'live-stats')
@@ -39,6 +62,16 @@ function Popup() {
   useEffect(() => {
     void refresh();
     const id = setInterval(refresh, POLL_MS);
+    return () => clearInterval(id);
+  }, []);
+
+  useEffect(() => {
+    const poll = () =>
+      send('background', 'embed-status')
+        .then(setModel)
+        .catch(() => undefined);
+    void poll();
+    const id = setInterval(poll, MODEL_POLL_MS);
     return () => clearInterval(id);
   }, []);
 
@@ -79,6 +112,13 @@ function Popup() {
         </tbody>
       </table>
 
+      <p class={model?.state === 'error' ? 'warn' : 'muted'}>{modelLine(model)}</p>
+      {model && model.samplesToday > 0 && (
+        <p class="muted">
+          Embedded today: {model.vectorsToday} of {model.samplesToday} items
+        </p>
+      )}
+
       <h2>Pause</h2>
       {paused ? (
         <button onClick={() => pause(null)}>Resume now</button>
@@ -95,7 +135,7 @@ function Popup() {
       <p>
         <button onClick={() => browser.tabs.create({ url: browser.runtime.getURL('/dashboard.html') })}>Open dashboard</button>
       </p>
-      <p class="muted">v{browser.runtime.getManifest().version} · observer (M1)</p>
+      <p class="muted">v{browser.runtime.getManifest().version} · observer + embeddings (M2)</p>
     </main>
   );
 }

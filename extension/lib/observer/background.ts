@@ -2,6 +2,7 @@ import { browser } from 'wxt/browser';
 import type { createRouter } from '@/lib/messaging';
 import { getSettings, isPaused, onSettingsChanged, updateSettings, type Settings } from '@/lib/settings';
 import { effectiveBlocklist, excludeMatchesFor, isBlockedHost } from './blocklist';
+import { registerEmbedding } from '@/lib/ml/background';
 import './messages';
 import { createObserverService } from './service';
 import type { BrowserEvent } from './types';
@@ -110,10 +111,14 @@ async function setTick(needed: boolean): Promise<void> {
 export function registerObserver(router: Router): void {
   const service = createObserverService({ onTickNeeded: (needed) => void setTick(needed) });
   const enqueue = (ev: BrowserEvent) => void service.enqueue(ev);
+  const embedding = registerEmbedding(router);
 
   router.register('observer-event', (ev, sender) => {
     const tab = sender.tab;
     if (tab?.id == null || tab.incognito || sender.frameId !== 0) return;
+    // The item text exists only here and in the embedding job (memory); the observer service
+    // scrubs it before anything is stored (PDD 11).
+    if (ev.type === 'item') embedding.submitItem({ tabId: tab.id, ts: ev.ts, text: ev.text || ev.title || null, isVisual: ev.isVisual });
     void service.enqueue({ ...ev, tabId: tab.id });
   });
   router.register('live-stats', () => service.liveStats());
