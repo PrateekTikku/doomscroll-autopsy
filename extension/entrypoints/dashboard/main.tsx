@@ -4,6 +4,7 @@ import { count, DB_NAME, DB_VERSION, openDb } from '@/lib/db';
 import { clearRecorder, exportJsonl, recorderCount } from '@/lib/replay/recorder';
 import { getSettings, onSettingsChanged, updateSettings } from '@/lib/settings';
 import { Evidence } from './evidence';
+import { ReplayPanel } from './replay';
 import { Territories } from './territories';
 
 /** Dev-mode recorder controls (PDD 7.7). The full dashboard arrives in M3 and M5. */
@@ -93,6 +94,7 @@ function Dashboard() {
         {error ? <span class="bad">{error}</span> : stores ? stores.join(', ') : <span class="muted">opening…</span>}
       </p>
       <Territories />
+      <ReplayPanel />
       {dev && <Evidence />}
       <Developer />
     </main>

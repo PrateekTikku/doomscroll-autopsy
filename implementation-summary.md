@@ -11,7 +11,7 @@
 | M1 Observer + bins | ✅ Done | 2026-10-15 | — | Generic observer, 30 s bins and samples in IndexedDB, pause + badge, popup live counts, dev recorder, S1 headless pass; owner's daily profile runs `.live/chrome-mv3` |
 | M2 Embedding engine | ✅ Done | 2026-10-16 | — | EmbeddingGemma 2 (q4f16, WebGPU) in the offscreen document: text 16 ms, image 213 ms median; vectors (256d) written to samples; S2/S3 pass; no WASM fallback. docs/plans/M2.md |
 | M3 Territories + labeling | ✅ Done | 2026-10-16 | L1 | Own spherical k-means + silhouette k, Hungarian matching keeps IDs/labels (D-53), online assignment, dashboard Territories + dev Evidence. Real-data checks (C2 drift, domain split) still pending on the owner's profile. docs/plans/M3.md |
-| M4 Prediction + nudges + replay | 🟡 In progress (plan approved) | | L2 | docs/plans/M4.md |
+| M4 Prediction + nudges + replay | ✅ Done | 2026-10-16 | L2 | Rules + Markov scoring with allowances, evaluation harness, banner + blur nudges, replayer, synthetic days, demo mode (banner at 57:00, blur at 72:00 of replay time). Real-data rules-vs-Markov numbers still pending on the owner's profile. docs/plans/M4.md |
 | M5 Metrics + dashboard + privacy | ⬜ Not started | | L3 | |
 | T1 Teacher data | 🔍 Awaiting owner review | | | 1,073 valid examples (660 naming, 413 autopsy) split 973 train / 100 eval in `training/data/`; S4 resolved (MTP ≈17–19 tok/s, concurrency 1). docs/plans/T1.md |
 | T2 Fine-tune + ONNX | ✅ Done | 2026-10-16 | — | Fine-tuned 270M meets the PDD 10.4 ship bar; ONNX 8-bit (324 MB, genai builder) generates in the browser at ~118 tok/s; 4-bit loses quality; autopsy edge over template is small. docs/plans/T2.md |
@@ -23,7 +23,7 @@
 Status values: ⬜ Not started · 📝 Plan awaiting approval · 🟡 In progress (plan approved) · 🔍 Awaiting review · ✅ Done · ⚠️ Done with gaps · ❌ Blocked
 
 ## Current showcase level
-**Level 1 (M3).** Territories exist and can be labeled; the "one domain, many territories" evidence still needs the owner's real data. (Update this line whenever a milestone raises the level; see `implementation-milestones.md` 0.4.)
+**Level 2 (M4).** The loop works: observe → embed → territories → predict (rules + Markov) → in-page nudges, with replay/demo mode. The "one domain, many territories" and real-data rules-vs-Markov evidence still need the owner's real data. (Update this line whenever a milestone raises the level; see `implementation-milestones.md` 0.4.)
 
 ## Known issues and open follow-ups
 (Each entry: ID, found in, description, suggested owner milestone.)
@@ -43,7 +43,10 @@ Status values: ⬜ Not started · 📝 Plan awaiting approval · 🟡 In progres
 - **K-13** (M2): memory in the owner's real profile is unmeasured (about +1.3 GB in headless Chrome vs the 1.5 GB budget). The vision encoder stays loaded even for text-only use; loading it on the first screenshot would save part of that. The 10-minute idle unload is unit-tested only. The popup's `embed-status` reads today's samples (with vectors) every 4 s; fine now, heavy later. Owner: M7 / any Lane A chat.
 - **K-14** (M3): spike C2 not done on changing real data: the 0.8 centroid-match threshold under drift is unmeasured (a repeat run on identical data gives similarity ≈ 1.0). The dashboard status shows the weakest match after "Re-cluster now". Owner: owner / M5.
 - **K-15** (M3): the chosen k varies with the data (6 vs 10 on the same headless 200 vectors, different subsamples); "one domain, many territories" is not yet shown on the owner's data (Dashboard → Developer → dev mode → Compute evidence; read the JSON before using it in the post). Real-profile timing and memory unmeasured. Owner: owner / M9.
-- **K-16** (M3): bin territories are set by a 1-minute sweep, not live. M4 may want them event-driven. Owner: M4.
+- **K-16** (M3): bin territories are set by a 1-minute sweep, not live. M4 may want them event-driven. Owner: M4. **Resolved in M4 for nudging** (the live score uses the latest sample's online territory); bins still lag a minute for M5.
+- **K-17** (M4): rules-vs-Markov on the owner's real data not run (needs the daily profile): Dashboard → Prediction and replay → "Evaluate on my data". With one day of data it uses a 70/30 split of that day and AUC may be n/a. Owner: owner / M9.
+- **K-18** (M4): synthetic evaluation saturates (AUC ≈ 0.99–1.00 for both modes, top-1 identical) because the generator makes spirals long runs on one site; only top-3 on switches separates the modes (80.4% rules vs 88.9% Markov). Do not present it as predictive skill. Owner: M9.
+- **K-19** (M4): real nudge delivery in the owner's daily profile is unverified (headless probe only); a nudge cannot show over fullscreen video. The 24 h / 240-bin threshold for switching to Markov and the 60 min escalation window are my choices, not PDD numbers. The "unassigned feed" spent counter lives in `chrome.storage.session` and resets with the browser. Owner: owner / M7.
 
 ---
 
@@ -487,3 +490,57 @@ None needs a decision-log entry; these fill gaps the PDD leaves open:
 - **M4/M5:** `samples.territoryId` (null = unassigned/none), `territoryDist`, `bins.territoryId`, and `territories` (`label`, `allowance`, `suggestedLabel`, `size`; size 0 = dormant) are filled. Bin territories lag up to a minute. Use `loadTerritoryView` in `territories.ts` for dashboard data. Drain allowance is minutes per day, 0–1440, Drain only.
 - Territory IDs are stable across re-clusters only through matching; treat `null` label as unconfirmed and use `suggestedLabel` only as a hint.
 - Re-cluster state is in `models` under `territories-meta`.
+
+---
+
+## M4 — Spiral prediction, nudges, replayer and demo mode
+**Status:** ✅ Done
+**Date:** 2026-10-16 · **Commits:** `ca780ab` (plan) plus the three `M4:` commits after it (see `git log`)
+**Approved plan:** `docs/plans/M4.md` (approved 2026-10-16, owner: "approve it and build it" after my self-review) · **Work approved:** 2026-10-16, owner: "I don't think I will be able to review this. Please review your own work… finish the milestone and commit" (review steps skipped by the owner; I re-read the diff, ran every check and the headless probes myself)
+
+### What was built
+- **Scoring:** `rules.ts` (logistic drain share from items/min, scroll, skip rate, feed prior, time in territory, "just left Deep"; constants documented), `markov.ts` (first-order over bins; states = territory IDs + `unassigned`/`away`/`idle`; gaps are not transitions; Laplace α 0.05; 20-step expected-occupancy rollout), `scoring.ts` (PDD 9.5 spiral score with per-territory remaining allowance; effective label = confirmed, else suggested; `selectMode`: Markov once the history spans 24 h with ≥ 240 labelled bins).
+- **Evaluation:** `eval.ts` (top-1/top-3, top-3 on switches, rank-based AUC with ties, split: latest day, else 70/30 within the day, else none; AUC null without both classes) and `evaluate.ts` (stores `models/markov`, `models/eval`, `models/prediction-mode`; Markov refreshed at most every 6 h).
+- **Nudges:** `policy.ts` (pure), `copy.ts` (coach voice), `ui.ts` (closed shadow DOM, constructable stylesheet; banner and a `backdrop-filter` blur layer, Replay pill, Escape = snooze, banner auto-hides as "ignored" after 60 s), `content.ts` (own removable `onMessage` listener, started by `entrypoints/observer.ts` only after the blocklist/pause checks), `service.ts`/`background.ts` (30 s alarm → snapshot → score → policy → deliver to the active tab → log; `secondsToReturn` and bin `nudgeShown/nudgeResponse` set later; `spiral-status` for the popup).
+- **Replay:** `synthetic.ts` (seeded days for the 6 personas as recorder-format events, territory table and routes), `replayer.ts` (real `step()` pipeline on the events' clock, longest-prefix route resolution, scoring and policy per closed bin; in memory only; JSONL parser; routes from real samples), `demo.ts` (80-min prepared day, player with a virtual clock), `synthetic-eval.ts`.
+- **UI:** dashboard "Prediction and replay" panel (`entrypoints/dashboard/replay.tsx`: active mode, Evaluate on my data, synthetic evaluation, Start demo with speed, replay of a JSONL recording); popup line "Mode: rules · spiral score 0.xx (nudges at 0.60)" and a "Replay running" warning.
+
+### Key files
+- `extension/lib/ml/{markov,rules,scoring,eval,evaluate}.ts` · `extension/lib/nudge/{policy,copy,ui,content,service,background,messages}.ts` · `extension/lib/replay/{synthetic,replayer,demo,synthetic-eval}.ts` · `extension/entrypoints/dashboard/replay.tsx` · `extension/scripts/m4-probe.mjs` · `docs/showcase/M4/`
+
+### How to run / verify
+- `cd extension && npm run build && npm test && npm run compile && npm run smoke && npm run check:types` (34 files, 239 tests + 1 gated; smoke 0 exceptions).
+- `npm run probe:m4` (offline, ~1 min; `REAL=1` adds github.com and YouTube Shorts); `npm run eval:m4` writes `docs/showcase/M4/synthetic-eval.{json,md}`.
+- Owner: `npm run live`, reload, Dashboard → Prediction and replay → Start demo (switch to another page) and "Evaluate on my data".
+
+### Acceptance criteria
+- [x] Unit tests: Markov rollout on a known chain (analytic), allowance logic, nudge policy (cooldown boundary, allowance, max step, label rules, escalation, quiet hours), evaluation metrics on toy data — `markov/scoring/policy/eval/evaluate/service/replay` tests.
+- [x] Synthetic spiral day replayed in demo mode triggers a banner, then a blur, at the expected times — test: banner 57:00, blur 72:00 (expected 57 ± 2, ≥ 15 min apart); headless probe at 120×: banner after ~29 s, blur ~37 s, Replay flag set.
+- [~] Rules vs Markov on the owner's real data computed and stored — the code path is tested on stored synthetic bins and runs on empty data in the probe; the real run is the owner's (K-17).
+
+### Deviations from the approved plan
+- `npm run eval:m4` is a gated Vitest run (`lib/replay/synthetic-eval.test.ts`) instead of `scripts/m4-eval.ts` (tsx can't resolve `@/`); the headless probe is a separate `scripts/m4-probe.mjs`/`npm run probe:m4`, not an `M4=1` mode of `probe:s1`. Added `lib/ml/evaluate.ts` and `lib/replay/synthetic-eval.ts`.
+- Small edits to existing code: `'content'` added to the messaging `Target`; M3's `relabelBins` re-reads each bin inside the transaction so nudge flags aren't overwritten; the stub `index.test.ts` of `lib/nudge` and `lib/replay` removed (barrels now); rules `SCROLL_NORM` 300 (a feed at ~8 items/min averages ~100 px/s).
+- N1 also ran on github.com and YouTube Shorts (`REAL=1`); copy fixed after a screenshot showed "spent 15 … past your 15".
+
+### Decisions and deviations from the PDD
+- **D-54** added: no nudge while allowance remains; unconfirmed territories use their suggested label; step-2 buttons "Back to it"/"Keep going" until M8 adds "Take a breath"; escalation needs the previous nudge within 60 min and ignored/snoozed/unanswered ("Back to it" resets); replays never write stored data. PDD 9.7 "As built" note.
+
+### Spike / measurement results
+- **N1 pass** (banner + blur topmost, page DOM unchanged, on strict-CSP, plain, github.com, YouTube Shorts; refused when paused, not delivered to blocklisted pages). **N2 pass** (84 synthetic days replayed + evaluated in 3.8 s, ~45 ms/day). Details: `experiments/spikes.md`, `docs/showcase/M4/results.md`.
+- Regression: `M3=1 npm run probe:s1` still passes (labels survive re-cluster; 0 query strings, 0 text records, 0 page-text lines).
+
+### Contracts changed
+- No `shared/` change, no `DB_VERSION` bump. New messages: `nudge-show` (background → content, target `content`), `nudge-response` (content → background), `spiral-status` (popup → background). New `models` records: `markov`, `eval`, `prediction-mode`. `chrome.storage.session` keys: `replay-active`, `unassigned-feed-spent`.
+
+### Known issues
+- K-17, K-18, K-19 (above).
+
+### Showcase evidence
+- `docs/showcase/M4/`: `results.md`, `synthetic-eval.{md,json}`, `m4-probe.json`, headless screenshots (`demo-banner/blur.png`, `nudge-*.png`), `CAPTURE.md` (owner: demo GIF at 120×, popup during replay, mode/evaluation table).
+
+### Notes for the next milestone
+- **M5:** nudge outcomes are in `nudges` (`response`, `secondsToReturn`) and on bins (`nudgeShown`, `nudgeResponse`, set by `trackNudgeOutcomes` within 30 min); `effectiveLabel`/`territoryInfo` in `lib/ml/scoring.ts` give the label scoring used. The dashboard panel is mounted with one line in `main.tsx`; keep it. `evaluate.ts` exports `refreshPrediction`/`getStoredMode` if the dashboard needs the mode.
+- **M6:** nothing here depends on the 270M; the nudge copy is deterministic. **M7:** nudges need a page with the observer; test real delivery in a fresh profile and mention fullscreen limit.
+- **M8:** GRU plugs into `selectMode`/`scoreSpiral` (`ScoreContext.mode`) and `evaluateModes` (add a third mode); breathing step: raise `IMPLEMENTED_MAX_STEP` in `policy.ts` and add the UI/copy.
+- The M5 chat may run in parallel; both edit `entrypoints/dashboard/main.tsx` (one line each) and `background.ts`.

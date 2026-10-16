@@ -95,3 +95,20 @@ Findings:
 | 6,006 | 13 | 0.48 | 1.7 s |
 
 Pass bar was < 10 s at 6,000 vectors. Cost is dominated by the k selection on the fixed-size subsample, so it barely grows with N. Two choices made it cheap: (1) k is chosen on a subsample, and only the final fit sees all points; (2) the silhouette is exact but O(n·k·d) instead of O(n²·d): for unit vectors with cosine distance, the sum of distances from x to a cluster C is |C| − x·S_C (S_C = sum of C's vectors), so no pairwise matrix is needed. The service worker runs it (the plan's offscreen fallback was not needed); a real-browser timing comes from the probe below.
+
+## N1 — Nudge rendering on strict-CSP and real pages (M4)
+**Result: pass** (2026-10-16). `npm run build && REAL=1 npm run probe:m4` (headless Chrome, extension loaded, nudges sent from the dashboard page with `tabs.sendMessage`). For each page the banner (step 1) and the blur (step 2) were shown, the host element was the topmost element at the banner's corner and at the centre of the viewport, the shadow root was closed, and `document.body.innerHTML` was byte-identical before and after (the blur is a fixed `backdrop-filter` layer, not a filter on the page).
+
+| Page | Banner | Blur | Notes |
+|---|---|---|---|
+| local page with `Content-Security-Policy: default-src 'none'; style-src 'none'; script-src 'none'` | pass | pass | constructable stylesheet works under a CSP that forbids all styles, so the inline-style fallback was not needed |
+| local plain page | pass | pass | Escape answers and removes it |
+| github.com (strict CSP) | pass | pass | needed a retry while the observer started on a slow page |
+| youtube.com/shorts | pass | pass | |
+| paused page | refused | | the content script answers `shown: false` |
+| blocklisted page | not delivered | | no content script, so `tabs.sendMessage` fails ("Receiving end does not exist") |
+
+Screenshots (headless): `docs/showcase/M4/nudge-*.png`. **Known limit:** an element in browser fullscreen (a fullscreen video) covers anything outside the fullscreen element, so a nudge won't show over fullscreen video. Not tested; Shorts and Reels on desktop aren't fullscreen.
+
+## N2 — Cost of replaying a day (M4)
+**Result: pass** (2026-10-16). `npm run eval:m4` replays 6 personas × 14 synthetic days (84 days, about 15,000 events each, through the real `step()` pipeline, territory resolution, scoring and the nudge policy on every closed bin, then trains Markov and evaluates) in **3.8 s total, about 45 ms per day**. Pass bar was < 5 s for one day.

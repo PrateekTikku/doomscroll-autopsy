@@ -393,6 +393,7 @@ Score = Σ `excess_t` / 10, capped at 1.
 
 ### 9.7 Nudge policy
 See 4.5. Trigger when `score ≥ threshold(sensitivity)` and every rule in 4.5 allows it. Escalate one step if the previous nudge was ignored or snoozed and the score is still above threshold after the cooldown. Never exceed the user's max step. Log every nudge and response.
+- **As built (M4, D-54):** no nudge while the Drain territory still has allowance left; unconfirmed territories use their suggested label; escalation needs the previous nudge within 60 min; step-2 buttons are *Back to it* / *Keep going* until M8 adds *Take a breath*. The score is computed every 30 s from the latest sample's territory and the last closed bin; Markov takes over once the history spans 24 h with ≥ 240 labelled bins (Laplace α = 0.05). Rules constants are in `lib/ml/rules.ts`.
 
 ### 9.8 Daily facts and the autopsy (D-21, D-42)
 1. **Facts are computed deterministically** in TypeScript and saved as a `facts` JSON:
@@ -673,6 +674,7 @@ Offer a post-mortem on DEV only with the owner's yes. Never publish anything wit
 | D-51 | MV3 platform details (12.2): `wasm-unsafe-eval`, HF host access, `unlimitedStorage`, WebGPU sharing check, blocklist checked first in content scripts | Avoid day-one surprises | — |
 | D-52 | **Settings in `chrome.storage.local`**, not IndexedDB (M0, 2026-10-15) | Content scripts run in the page's origin and can't read the extension's IndexedDB; pause and blocklist must be checked there first, without waking the service worker | `settings` store in IndexedDB mirrored to `chrome.storage.local`; content scripts asking the service worker on every page load |
 | D-53 | **Territory re-clustering keeps owner-confirmed territories** (M3, 2026-10-16): k chosen on a subsample, clusters < 5 members dissolved, unmatched confirmed territories stay dormant instead of being deleted | A changed k must never silently erase a label the owner confirmed; full-data k selection cost ~100 G multiply-adds | Delete unmatched territories (PDD 9.2 as first written) |
+| D-54 | **Nudge details settled in M4** (2026-10-16): (1) no nudge while a Drain territory still has allowance left (the score decides *whether*, this guard decides *when*, so nudges fire when the allowance is used up); (2) unconfirmed territories score and nudge with their rule-based suggested label so hour-0 detection works; (3) step-2 buttons are **Back to it** / **Keep going** until the breathing step exists (M8 adds **Take a breath**); (4) escalation to step 2 needs the previous nudge within 60 min and ignored, snoozed or unanswered; a *Back to it* resets to step 1; (5) replays never write to the stored data | Makes "within the allowance" unambiguous and the demo's timing predictable; keeps the owner's data clean | Nudge on the predicted overrun before the allowance is used up; only confirmed labels |
 
 (D-37 to D-39 intentionally unused.)
 

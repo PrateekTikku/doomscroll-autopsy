@@ -1,0 +1,249 @@
+{
+ "days": 14,
+ "seed": 1,
+ "perPersona": [
+  {
+   "persona": "developer",
+   "days": 14,
+   "bins": 14965,
+   "eval": {
+    "ranAt": 1792167536054,
+    "split": "latest-day",
+    "trainBins": 13901,
+    "testBins": 1064,
+    "testFrom": 1791691200000,
+    "rules": {
+     "top1": 0.9623352165725048,
+     "top3": 0.9962335216572504,
+     "switchTop3": 0.9,
+     "switchN": 40,
+     "auc": 0.991357421875,
+     "nNext": 1062,
+     "nScore": 1044,
+     "positives": 20
+    },
+    "markov": {
+     "top1": 0.9623352165725048,
+     "top3": 0.9943502824858758,
+     "switchTop3": 0.85,
+     "switchN": 40,
+     "auc": 0.99267578125,
+     "nNext": 1062,
+     "nScore": 1044,
+     "positives": 20
+    }
+   },
+   "nudges": {
+    "total": 9,
+    "banners": 9,
+    "blurs": 0,
+    "perDay": 0.6428571428571429
+   }
+  },
+  {
+   "persona": "writer",
+   "days": 14,
+   "bins": 12510,
+   "eval": {
+    "ranAt": 1792167536457,
+    "split": "latest-day",
+    "trainBins": 11630,
+    "testBins": 880,
+    "testFrom": 1791685800000,
+    "rules": {
+     "top1": 0.9635535307517085,
+     "top3": 0.9943052391799544,
+     "switchTop3": 0.84375,
+     "switchN": 32,
+     "auc": 1,
+     "nNext": 878,
+     "nScore": 860,
+     "positives": 16
+    },
+    "markov": {
+     "top1": 0.9635535307517085,
+     "top3": 0.9943052391799544,
+     "switchTop3": 0.84375,
+     "switchN": 32,
+     "auc": 1,
+     "nNext": 878,
+     "nScore": 860,
+     "positives": 16
+    }
+   },
+   "nudges": {
+    "total": 23,
+    "banners": 14,
+    "blurs": 9,
+    "perDay": 1.6428571428571428
+   }
+  },
+  {
+   "persona": "researcher",
+   "days": 14,
+   "bins": 16409,
+   "eval": {
+    "ranAt": 1792167537362,
+    "split": "latest-day",
+    "trainBins": 15220,
+    "testBins": 1189,
+    "testFrom": 1791693000000,
+    "rules": {
+     "top1": 0.9662731871838112,
+     "top3": 0.9966273187183811,
+     "switchTop3": 0.9,
+     "switchN": 40,
+     "auc": 1,
+     "nNext": 1186,
+     "nScore": 1169,
+     "positives": 124
+    },
+    "markov": {
+     "top1": 0.9662731871838112,
+     "top3": 0.9966273187183811,
+     "switchTop3": 0.9,
+     "switchN": 40,
+     "auc": 0.9999536965581108,
+     "nNext": 1186,
+     "nScore": 1169,
+     "positives": 124
+    }
+   },
+   "nudges": {
+    "total": 48,
+    "banners": 23,
+    "blurs": 25,
+    "perDay": 3.4285714285714284
+   }
+  },
+  {
+   "persona": "designer",
+   "days": 14,
+   "bins": 14169,
+   "eval": {
+    "ranAt": 1792167537864,
+    "split": "latest-day",
+    "trainBins": 13155,
+    "testBins": 1014,
+    "testFrom": 1791689400000,
+    "rules": {
+     "top1": 0.9693675889328063,
+     "top3": 0.9802371541501976,
+     "switchTop3": 0.3548387096774194,
+     "switchN": 31,
+     "auc": 0.9874783618804664,
+     "nNext": 1012,
+     "nScore": 994,
+     "positives": 98
+    },
+    "markov": {
+     "top1": 0.9693675889328063,
+     "top3": 0.9960474308300395,
+     "switchTop3": 0.8709677419354839,
+     "switchN": 31,
+     "auc": 0.9903084001457726,
+     "nNext": 1012,
+     "nScore": 994,
+     "positives": 98
+    }
+   },
+   "nudges": {
+    "total": 48,
+    "banners": 25,
+    "blurs": 23,
+    "perDay": 3.4285714285714284
+   }
+  },
+  {
+   "persona": "student",
+   "days": 14,
+   "bins": 19829,
+   "eval": {
+    "ranAt": 1792167538849,
+    "split": "latest-day",
+    "trainBins": 18425,
+    "testBins": 1404,
+    "testFrom": 1791696600000,
+    "rules": {
+     "top1": 0.9586009992862241,
+     "top3": 0.9950035688793719,
+     "switchTop3": 0.8793103448275862,
+     "switchN": 58,
+     "auc": 1,
+     "nNext": 1401,
+     "nScore": 1384,
+     "positives": 44
+    },
+    "markov": {
+     "top1": 0.9586009992862241,
+     "top3": 0.9978586723768736,
+     "switchTop3": 0.9482758620689655,
+     "switchN": 58,
+     "auc": 1,
+     "nNext": 1401,
+     "nScore": 1384,
+     "positives": 44
+    }
+   },
+   "nudges": {
+    "total": 34,
+    "banners": 14,
+    "blurs": 20,
+    "perDay": 2.4285714285714284
+   }
+  },
+  {
+   "persona": "freelancer",
+   "days": 14,
+   "bins": 14189,
+   "eval": {
+    "ranAt": 1792167539338,
+    "split": "latest-day",
+    "trainBins": 13172,
+    "testBins": 1017,
+    "testFrom": 1791687600000,
+    "rules": {
+     "top1": 0.961576354679803,
+     "top3": 0.9980295566502463,
+     "switchTop3": 0.9487179487179487,
+     "switchN": 39,
+     "auc": 0.9908722109533469,
+     "nNext": 1015,
+     "nScore": 997,
+     "positives": 11
+    },
+    "markov": {
+     "top1": 0.961576354679803,
+     "top3": 0.9970443349753695,
+     "switchTop3": 0.9230769230769231,
+     "switchN": 39,
+     "auc": 0.990319011617186,
+     "nNext": 1015,
+     "nScore": 997,
+     "positives": 11
+    }
+   },
+   "nudges": {
+    "total": 14,
+    "banners": 12,
+    "blurs": 2,
+    "perDay": 1
+   }
+  }
+ ],
+ "mean": {
+  "rules": {
+   "top1": 0.963617812901143,
+   "top3": 0.993406059872567,
+   "switchTop3": 0.8044361672038257,
+   "auc": 0.9949513324514688
+  },
+  "markov": {
+   "top1": 0.963617812901143,
+   "top3": 0.9960388797610822,
+   "switchTop3": 0.8893450878468955,
+   "auc": 0.9955428149285116
+  }
+ },
+ "ms": 3878
+}

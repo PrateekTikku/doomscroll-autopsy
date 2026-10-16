@@ -4,6 +4,8 @@ import { browser } from 'wxt/browser';
 import { send } from '@/lib/messaging';
 import '@/lib/ml/messages';
 import type { EmbedStatusView } from '@/lib/ml/messages';
+import '@/lib/nudge/messages';
+import type { SpiralStatus } from '@/lib/nudge/messages';
 import '@/lib/observer/messages';
 import { pauseUntil, type PauseOption } from '@/lib/observer/pause';
 import type { LiveStats } from '@/lib/observer/service';
@@ -31,6 +33,14 @@ export function modelLine(m: EmbedStatusView | null): string {
   }
 }
 
+/** One line about the prediction mode and the current spiral score (PDD 4.4). */
+export function spiralLine(s: SpiralStatus | null): string {
+  if (!s) return 'Prediction: checking…';
+  const mode = s.mode === 'markov' ? 'Markov' : 'rules';
+  if (s.score == null) return `Mode: ${mode} · spiral score appears while you browse`;
+  return `Mode: ${mode} · spiral score ${s.score.toFixed(2)} (nudges at ${s.threshold.toFixed(2)})`;
+}
+
 const PAUSE_OPTIONS: Array<[PauseOption, string]> = [
   ['15m', '15 min'],
   ['1h', '1 hour'],
@@ -50,6 +60,8 @@ function Popup() {
   const [stats, setStats] = useState<LiveStats | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [model, setModel] = useState<EmbedStatusView | null>(null);
+  const [spiral, setSpiral] = useState<SpiralStatus | null>(null);
+  const [replaying, setReplaying] = useState(false);
 
   const refresh = () =>
     send('background', 'live-stats')
@@ -72,6 +84,19 @@ function Popup() {
         .catch(() => undefined);
     void poll();
     const id = setInterval(poll, MODEL_POLL_MS);
+    return () => clearInterval(id);
+  }, []);
+
+  useEffect(() => {
+    const poll = () => {
+      void send('background', 'spiral-status').then(setSpiral).catch(() => undefined);
+      void browser.storage.session
+        .get('replay-active')
+        .then((r) => setReplaying(r['replay-active'] === true))
+        .catch(() => undefined);
+    };
+    poll();
+    const id = setInterval(poll, POLL_MS);
     return () => clearInterval(id);
   }, []);
 
@@ -112,6 +137,11 @@ function Popup() {
         </tbody>
       </table>
 
+      <p class="muted" title={spiral?.modeReason ?? undefined}>
+        {spiralLine(spiral)}
+      </p>
+      {replaying && <p class="warn">Replay running: nudges you see now come from a recorded or synthetic day.</p>}
+
       <p class={model?.state === 'error' ? 'warn' : 'muted'}>{modelLine(model)}</p>
       {model && model.samplesToday > 0 && (
         <p class="muted">
@@ -135,7 +165,7 @@ function Popup() {
       <p>
         <button onClick={() => browser.tabs.create({ url: browser.runtime.getURL('/dashboard.html') })}>Open dashboard</button>
       </p>
-      <p class="muted">v{browser.runtime.getManifest().version} · observer + embeddings (M2)</p>
+      <p class="muted">v{browser.runtime.getManifest().version} · observer, territories, nudges (M4)</p>
     </main>
   );
 }

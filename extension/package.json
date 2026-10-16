@@ -18,7 +18,9 @@
     "live": "node scripts/copy-ort.mjs && wxt build && node scripts/live.mjs",
     "probe:s1": "node scripts/s1-probe.mjs",
     "build:spike": "node scripts/copy-ort.mjs && SPIKE=1 wxt build",
-    "probe:s2": "node scripts/s2-probe.mjs"
+    "probe:s2": "node scripts/s2-probe.mjs",
+    "eval:m4": "M4_EVAL=1 vitest run lib/replay/synthetic-eval.test.ts",
+    "probe:m4": "node scripts/m4-probe.mjs"
   },
   "dependencies": {
     "@huggingface/transformers": "^4.3.1",
