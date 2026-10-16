@@ -10,7 +10,7 @@
 | M0 Scaffold + contracts | ✅ Done | 2026-10-15 | — | WXT + Preact scaffold, IndexedDB v1, settings in chrome.storage.local (D-52), shared schemas v1, uv project |
 | M1 Observer + bins | ✅ Done | 2026-10-15 | — | Generic observer, 30 s bins and samples in IndexedDB, pause + badge, popup live counts, dev recorder, S1 headless pass; owner's daily profile runs `.live/chrome-mv3` |
 | M2 Embedding engine | ✅ Done | 2026-10-16 | — | EmbeddingGemma 2 (q4f16, WebGPU) in the offscreen document: text 16 ms, image 213 ms median; vectors (256d) written to samples; S2/S3 pass; no WASM fallback. docs/plans/M2.md |
-| M3 Territories + labeling | ⬜ Not started | | L1 | |
+| M3 Territories + labeling | 🟡 In progress | | L1 | docs/plans/M3.md |
 | M4 Prediction + nudges + replay | ⬜ Not started | | L2 | |
 | M5 Metrics + dashboard + privacy | ⬜ Not started | | L3 | |
 | T1 Teacher data | 🔍 Awaiting owner review | | | 1,073 valid examples (660 naming, 413 autopsy) split 973 train / 100 eval in `training/data/`; S4 resolved (MTP ≈17–19 tok/s, concurrency 1). docs/plans/T1.md |
