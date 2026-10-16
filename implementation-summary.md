@@ -12,7 +12,7 @@
 | M2 Embedding engine | ✅ Done | 2026-10-16 | — | EmbeddingGemma 2 (q4f16, WebGPU) in the offscreen document: text 16 ms, image 213 ms median; vectors (256d) written to samples; S2/S3 pass; no WASM fallback. docs/plans/M2.md |
 | M3 Territories + labeling | ✅ Done | 2026-10-16 | L1 | Own spherical k-means + silhouette k, Hungarian matching keeps IDs/labels (D-53), online assignment, dashboard Territories + dev Evidence. Real-data checks (C2 drift, domain split) still pending on the owner's profile. docs/plans/M3.md |
 | M4 Prediction + nudges + replay | ✅ Done | 2026-10-16 | L2 | Rules + Markov scoring with allowances, evaluation harness, banner + blur nudges, replayer, synthetic days, demo mode (banner at 57:00, blur at 72:00 of replay time). Real-data rules-vs-Markov numbers still pending on the owner's profile. docs/plans/M4.md |
-| M5 Metrics + dashboard + privacy | ⬜ Not started | | L3 | |
+| M5 Metrics + dashboard + privacy | 🟡 In progress | | L3 | docs/plans/M5.md (plan approved) |
 | T1 Teacher data | 🔍 Awaiting owner review | | | 1,073 valid examples (660 naming, 413 autopsy) split 973 train / 100 eval in `training/data/`; S4 resolved (MTP ≈17–19 tok/s, concurrency 1). docs/plans/T1.md |
 | T2 Fine-tune + ONNX | ✅ Done | 2026-10-16 | — | Fine-tuned 270M meets the PDD 10.4 ship bar; ONNX 8-bit (324 MB, genai builder) generates in the browser at ~118 tok/s; 4-bit loses quality; autopsy edge over template is small. docs/plans/T2.md |
 | M6 Integrate 270M | ⬜ Not started | | L4 | |
