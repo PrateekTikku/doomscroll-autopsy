@@ -341,7 +341,7 @@ No vector database. At ~3–6k samples/day × 256 float32 = ~3–6 MB/day, brute
 - **Modules loaded:** text model + vision encoder. The audio encoder is never loaded.
 - **dtype:** `q4f16` first choice (text ≈157 MB + vision ≈98 MB, ≈255 MB total). Spike S2 measures quality and speed; fall back to `q4` or `fp16` if needed. The model card warns that **float16 activations can overflow to NaN** in full fp16, so check for NaNs in the spike.
 - **Inputs:** item text (≤512 tokens), plus the screenshot when visual, interleaved in one pass.
-- **Task prefix:** use the **clustering/classification** prefix from the model card for samples and the matching prefix for topic phrases. *Copy the exact strings from the model card; do not invent them* (V-03).
+- **Task prefix:** use the **clustering/classification** prefix from the model card for samples and the matching prefix for topic phrases. *Copy the exact strings from the model card; do not invent them* (V-03). **Resolved in S2:** `task: clustering | query: {text}`; images take no prefix and are interleaved with `<|image|>` in one pass.
 - **Output:** 768d L2-normalised vector, truncated to 256d and re-normalised.
 
 ### 9.2 Territories: clustering (D-19)
@@ -506,7 +506,7 @@ Synthetic but realistic. We generate *inputs* programmatically (plausible territ
 ### 12.2 MV3 platform details (D-51)
 - **CSP:** `extension_pages` must allow `'wasm-unsafe-eval'` for ONNX Runtime Web and TF.js WASM.
 - **Model downloads:** fetched from `huggingface.co` and its CDN (covered by `<all_urls>`), cached via the Cache API in the extension origin.
-- **Offscreen document:** created with `chrome.offscreen.createDocument`. The `reasons` value accepted for ML work is to be confirmed in S2 (V-07). Only one offscreen document can exist at a time.
+- **Offscreen document:** created with `chrome.offscreen.createDocument`. The `reasons` value accepted for ML work is `WORKERS` (S2, V-07). Only one offscreen document can exist at a time.
 - **WebGPU device sharing:** Transformers.js (ONNX Runtime Web) and TF.js each request a device. Verify they coexist in one context (S3); otherwise run TF.js on CPU (the GRU is tiny).
 - **Storage quota:** `unlimitedStorage` so model caches and IndexedDB aren't evicted.
 - **Service worker restarts:** all state lives in IndexedDB or `chrome.storage.session`; heartbeat merging (7.1) tolerates gaps.
@@ -647,7 +647,7 @@ Offer a post-mortem on DEV only with the owner's yes. Never publish anything wit
 | D-23 | Sensitivity Gentle/Balanced/Strict = 0.75/0.60/0.45; 15-min cooldown; quiet hours | Understandable control | Fixed threshold; self-adjusting threshold |
 | D-24 | Popup + dashboard tab + in-page nudges (shadow DOM) | The timeline and map need room | Side panel; popup only |
 | D-25 | Observe all sites except an editable privacy blocklist | Deep and Shallow time must be visible for the metrics to make sense | Feed sites only; user picks sites |
-| D-26 | Models downloaded from HF on first run, pinned; fine-tune published on owner's HF account | Small package; Store-compatible | Bundle ~530 MB inside the extension |
+| D-26 | Models downloaded from HF on first run, pinned; fine-tune published on owner's HF account. **EmbeddingGemma 2 is pinned to `onnx-community/embeddinggemma-2-ONNX@daa72c51243991dfcaf9f9137d2c573d8f7790c0`, `q4f16` (M2, 2026-10-15); the ONNX runtime wasm ships inside the extension, so Hugging Face is the only network host** | Small package; Store-compatible | Bundle ~530 MB inside the extension |
 | D-27 | Stack: WXT + TypeScript + Preact | Best-maintained MV3 framework; small UI lib | Vite + CRXJS; plain TS |
 | D-28 | Business model: open-core, $29 one-time Pro (not built) | No server costs justify one-time pricing | $5/month; pay-what-you-want |
 | D-29 | First user: friend on an Apple Silicon Mac, installs Oct 17 | Same platform as development | Windows/Linux friend; online community |
@@ -677,13 +677,13 @@ Offer a post-mortem on DEV only with the owner's yes. Never publish anything wit
 ## 18. Open questions and things to verify
 | ID | Item | Where it gets resolved |
 |---|---|---|
-| V-01 | WebGPU in offscreen document vs service worker for Transformers.js | S2 |
-| V-02 | EmbeddingGemma 2 vision encoder via Transformers.js inside an extension; interleaved text + image input API | S2 |
-| V-03 | Exact task-prefix strings for EmbeddingGemma 2 (copy from model card) | S2 |
+| V-01 | WebGPU in offscreen document vs service worker for Transformers.js | S2 — Resolved (S2): offscreen document, WebGPU, q4f16. |
+| V-02 | EmbeddingGemma 2 vision encoder via Transformers.js inside an extension; interleaved text + image input API | S2 — Resolved (S2): `AutoProcessor` + `AutoModel`; text with `<|image|>` and `images=[[img]]` gives one embedding. |
+| V-03 | Exact task-prefix strings for EmbeddingGemma 2 (copy from model card) | S2 — Resolved (S2): `task: clustering | query: `. |
 | V-04 | Teacher tokens/s with MTP on the M4 Max; whether Unsloth Studio exposes an API | S4 |
 | V-05 | Unsloth Core scripted training on Apple Silicon vs Studio-only | S5 |
 | V-06 | ONNX conversion of the fine-tuned 270M loads and generates in Transformers.js | S5 |
-| V-07 | Offscreen document `reasons` value accepted for ML workloads | S2 |
+| V-07 | Offscreen document `reasons` value accepted for ML workloads | S2 — Resolved (S2): `WORKERS`. |
 | V-08 | Week 2 rules: new-project and one-entry rules carried over from Week 1 (assumed) | Check the challenge page before publishing |
 | V-09 | Required post template content for Side Hustle | Challenge page, Oct 18 |
 | V-10 | Hugging Face repo name for the fine-tune | Owner, Oct 16 |
