@@ -84,3 +84,14 @@ Findings:
 - **Browser check:** `node training/onnx_test/run.mjs <model_dir>` (headless Chrome, `--enable-unsafe-webgpu`, Transformers.js 4.3.1 from `extension/node_modules`, served over 127.0.0.1; `DTYPE=fp16`). Load 1.2 s; median **118 tok/s** (83 to 156) over all 100 eval prompts; greedy output is deterministic (identical text on a rebuild).
 - **Size:** 324 MB vs the PDD's 273 MB (the base model at 4 bits). Every 4-bit build of the fine-tune lost too much quality (naming valid 20 to 85%, autopsy grounded 40 to 52%), so the shipped model keeps 8-bit weights. Total with EmbeddingGemma is about 580 MB, not 530 MB.
 - **Chat template:** Transformers.js reads `tokenizer_config.json`, not `chat_template.jinja`; the export script embeds the template. `config.json` also needs `transformers.js_config.kv_cache_dtype = float16` (the export script adds it).
+
+## C1 — Cost of k selection + clustering (M3)
+**Result: pass** (2026-10-16). `extension/scripts/c1-bench.ts` (run with `npx tsx scripts/c1-bench.ts <N>`) fits `fitClusters` (choose k over 4..30 on a ≤ 1,200-point subsample, then a 3-restart k-means on all points, plus an exact silhouette) on N synthetic 256d unit vectors in 14 planted, noisy clusters, on the M4 Max in Node:
+
+| N | chosen k (planted 14) | silhouette | time |
+|---|---|---|---|
+| 1,498 | 14 | 0.52 | 1.4 s |
+| 2,996 | 14 | 0.45 | 1.6 s |
+| 6,006 | 13 | 0.48 | 1.7 s |
+
+Pass bar was < 10 s at 6,000 vectors. Cost is dominated by the k selection on the fixed-size subsample, so it barely grows with N. Two choices made it cheap: (1) k is chosen on a subsample, and only the final fit sees all points; (2) the silhouette is exact but O(n·k·d) instead of O(n²·d): for unit vectors with cosine distance, the sum of distances from x to a cluster C is |C| − x·S_C (S_C = sum of C's vectors), so no pairwise matrix is needed. The service worker runs it (the plan's offscreen fallback was not needed); a real-browser timing comes from the probe below.
