@@ -187,7 +187,9 @@ async function relabelBins(timed: TimedSample[], from: number, to: number): Prom
   for (const b of bins) {
     const id = map.get(b.binStart) ?? null;
     if (id !== b.territoryId) {
-      await tx.store.put({ ...b, territoryId: id });
+      // Re-read inside the transaction so nudge flags written meanwhile (M4) are not overwritten.
+      const fresh = (await tx.store.get(b.binStart)) ?? b;
+      await tx.store.put({ ...fresh, territoryId: id });
       changed++;
     }
   }

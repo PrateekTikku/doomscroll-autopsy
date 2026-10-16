@@ -11,7 +11,7 @@ import { browser, type Browser } from 'wxt/browser';
  *     interface MessageMap { 'nudge-response': { request: {...}; response: void } }
  *   }
  */
-export type Target = 'background' | 'offscreen';
+export type Target = 'background' | 'offscreen' | 'content';
 
 export interface MessageMap {
   ping: { request: void; response: { ok: true; from: Target } };

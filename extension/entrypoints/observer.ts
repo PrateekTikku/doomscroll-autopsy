@@ -2,6 +2,7 @@ import { defineUnlistedScript } from '#imports';
 import { browser } from 'wxt/browser';
 import { send } from '@/lib/messaging';
 import { effectiveBlocklist, isBlockedHost } from '@/lib/observer/blocklist';
+import { startNudges } from '@/lib/nudge/content';
 import { startObserver } from '@/lib/observer/content';
 import '@/lib/observer/messages';
 import { pageLocation } from '@/lib/observer/url';
@@ -31,10 +32,13 @@ export default defineUnlistedScript(async () => {
 
   let stop: (() => void) | null = null;
   let unsubscribe: () => void = () => {};
+  // Nudges (M4) are only listened for after the checks above; they are shown only while observing.
+  const stopNudges = startNudges({ isActive: () => stop != null });
   const shutdown = () => {
     unsubscribe();
     stop?.();
     stop = null;
+    stopNudges();
   };
   const sendEvent = (ev: ObserverEvent) => {
     // After an extension update this copy is orphaned: stop quietly.
