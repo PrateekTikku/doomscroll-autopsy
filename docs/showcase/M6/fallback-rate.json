@@ -1,0 +1,27 @@
+{
+ "autopsies": {
+  "total": 23,
+  "fromModel": 15,
+  "fallback": 8,
+  "fallbackRate": 34.8,
+  "errorCounts": {
+   "nudge_state_wrong": 18,
+   "word_count": 6,
+   "invented_trigger": 4,
+   "ungrounded_number": 1
+  }
+ },
+ "naming": {
+  "territories": 53,
+  "fromModel": 42,
+  "fallback": 11,
+  "labelMatchesTruth": 42,
+  "labelN": 42
+ },
+ "autopsyMsMedian": 4957,
+ "g1": {
+  "pass": true,
+  "cases": 6,
+  "firstCallMs": 3290
+ }
+}

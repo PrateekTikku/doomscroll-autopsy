@@ -1,0 +1,60 @@
+{
+ "cases": [
+  {
+   "id": "naming-1-0336",
+   "ok": true,
+   "same": true,
+   "newTokens": 45,
+   "refTokens": 45,
+   "ms": 571,
+   "wallMs": 3290
+  },
+  {
+   "id": "naming-1-0050",
+   "ok": true,
+   "same": true,
+   "newTokens": 49,
+   "refTokens": 49,
+   "ms": 502,
+   "wallMs": 504
+  },
+  {
+   "id": "naming-1-0010",
+   "ok": true,
+   "same": true,
+   "newTokens": 40,
+   "refTokens": 40,
+   "ms": 269,
+   "wallMs": 271
+  },
+  {
+   "id": "autopsy-1-0029",
+   "ok": true,
+   "same": true,
+   "newTokens": 279,
+   "refTokens": 279,
+   "ms": 2413,
+   "wallMs": 2416
+  },
+  {
+   "id": "autopsy-1-0130",
+   "ok": true,
+   "same": true,
+   "newTokens": 233,
+   "refTokens": 233,
+   "ms": 2128,
+   "wallMs": 2132
+  },
+  {
+   "id": "autopsy-1-0051",
+   "ok": true,
+   "same": true,
+   "newTokens": 243,
+   "refTokens": 243,
+   "ms": 2020,
+   "wallMs": 2024
+  }
+ ],
+ "firstCallMs": 3290,
+ "pass": true
+}

@@ -112,3 +112,15 @@ Screenshots (headless): `docs/showcase/M4/nudge-*.png`. **Known limit:** an elem
 
 ## N2 — Cost of replaying a day (M4)
 **Result: pass** (2026-10-16). `npm run eval:m4` replays 6 personas × 14 synthetic days (84 days, about 15,000 events each, through the real `step()` pipeline, territory resolution, scoring and the nudge policy on every closed bin, then trains Markov and evaluates) in **3.8 s total, about 45 ms per day**. Pass bar was < 5 s for one day.
+
+## G1 — The fine-tuned 270M inside the extension's offscreen document (M6)
+**Result: pass** (2026-10-16). `cd extension && npm run build && node scripts/g1-spike.mjs 3` (headless Chrome, extension loaded, requests sent to the offscreen document with `runtime.sendMessage`). The ONNX export (T2, 324 MB) is bundled in `public/models/doomscroll-270m/` by `scripts/copy-model.mjs` and loaded through Transformers.js with `local_files_only` from `chrome-extension://` URLs (no Cache API involved for local files), `dtype: fp16`, WebGPU.
+
+| Check | Result |
+|---|---|
+| Output vs T2's browser output (3 naming + 3 autopsy eval prompts, greedy) | byte-identical, same token counts (45/49/40/279/233/243) |
+| Load time (first request, includes offscreen document + model) | 2.7 s model load, 3.3 s first call end to end (bar < 10 s) |
+| Speed | median 116 tokens/s (T2 measured ~118 in a plain page) |
+| Exceptions | none |
+
+The probe's full run (`npm run probe:m6`) reproduces it in the real service-worker → offscreen path on six replayed personas. Memory with both models resident was not measured (K-09).

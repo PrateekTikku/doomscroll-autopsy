@@ -1,0 +1,107 @@
+{
+ "date": "2026-10-16T17:12:37.419Z",
+ "checks": {
+  "offscreen document starts": {
+   "ok": true
+  },
+  "the writer model is not loaded before it is needed": {
+   "ok": true,
+   "detail": "not-started"
+  },
+  "model-first naming works through the real extension (≥ 70% of territories named by the model)": {
+   "ok": true,
+   "detail": {
+    "named": 42,
+    "terr": 53
+   }
+  },
+  "model names are short (≤ 6 words) and differ from the baseline": {
+   "ok": true
+  },
+  "an autopsy was stored for every seeded day, each with a recorded source": {
+   "ok": true,
+   "detail": {
+    "reports": 23
+   }
+  },
+  "at least some autopsies are model-written and pass every validator": {
+   "ok": true,
+   "detail": {
+    "modelReps": 15,
+    "reports": 23,
+    "fallbackRate": 34.8
+   }
+  },
+  "the writer model loaded in under 10 s": {
+   "ok": true,
+   "detail": 4385
+  },
+  "the writer model unloads after use": {
+   "ok": true,
+   "detail": "unloaded"
+  },
+  "dashboard shows who wrote the autopsy": {
+   "ok": true,
+   "detail": "Written by Gemma 3 270M (fine-tuned)"
+  },
+  "dashboard shows the writer model line and counters": {
+   "ok": true,
+   "detail": [
+    "Writer model: asleep (loads when it writes) · Gemma 3 270M (fine-tuned)",
+    "Names: 6 of 6 from the model, 0 fell back (0%)",
+    "Autopsies: 1 of 3 from the model, 2 fell back (67%)"
+   ]
+  },
+  "territory rows say whether a name came from the model": {
+   "ok": true,
+   "detail": [
+    " · named by Gemma 3 270M (fine-tuned)",
+    " · named by Gemma 3 270M (fine-tuned)",
+    " · named by Gemma 3 270M (fine-tuned)",
+    " · named by Gemma 3 270M (fine-tuned)"
+   ]
+  },
+  "\"Name territories with Gemma\" button is there": {
+   "ok": true
+  },
+  "the naming button runs the model and reports the result": {
+   "ok": true,
+   "detail": "6 named by the model, 0 kept their baseline name, 2 skipped (4.9 s)."
+  },
+  "popup shows the writer model state": {
+   "ok": true,
+   "detail": "Writer model: asleep (loads when it writes)"
+  },
+  "no exceptions in extension pages": {
+   "ok": true,
+   "detail": []
+  }
+ },
+ "totalStats": {
+  "naming": {
+   "items": 42,
+   "model": 42,
+   "fallback": 0,
+   "unavailable": 0,
+   "generations": 43,
+   "errors": {
+    "schema": 1
+   }
+  },
+  "autopsy": {
+   "items": 23,
+   "model": 15,
+   "fallback": 8,
+   "unavailable": 0,
+   "generations": 39,
+   "errors": {
+    "nudge_state_wrong": 18,
+    "word_count": 6,
+    "invented_trigger": 4,
+    "ungrounded_number": 1
+   }
+  }
+ },
+ "firstLoadMs": 4385,
+ "failed": []
+}
