@@ -15,7 +15,7 @@
 | M5 Metrics + dashboard + privacy | ✅ Done | 2026-10-16 | L3 | Deep blocks, residue, daily facts, validated template autopsy (120-180 words), timeline dashboard, popup metrics, nightly job, full privacy controls (forget range/site, blocklist editor, retention, titles, wipe). Verified on replayed synthetic days in headless Chrome (`probe:m5`); real-data look is the owner's. docs/plans/M5.md |
 | T1 Teacher data | ✅ Done | 2026-10-16 | — | 1,073 valid examples (660 naming, 413 autopsy) split 973 train / 100 eval in `training/data/`; S4 resolved (MTP ≈17–19 tok/s, concurrency 1); fed T2's fine-tune, which met the ship bar. Closed by self-review (owner delegated). docs/plans/T1.md |
 | T2 Fine-tune + ONNX | ✅ Done | 2026-10-16 | — | Fine-tuned 270M meets the PDD 10.4 ship bar; ONNX 8-bit (324 MB, genai builder) generates in the browser at ~118 tok/s; 4-bit loses quality; autopsy edge over template is small. docs/plans/T2.md |
-| M6 Integrate 270M | ⬜ Not started | | L4 | |
+| M6 Integrate 270M | 🟡 In progress | | L4 | docs/plans/M6.md (plan approved) |
 | M7 Release + first user | ⬜ Not started | | L5 | |
 | M8 Should-tier extras | ⬜ Not started | | L6 | |
 | M9 Showcase | ⬜ Not started | | | |
