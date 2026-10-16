@@ -64,6 +64,8 @@ export interface TerritoryRecord {
   labelConfirmed: boolean;
   /** Drain only; default 15. */
   allowanceMin: number | null;
+  /** Cosine distance beyond which a sample is "unassigned" (M3: p95 of members × 1.25). */
+  radius?: number;
   firstSeen: number;
   lastSeen: number;
 }

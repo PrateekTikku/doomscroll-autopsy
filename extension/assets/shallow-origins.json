@@ -1,0 +1,28 @@
+{
+  "version": 1,
+  "description": "Hosts whose territories get a suggested label of Shallow (chat, mail, calendar, admin; PDD 4.1). A host matches itself and its subdomains. Suggestions only; the owner confirms. Webmail is mostly on the privacy blocklist already.",
+  "hosts": [
+    "slack.com",
+    "app.slack.com",
+    "discord.com",
+    "teams.microsoft.com",
+    "teams.live.com",
+    "calendar.google.com",
+    "outlook.live.com",
+    "outlook.office.com",
+    "outlook.office365.com",
+    "mail.google.com",
+    "mail.yahoo.com",
+    "proton.me",
+    "web.whatsapp.com",
+    "web.telegram.org",
+    "messages.google.com",
+    "meet.google.com",
+    "zoom.us",
+    "linear.app",
+    "asana.com",
+    "trello.com",
+    "app.clickup.com",
+    "calendly.com"
+  ]
+}

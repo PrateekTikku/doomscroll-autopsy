@@ -30,12 +30,19 @@ export interface EmbedServiceDeps {
   embed(input: { text: string | null; image: string | null }): Promise<{ vector: number[] | null; ms: number }>;
   devMode(): Promise<boolean>;
   isPaused(): Promise<boolean>;
+  /** M3: online territory assignment for a fresh vector (null when none applies). */
+  assign?(vector: Float32Array): Promise<{ territoryId: string | null; territoryDist: number | null } | null>;
   onIdle?(): void;
   sleep?(ms: number): Promise<void>;
 }
 
 /** Writes `vector` onto the sample that `job` came from. Returns false if no sample matched. */
-export async function writeVector(job: Pick<EmbedJob, 'tabId' | 'ts'>, vector: Float32Array, sleep = (ms: number) => new Promise<void>((r) => setTimeout(r, ms))): Promise<boolean> {
+export async function writeVector(
+  job: Pick<EmbedJob, 'tabId' | 'ts'>,
+  vector: Float32Array,
+  sleep = (ms: number) => new Promise<void>((r) => setTimeout(r, ms)),
+  assign?: (vector: Float32Array) => Promise<{ territoryId: string | null; territoryDist: number | null } | null>,
+): Promise<boolean> {
   for (let attempt = 0; attempt < WRITE_RETRIES; attempt++) {
     const rows = await getByTs('samples', job.ts - MATCH_WINDOW_MS, job.ts + MATCH_WINDOW_MS);
     const candidates = (rows as SampleRecord[]).filter((s) => s.tabId === job.tabId && s.vector === null);
@@ -44,7 +51,8 @@ export async function writeVector(job: Pick<EmbedJob, 'tabId' | 'ts'>, vector: F
     if (target?.id != null) {
       // Re-read by id so a concurrent dwell update isn't overwritten with a stale copy.
       const fresh = (await get('samples', target.id)) ?? target;
-      await put('samples', { ...fresh, vector });
+      const territory = (await assign?.(vector).catch(() => null)) ?? {};
+      await put('samples', { ...fresh, vector, ...territory });
       return true;
     }
     await sleep(WRITE_RETRY_MS);
@@ -67,7 +75,7 @@ export function createEmbedService(deps: EmbedServiceDeps) {
         counters.nonFinite++;
         return;
       }
-      if (await writeVector(job, v, deps.sleep)) counters.written++;
+      if (await writeVector(job, v, deps.sleep, deps.assign)) counters.written++;
       else counters.unmatched++;
     } catch (err) {
       counters.errors++;

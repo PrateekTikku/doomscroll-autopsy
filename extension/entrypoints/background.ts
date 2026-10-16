@@ -1,6 +1,7 @@
 import { defineBackground } from '#imports';
 import { createRouter, send } from '@/lib/messaging';
 import { registerObserver } from '@/lib/observer/background';
+import { registerTerritories } from '@/lib/ml/territories-background';
 import { ensureOffscreenDocument } from '@/lib/offscreen';
 
 // Service worker (PDD 6.1). Keep this file thin: features register their handlers here from
@@ -21,6 +22,7 @@ export default defineBackground(() => {
   });
 
   registerObserver(router);
+  registerTerritories(router);
 
   router.listen();
 });

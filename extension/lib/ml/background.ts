@@ -8,6 +8,7 @@ import { createCaptureLimiter } from './capture';
 import './messages';
 import type { EmbedderStatus, EmbedStatusView } from './messages';
 import { createEmbedService, type ItemInput } from './service';
+import { assignOnline } from './territories';
 
 /**
  * Wires embedding into the service worker: screenshot capture (PDD 7.5), the offscreen model host,
@@ -60,6 +61,7 @@ export function registerEmbedding(router: Router): { submitItem(item: ItemInput)
     },
     devMode: async () => (await getSettings()).devMode,
     isPaused: async () => isPaused(await getSettings()),
+    assign: assignOnline,
     onIdle: () => void browser.alarms.create(IDLE_ALARM, { delayInMinutes: IDLE_UNLOAD_MIN }),
   });
 
