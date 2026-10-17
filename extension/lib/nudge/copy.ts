@@ -22,6 +22,9 @@ export interface NudgeCopy {
   secondary: string;
 }
 
+/** Label of step 2's optional third button, shown when the user allows the breathing pause. */
+export const BREATH_BUTTON = 'Take a breath';
+
 const plural = (n: number, word: string) => `${n} ${word}${n === 1 ? '' : 's'}`;
 const minutes = (n: number) => plural(Math.max(0, Math.round(n)), 'minute');
 
@@ -38,6 +41,14 @@ export function nudgeCopy(step: NudgeStep, f: NudgeFacts): NudgeCopy {
       body: `${left}${used} Back to deep work?`,
       primary: 'Back to it',
       secondary: '5 more min',
+    };
+  }
+  if (step === 3) {
+    return {
+      title: 'Take a breath',
+      body: `${used} Thirty seconds: in slowly, out slowly. Then decide.`,
+      primary: 'Back to it',
+      secondary: 'Keep going',
     };
   }
   return {

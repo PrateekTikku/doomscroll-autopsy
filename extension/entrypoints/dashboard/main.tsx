@@ -6,6 +6,7 @@ import { getSettings, onSettingsChanged, updateSettings } from '@/lib/settings';
 import { Evidence } from './evidence';
 import { ReplayPanel } from './replay';
 import { AttentionMap } from './map';
+import { NudgeSettings } from './nudge-settings';
 import { Privacy } from './privacy';
 import { Territories } from './territories';
 import { Today } from './today';
@@ -97,6 +98,7 @@ function Dashboard() {
         <a href="#success">How it's going</a>
         <a href="#territories">Territories</a>
         <a href="#map">Attention map</a>
+        <a href="#nudges">Nudges</a>
         <a href="#privacy">Privacy</a>
         <a href="#prediction">Prediction and replay</a>
         <a href="#developer">Developer</a>
@@ -105,6 +107,7 @@ function Dashboard() {
       <Today />
       <Territories />
       <AttentionMap />
+      <NudgeSettings />
       <Privacy />
       <ReplayPanel />
       {dev && <Evidence />}

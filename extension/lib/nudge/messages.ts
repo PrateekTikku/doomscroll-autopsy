@@ -11,6 +11,8 @@ export interface NudgePayload {
   body: string;
   primary: string;
   secondary: string;
+  /** Step 2 offers a "Take a breath" button (the user allows step 3). */
+  offerBreath?: boolean;
   /** Shown as a visible "Replay" pill (demo mode). */
   replay: boolean;
 }

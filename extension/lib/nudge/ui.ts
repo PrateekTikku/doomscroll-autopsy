@@ -1,4 +1,6 @@
 import type { NudgeResponse } from '@/lib/db';
+import { breathLabel, breathState } from './breathe';
+import { BREATH_BUTTON } from './copy';
 import type { NudgePayload } from './messages';
 
 /**
@@ -27,6 +29,10 @@ p { margin: 0 0 12px; }
 button { font: inherit; font-size: 13px; padding: 7px 12px; border-radius: 8px; border: 1px solid #3b4b59; background: transparent; color: #f2f5f7; cursor: pointer; }
 button.primary { background: #2f9e86; border-color: #2f9e86; color: #04130f; font-weight: 600; }
 button:hover { filter: brightness(1.12); }
+.breath { display: flex; flex-direction: column; align-items: center; gap: 6px; margin: 4px 0 14px; }
+.orb { width: 120px; height: 120px; border-radius: 50%; background: radial-gradient(circle at 40% 35%, #6fd0bb, #2f9e86); opacity: .85; transform: scale(.55); }
+.count { font-size: 15px; font-weight: 600; letter-spacing: .02em; }
+.sub { font-size: 12px; color: #9fb3c0; }
 .pill { margin-left: auto; font-size: 11px; padding: 2px 8px; border-radius: 999px; background: #d97706; color: #1a0f00; font-weight: 700; letter-spacing: .04em; }
 `;
 
@@ -60,6 +66,7 @@ export function mountNudge(doc: Document, nudge: NudgePayload, onResponse: (r: N
   let timer: ReturnType<typeof setTimeout> | undefined;
   const close = () => {
     clearTimeout(timer);
+    clearInterval(breathTimer);
     doc.removeEventListener('keydown', onKey, true);
     host.remove();
   };
@@ -90,6 +97,38 @@ export function mountNudge(doc: Document, nudge: NudgePayload, onResponse: (r: N
     return row;
   };
 
+  const breathView = (card: HTMLElement) => {
+    card.replaceChildren();
+    const reduced = typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const wrap = el('div', 'breath');
+    const orb = el('div', 'orb');
+    const count = el('div', 'count', 'Breathe in');
+    const sub = el('div', 'sub');
+    wrap.append(orb, count, sub);
+    const row = el('div', 'row');
+    const skip = el('button', undefined, 'Skip');
+    skip.addEventListener('click', () => answer('snooze'));
+    row.append(skip);
+    if (nudge.replay) row.append(el('span', 'pill', 'Replay'));
+    card.append(el('h2', undefined, 'Take a breath'), wrap, row);
+    const started = Date.now();
+    const tick = () => {
+      const st = breathState(Date.now() - started);
+      if (st.done) {
+        clearInterval(breathTimer);
+        card.replaceChildren(el('h2', undefined, 'Take a breath'), el('p', undefined, 'Done. Now decide: back to deep work, or carry on?'), buttons());
+        return;
+      }
+      count.textContent = `${breathLabel(st)} · ${st.phaseSecondsLeft}`;
+      sub.textContent = `${st.totalSecondsLeft} s left`;
+      orb.style.transform = reduced ? 'scale(.8)' : `scale(${0.55 + 0.45 * st.fullness})`;
+      orb.style.transition = reduced ? 'none' : 'transform 0.2s linear';
+    };
+    breathTimer = setInterval(tick, 200);
+    tick();
+  };
+  let breathTimer: ReturnType<typeof setInterval> | undefined;
+
   if (nudge.step === 1) {
     const banner = el('div', 'banner');
     banner.setAttribute('role', 'status');
@@ -100,7 +139,17 @@ export function mountNudge(doc: Document, nudge: NudgePayload, onResponse: (r: N
     const veil = el('div', 'veil');
     veil.setAttribute('role', 'alertdialog');
     const card = el('div', 'card');
-    card.append(el('h2', undefined, nudge.title), el('p', undefined, nudge.body), buttons());
+    if (nudge.step === 3) {
+      breathView(card);
+    } else {
+      const row = buttons();
+      if (nudge.offerBreath) {
+        const breath = el('button', undefined, BREATH_BUTTON);
+        breath.addEventListener('click', () => breathView(card));
+        row.insertBefore(breath, row.querySelector('.pill'));
+      }
+      card.append(el('h2', undefined, nudge.title), el('p', undefined, nudge.body), row);
+    }
     veil.append(card);
     shadow.append(veil);
   }

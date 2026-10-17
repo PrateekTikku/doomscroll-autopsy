@@ -96,11 +96,38 @@ const hostState = (s) =>
     s,
     `(() => { const h = document.getElementById('${HOST}'); if (!h) return { present: false }; const r = h.shadowRoot; const top = document.elementFromPoint(innerWidth - 80, 60); const mid = document.elementFromPoint(innerWidth / 2, innerHeight / 2); return { present: true, shadowClosed: r === null, topAtBanner: top === h, topAtCenter: mid === h, bodyChildren: document.body.children.length, rootChildren: document.documentElement.children.length }; })()`,
   );
-const payload = (step, replay = false) => ({
+
+// The nudge lives in a closed shadow root: read it and click inside it through CDP (DOM with pierce).
+async function nudgeNodes(sessionId) {
+  const { result } = await send('DOM.getDocument', { depth: -1, pierce: true }, sessionId);
+  const found = { buttons: [], texts: [] };
+  const walk = (n, inside) => {
+    const here = inside || (n.attributes && n.attributes.includes(HOST));
+    if (here && n.nodeName === 'BUTTON') found.buttons.push(n);
+    if (here && n.nodeType === 3 && n.nodeValue.trim()) found.texts.push(n.nodeValue.trim());
+    for (const c of [...(n.shadowRoots ?? []), ...(n.children ?? [])]) walk(c, here);
+  };
+  walk(result.root, false);
+  const label = (n) => (n.children ?? []).map((c) => c.nodeValue ?? '').join('').trim();
+  return { texts: found.texts, buttons: found.buttons.map((b) => ({ nodeId: b.nodeId, text: label(b) })) };
+}
+async function clickNudgeButton(sessionId, text) {
+  const { buttons } = await nudgeNodes(sessionId);
+  const b = buttons.find((x) => x.text === text);
+  if (!b) return false;
+  const { result } = await send('DOM.getBoxModel', { nodeId: b.nodeId }, sessionId);
+  const q = result.model.content;
+  const x = (q[0] + q[2]) / 2;
+  const y = (q[1] + q[5]) / 2;
+  await send('Input.dispatchMouseEvent', { type: 'mousePressed', x, y, button: 'left', clickCount: 1 }, sessionId);
+  await send('Input.dispatchMouseEvent', { type: 'mouseReleased', x, y, button: 'left', clickCount: 1 }, sessionId);
+  return true;
+}
+const payload = (step, replay = false, extra = {}) => ({
   id: null, step, replay,
   title: step === 1 ? 'A moment' : 'Still here?',
   body: "You've spent 16 minutes in youtube.com · shorts today, past your 15 minutes. Back to deep work?",
-  primary: 'Back to it', secondary: step === 1 ? '5 more min' : 'Keep going',
+  primary: 'Back to it', secondary: step === 1 ? '5 more min' : 'Keep going', ...extra,
 });
 
 try {
@@ -174,6 +201,45 @@ try {
       check(`${name}: banner and blur are shown and topmost`, r1.includes('"shown":true') && b.topAtBanner && r2.includes('"shown":true') && v.topAtCenter, { b, v });
       await send('Target.closeTarget', { targetId: page.targetId });
     }
+  }
+
+  // ---- M8: breathing pause (step 3) and the "Take a breath" button on step 2 ----
+  {
+    const tabId = results.plainTab.tabId;
+    const sess = results.plainTab.session;
+    await send('Page.bringToFront', {}, sess);
+    // Step 2 with the breathing option: a third button opens the pause.
+    const r2 = await nudge(tabId, payload(2, false, { offerBreath: true }));
+    await sleep(500);
+    let nodes = await nudgeNodes(sess);
+    check('step 2 offers "Take a breath" when the user allows step 3', r2.includes('"shown":true') && nodes.buttons.some((b) => b.text === 'Take a breath'), nodes.buttons.map((b) => b.text));
+    const without = await nudge(tabId, payload(2));
+    await sleep(500);
+    nodes = await nudgeNodes(sess);
+    check('step 2 has no breathing button when step 3 is not allowed', !nodes.buttons.some((b) => b.text === 'Take a breath'), nodes.buttons.map((b) => b.text));
+    await nudge(tabId, payload(2, false, { offerBreath: true }));
+    await sleep(400);
+    await clickNudgeButton(sess, 'Take a breath');
+    await sleep(900);
+    nodes = await nudgeNodes(sess);
+    check('"Take a breath" opens the breathing overlay with a countdown and a Skip button', nodes.texts.some((t) => /^Breathe in/.test(t)) && nodes.buttons.some((b) => b.text === 'Skip'), nodes);
+    await shot(sess, 'nudge-breathing.png');
+    await clickNudgeButton(sess, 'Skip');
+    await sleep(400);
+    check('Skip ends the pause and removes the overlay', !(await hostState(sess)).present);
+
+    // Step 3 straight from the ladder: runs the full 30 s, then asks.
+    const r3 = await nudge(tabId, payload(3));
+    await sleep(600);
+    const mid = await hostState(sess);
+    nodes = await nudgeNodes(sess);
+    check('step 3 opens the breathing pause in front of the page', r3.includes('"shown":true') && mid.present && mid.topAtCenter && nodes.texts.some((t) => /^Breathe/.test(t)), { mid, texts: nodes.texts });
+    await sleep(31000);
+    nodes = await nudgeNodes(sess);
+    check('after 30 s the pause ends and asks Back to it / Keep going', nodes.texts.some((t) => /^Done\./.test(t)) && nodes.buttons.some((b) => b.text === 'Back to it') && nodes.buttons.some((b) => b.text === 'Keep going'), { texts: nodes.texts, buttons: nodes.buttons.map((b) => b.text) });
+    await clickNudgeButton(sess, 'Back to it');
+    await sleep(400);
+    check('answering after the pause removes the overlay', !(await hostState(sess)).present);
   }
 
   // ---- Paused: refused ----

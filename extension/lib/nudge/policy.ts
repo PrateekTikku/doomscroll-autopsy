@@ -13,11 +13,12 @@ import type { Label, NudgeResponse } from '@/lib/db';
  *  - at most one nudge per 15 minutes (the cooldown);
  *  - step 1 first; step 2 if the previous nudge (within an hour) was ignored or snoozed and the
  *    score is still above the threshold after the cooldown; "back" resets to step 1;
- *  - never above the user's max step. Step 3 (breathing) arrives in M8, so the ceiling is 2 here.
+ *  - never above the user's max step. Step 3 is the 30-second breathing pause (M8); with max step 3
+ *    an ignored or snoozed step 2 escalates to it, with max step 2 it stops at the blur.
  */
 export const COOLDOWN_MS = 15 * 60_000;
 export const ESCALATION_WINDOW_MS = 60 * 60_000;
-export const IMPLEMENTED_MAX_STEP = 2;
+export const IMPLEMENTED_MAX_STEP = 3;
 
 export type NudgeStep = 1 | 2 | 3;
 export type SkipReason = 'below-threshold' | 'not-drain' | 'within-allowance' | 'cooldown' | 'quiet-hours';

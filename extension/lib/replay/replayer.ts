@@ -133,7 +133,7 @@ export function createReplayEngine(opts: ReplayOptions) {
       spentMin: spent.get(id) ?? 0,
       leftDeep: lastDeep ? { name: names.get(lastDeep.id) ?? 'deep work', minutesAgo: Math.round((now - lastDeep.end) / 60_000) } : null,
     });
-    const payload: NudgePayload = { id: null, step: decision.step, ...copy, replay: true };
+    const payload: NudgePayload = { id: null, step: decision.step, ...copy, offerBreath: settings.maxNudgeStep >= 3, replay: true };
     const nudge: ReplayNudge = { ts: now, step: decision.step, score: score.score, mode: score.mode, territory: names.get(id) ?? id, response: 'ignored', payload };
     nudge.response = opts.respond?.(nudge) ?? 'ignored';
     nudges.push(nudge);

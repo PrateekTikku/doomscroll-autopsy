@@ -189,7 +189,7 @@ export function createNudgeService(deps: NudgeServiceDeps) {
 
       const copy = nudgeCopy(decision.step, snap.facts);
       const id = (await put('nudges', { ts: t, step: decision.step, score: snap.score.score, mode: snap.score.mode, response: null, secondsToReturn: null })) as number;
-      const delivered = await deps.deliver({ id, step: decision.step, ...copy, replay: false });
+      const delivered = await deps.deliver({ id, step: decision.step, ...copy, offerBreath: settings.maxNudgeStep >= 3, replay: false });
       // Nothing is logged when no page could show it.
       if (!delivered) await (await openDb()).delete('nudges', id);
       return { acted: true, step: decision.step, delivered, score: snap.score.score };

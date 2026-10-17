@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { breathLabel, breathState, BREATH_TOTAL_MS } from './breathe';
 import { nudgeCopy } from './copy';
 import { COOLDOWN_MS, decideNudge, inQuietHours, type PolicyInput } from './policy';
 
@@ -44,10 +45,13 @@ describe('nudge policy', () => {
     expect(decideNudge({ ...base, last: { ts: NOW - 20 * 60_000, step: 2, response: 'back' } })).toEqual({ show: true, step: 1 });
     expect(decideNudge({ ...base, last: { ts: NOW - 90 * 60_000, step: 2, response: 'ignored' } })).toEqual({ show: true, step: 1 });
   });
-  it('never exceeds the max step, and step 3 is not built yet', () => {
+  it('never exceeds the max step; step 3 (breathing pause) only when the user allows it', () => {
     const last = { ts: NOW - 20 * 60_000, step: 1 as const, response: 'ignored' as const };
     expect(decideNudge({ ...base, maxStep: 1, last })).toEqual({ show: true, step: 1 });
-    expect(decideNudge({ ...base, maxStep: 3, last: { ...last, step: 2 } })).toEqual({ show: true, step: 2 });
+    expect(decideNudge({ ...base, maxStep: 2, last: { ...last, step: 2 } })).toEqual({ show: true, step: 2 });
+    expect(decideNudge({ ...base, maxStep: 3, last: { ...last, step: 2 } })).toEqual({ show: true, step: 3 });
+    expect(decideNudge({ ...base, maxStep: 3, last: { ...last, step: 3 } })).toEqual({ show: true, step: 3 });
+    expect(decideNudge({ ...base, maxStep: 3, last: { ...last, step: 2, response: 'back' } })).toEqual({ show: true, step: 1 });
   });
   it('quiet hours, including a range that wraps past midnight', () => {
     expect(decideNudge({ ...base, quietHours: { start: '14:00', end: '16:00' } })).toEqual({ show: false, reason: 'quiet-hours' });
@@ -81,5 +85,31 @@ describe('nudge copy', () => {
     const c = nudgeCopy(1, { territory: 'x', allowanceMin: 1, spentMin: 1, leftDeep: { name: 'y', minutesAgo: 0 } });
     expect(c.body).toContain('1 minute in x');
     expect(c.body).not.toContain('You left');
+  });
+});
+
+describe('step 3 copy and the breathing timeline', () => {
+  const facts = { territory: 'youtube.com · shorts', allowanceMin: 15, spentMin: 22, leftDeep: null };
+  it('uses the coach voice and never speaks of time outside the browser', () => {
+    const c = nudgeCopy(3, facts);
+    expect(c.title).toBe('Take a breath');
+    expect(c.body).toMatch(/Thirty seconds/);
+    expect(c.body).not.toMatch(/phone|offline|away from/i);
+  });
+  it('is three rounds of 5 s in and 5 s out, 30 s in all', () => {
+    expect(BREATH_TOTAL_MS).toBe(30_000);
+    expect(breathState(0)).toMatchObject({ phase: 'in', phaseSecondsLeft: 5, totalSecondsLeft: 30, fullness: 0, done: false });
+    expect(breathState(2_500)).toMatchObject({ phase: 'in', fullness: 0.5 });
+    expect(breathState(5_000)).toMatchObject({ phase: 'out', fullness: 1, phaseSecondsLeft: 5 });
+    expect(breathState(7_500).fullness).toBeCloseTo(0.5, 6);
+    expect(breathState(10_000)).toMatchObject({ phase: 'in', fullness: 0 });
+    expect(breathState(29_000)).toMatchObject({ phase: 'out', totalSecondsLeft: 1, done: false });
+    expect(breathState(30_000)).toMatchObject({ done: true, totalSecondsLeft: 0 });
+    expect(breathState(-5)).toMatchObject({ phase: 'in', fullness: 0 });
+  });
+  it('labels each phase', () => {
+    expect(breathLabel(breathState(1000))).toBe('Breathe in');
+    expect(breathLabel(breathState(6000))).toBe('Breathe out');
+    expect(breathLabel(breathState(31000))).toBe('Done');
   });
 });
