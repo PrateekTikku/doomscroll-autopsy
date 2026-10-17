@@ -5,6 +5,7 @@ import { clearRecorder, exportJsonl, recorderCount } from '@/lib/replay/recorder
 import { getSettings, onSettingsChanged, updateSettings } from '@/lib/settings';
 import { Evidence } from './evidence';
 import { ReplayPanel } from './replay';
+import { AttentionMap } from './map';
 import { Privacy } from './privacy';
 import { Territories } from './territories';
 import { Today } from './today';
@@ -95,6 +96,7 @@ function Dashboard() {
         <a href="#autopsy">Autopsy</a>
         <a href="#success">How it's going</a>
         <a href="#territories">Territories</a>
+        <a href="#map">Attention map</a>
         <a href="#privacy">Privacy</a>
         <a href="#prediction">Prediction and replay</a>
         <a href="#developer">Developer</a>
@@ -102,6 +104,7 @@ function Dashboard() {
       </nav>
       <Today />
       <Territories />
+      <AttentionMap />
       <Privacy />
       <ReplayPanel />
       {dev && <Evidence />}

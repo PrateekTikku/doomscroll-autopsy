@@ -2,7 +2,8 @@
  * M8 probe: the Should-tier features in the real extension (headless Chrome, throwaway profile), seeded with the
  * replayed persona history from `npm run eval:m5`:
  *   GRU trains in the offscreen document (WebGPU if available) and is evaluated against Markov (promotion per D-20);
- *   (later items add: attention map, topic tags, breathing step, forget one capture.)
+ *   the attention map draws from vectors and selects territories;
+ *   (later items add: topic tags, breathing step, forget one capture.)
  * Usage: npm run eval:m5 && npm run build && npm run probe:m8   (HEADED=1, OUT=dir, EXT=folder)
  * Writes ../docs/showcase/M8/m8-probe.json and screenshots next to it.
  */
@@ -184,6 +185,48 @@ try {
   const mode = JSON.parse(await evaluate(s, `${msg('spiral-status', undefined)}`));
   results.modeAfterGru = (mode.data ?? mode).mode;
   check('the active mode follows the promotion verdict', gru.promoted ? results.modeAfterGru === 'gru' : results.modeAfterGru !== 'gru', results.modeAfterGru);
+
+  // ---- Attention map: vectors around each territory's centroid, drawn and clicked ----
+  const planted = await evaluate(
+    s,
+    `(async () => { ${IDB}
+      const territories = await all('territories');
+      const db = await idb();
+      let n = 0; let seed = 7;
+      const rnd = () => { seed = (seed * 16807) % 2147483647; return seed / 2147483647; };
+      await new Promise((res, rej) => {
+        const tx = db.transaction('samples', 'readwrite');
+        for (const t of territories.slice(0, 8)) {
+          for (let k = 0; k < 40; k++) {
+            const v = Float32Array.from(t.centroid, (x) => x + (rnd() - 0.5) * 0.08);
+            let norm = 0; for (const x of v) norm += x * x; norm = Math.sqrt(norm); for (let i = 0; i < v.length; i++) v[i] /= norm;
+            tx.objectStore('samples').put({ ts: Date.now() - (n + 1) * 60000, origin: 'https://probe.example', path: '/' + t.id.slice(0, 6), isVisual: false, dwellMs: 3000, vector: v, territoryId: t.id, territoryDist: 0.1 });
+            n++;
+          }
+        }
+        tx.oncomplete = res; tx.onerror = () => rej(tx.error);
+      });
+      return { territories: territories.length, samples: n };
+    })()`,
+  );
+  await send('Page.reload', {}, s);
+  await waitFor(s, `document.getElementById('map')`, 'map section');
+  await evaluate(s, clickText('Draw map'));
+  await waitFor(s, `document.querySelectorAll('#map svg circle').length > 200`, 'map dots', 60000);
+  const mapInfo = await evaluate(s, `({ dots: document.querySelectorAll('#map svg circle').length, text: document.getElementById('map-selection').innerText, fills: [...new Set([...document.querySelectorAll('#map svg circle')].map((c) => c.getAttribute('fill')))] })`);
+  check('attention map draws one dot per sampled item, coloured by label', mapInfo.dots >= 300 && mapInfo.fills.length >= 2, { planted, mapInfo });
+  await evaluate(s, `document.getElementById('map').scrollIntoView(); true`);
+  await shot(s, 'dashboard-map.png');
+  // Click the first dot's position: the nearest territory is selected and its row exists.
+  const clicked = await evaluate(
+    s,
+    `(() => { const svg = document.querySelector('#map svg'); const c = svg.querySelector('circle'); const r = svg.getBoundingClientRect(); const bb = c.getBoundingClientRect();
+      svg.dispatchEvent(new MouseEvent('click', { bubbles: true, clientX: bb.left + bb.width / 2, clientY: bb.top + bb.height / 2 })); return true; })()`,
+  );
+  await sleep(500);
+  const selection = await evaluate(s, `({ text: document.getElementById('map-selection').innerText, rows: document.querySelectorAll('tr[id^=territory-]').length })`);
+  check('clicking a dot selects its territory (and the territory list has the row)', /^Selected: /.test(selection.text) && selection.rows > 0, selection);
+  await shot(s, 'dashboard-map-selected.png');
 
   check('no exceptions in extension pages', exceptions.length === 0, exceptions.slice(0, 5));
 } catch (err) {

@@ -27,7 +27,7 @@ function Row({ v, onChange }: { v: TerritoryView; onChange: () => void }) {
     onChange();
   };
   return (
-    <tr class={v.dormant ? 'dormant' : ''}>
+    <tr id={`territory-${t.id}`} class={v.dormant ? 'dormant' : ''}>
       <td>
         <strong>{t.name}</strong>
         <span class="muted" title="Who wrote this name"> · {nameSourceLabel(t)}</span>

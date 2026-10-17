@@ -1,5 +1,5 @@
 {
- "date": "2026-10-17T04:47:06.363Z",
+ "date": "2026-10-17T04:55:29.728Z",
  "checks": {
   "seed loaded": {
    "ok": true,
@@ -11,25 +11,25 @@
    }
   },
   "GRU trains in the extension and is evaluated against Markov": {
-   "ok": "GRU AUC 0.994 did not beat Markov 0.991 by 0.005 (ties go to Markov)",
+   "ok": "GRU AUC 0.993 did not beat Markov 0.991 by 0.005 (ties go to Markov)",
    "detail": {
-    "ranAt": 1792212431953,
+    "ranAt": 1792212935263,
     "promoted": false,
-    "reason": "GRU AUC 0.994 did not beat Markov 0.991 by 0.005 (ties go to Markov)",
-    "gruAuc": 0.994193604298466,
+    "reason": "GRU AUC 0.993 did not beat Markov 0.991 by 0.005 (ties go to Markov)",
+    "gruAuc": 0.9930669902071236,
     "markovAuc": 0.9909004246468498,
     "rulesAuc": 0.9916803882485484,
-    "gruTop1": 0.9137291280148423,
+    "gruTop1": 0.8877551020408163,
     "markovTop1": 0.9656771799628943,
-    "gruTop3": 0.9925788497217068,
+    "gruTop3": 0.9944341372912802,
     "markovTop3": 0.9944341372912802,
     "split": "latest-day",
     "trainBins": 7481,
     "testBins": 1080,
     "trainWindows": 2219,
     "backend": "webgpu",
-    "trainMs": 12651,
-    "wallMs": 13802
+    "trainMs": 12790,
+    "wallMs": 13918
    }
   },
   "GRU verdict is stored and shown in the dashboard": {
@@ -39,29 +39,54 @@
    "ok": true,
    "detail": "markov"
   },
+  "attention map draws one dot per sampled item, coloured by label": {
+   "ok": true,
+   "detail": {
+    "planted": {
+     "territories": 10,
+     "samples": 320
+    },
+    "mapInfo": {
+     "dots": 320,
+     "text": "320 dots drawn.",
+     "fills": [
+      "var(--drain)",
+      "var(--shallow)",
+      "var(--deep)"
+     ]
+    }
+   }
+  },
+  "clicking a dot selects its territory (and the territory list has the row)": {
+   "ok": true,
+   "detail": {
+    "text": "Selected: youtube.com · shorts (drain). 40 dots.",
+    "rows": 10
+   }
+  },
   "no exceptions in extension pages": {
    "ok": true,
    "detail": []
   }
  },
  "gru": {
-  "ranAt": 1792212431953,
+  "ranAt": 1792212935263,
   "promoted": false,
-  "reason": "GRU AUC 0.994 did not beat Markov 0.991 by 0.005 (ties go to Markov)",
-  "gruAuc": 0.994193604298466,
+  "reason": "GRU AUC 0.993 did not beat Markov 0.991 by 0.005 (ties go to Markov)",
+  "gruAuc": 0.9930669902071236,
   "markovAuc": 0.9909004246468498,
   "rulesAuc": 0.9916803882485484,
-  "gruTop1": 0.9137291280148423,
+  "gruTop1": 0.8877551020408163,
   "markovTop1": 0.9656771799628943,
-  "gruTop3": 0.9925788497217068,
+  "gruTop3": 0.9944341372912802,
   "markovTop3": 0.9944341372912802,
   "split": "latest-day",
   "trainBins": 7481,
   "testBins": 1080,
   "trainWindows": 2219,
   "backend": "webgpu",
-  "trainMs": 12651,
-  "wallMs": 13802
+  "trainMs": 12790,
+  "wallMs": 13918
  },
  "modeAfterGru": "markov",
  "failed": []
