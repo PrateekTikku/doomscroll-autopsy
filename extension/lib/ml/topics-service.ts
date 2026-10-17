@@ -16,6 +16,12 @@ export interface TagReport {
   changed: number;
 }
 
+/** True when the phrase vectors for the current phrase list are already stored (no embedding needed). */
+export async function hasCachedTopicVectors(phrases = topicPhrases): Promise<boolean> {
+  const stored = (await get('models', MODEL_TOPIC_VECTORS))?.data as TopicVectors | undefined;
+  return !!stored && stored.version === topicsVersion(phrases);
+}
+
 /** The phrase vectors, embedded once as text and cached until the phrase list changes. */
 export async function ensureTopicVectors(embed: EmbedText, phrases = topicPhrases): Promise<{ topics: TopicVectors | null; computed: boolean }> {
   const version = topicsVersion(phrases);

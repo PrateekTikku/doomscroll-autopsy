@@ -19,7 +19,7 @@ import { ensureReports, generateReport } from './service';
  * The nightly job (PDD 6.3): at the first check after 03:00 local (a sleeping laptop catches up):
  *   1. retention, 2. re-cluster if due, 3. topic tags (M8), 4. name territories with the 270M (M6), 7. facts and the
  *   autopsy (model first, template fallback) for every finished day.
- * 5. GRU training and promotion (M8, D-20); the prediction mode is refreshed right after. Step 6 (UMAP) is drawn on demand on the dashboard.
+ * 5. GRU training and promotion (M8, D-20) is started by `checkNightly` after this job ends, outside the exclusive queue: it keeps the offscreen document busy for 15-150 s, and privacy actions and on-demand autopsies must not wait for it. Step 6 (UMAP) is drawn on demand on the dashboard.
  */
 export const NIGHTLY_ALARM = 'metrics-nightly';
 export const NIGHTLY_META = 'nightly-meta';
@@ -47,8 +47,6 @@ export interface NightlyDeps {
   /** Step 4; defaults to the writer model in the offscreen document. */
   name?: () => Promise<unknown>;
   unload?: () => Promise<void>;
-  /** Step 5: train, evaluate and maybe promote the GRU (M8); defaults to the offscreen document. */
-  gru?: () => Promise<unknown>;
 }
 
 export async function runNightly(now = Date.now(), deps: NightlyDeps = {}): Promise<NightlyMeta> {
@@ -69,7 +67,6 @@ export async function runNightly(now = Date.now(), deps: NightlyDeps = {}): Prom
   await step('tags', () => (deps.tags ?? runTopicTags)());
   await step('naming', () => (deps.name ?? (() => nameTerritories(generateViaOffscreen, { now })))());
   await step('prediction', () => refreshPrediction(now));
-  await step('gru', () => (deps.gru ?? (() => runGru()))());
   await step('reports', async () => {
     written = await ensureReports(now);
   });
@@ -81,7 +78,9 @@ export async function runNightly(now = Date.now(), deps: NightlyDeps = {}): Prom
 
 async function checkNightly(): Promise<void> {
   const meta = await getNightlyMeta();
-  if (isNightlyDue(meta?.lastRunAt ?? null, Date.now())) await exclusive(() => runNightly());
+  if (!isNightlyDue(meta?.lastRunAt ?? null, Date.now())) return;
+  await exclusive(() => runNightly());
+  void runGru().catch((e) => console.warn('[doomscroll] GRU training failed:', e));
 }
 
 export function registerMetrics(router: Router): void {
