@@ -1,13 +1,13 @@
 {
- "date": "2026-10-17T03:57:01.895Z",
- "version": "0.2.0",
- "zip": "/Users/prateek/Desktop/Learning/hackathons/Hacktoberfest-Week2/releases/doomscroll-autopsy-0.2.0.zip",
+ "date": "2026-10-17T05:30:10.546Z",
+ "version": "0.3.0",
+ "zip": "/Users/prateek/Desktop/Learning/hackathons/Hacktoberfest-Week2/releases/doomscroll-autopsy-0.3.0.zip",
  "checks": {
   "release unzips and loads; version matches": {
    "ok": true,
    "detail": {
-    "version": "0.2.0",
-    "extId": "igipbfncfinmafkegnohjpajdhopfhim"
+    "version": "0.3.0",
+    "extId": "hejfmaibmjhfecolljldjicfkfaegoom"
    }
   },
   "release carries the writer model and the ORT runtime": {
@@ -59,7 +59,7 @@
    "detail": {
     "finalLine": "Ready. No connection needed from now on.",
     "sawProgress": true,
-    "ms": 49160
+    "ms": 41101
    }
   },
   "done opens the dashboard and remembers it": {
@@ -82,7 +82,7 @@
  "download": {
   "finalLine": "Ready. No connection needed from now on.",
   "sawProgress": true,
-  "ms": 49160
+  "ms": 41101
  },
  "modelReady": true,
  "failed": []

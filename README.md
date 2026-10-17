@@ -4,7 +4,7 @@
 
 A Chromium (Manifest V3) extension for Deep Workers. It embeds what you look at in the browser with **EmbeddingGemma 2**, groups it into personal territories labelled **Deep / Shallow / Drain**, predicts when you're about to spiral, nudges you inside the page, and writes a nightly autopsy with a **fine-tuned Gemma 3 270M**. All inference runs in the browser; nothing you browse leaves your device. The only network traffic is the one-time model download from Hugging Face.
 
-Status: release candidate for the DEV Hacktoberfest Week 2 challenge. Design: [`PDD.md`](PDD.md).
+Status: release candidate (0.3.0) for the DEV Hacktoberfest Week 2 challenge. Design: [`PDD.md`](PDD.md).
 
 ## Install (for a first user)
 
@@ -14,6 +14,8 @@ You get a zip, `doomscroll-autopsy-<version>.zip` (about 300 MB: the fine-tuned 
 2. Open `chrome://extensions`, turn on **Developer mode**, click **Load unpacked** and pick the unzipped folder.
 3. A welcome page opens. Read it, review the blocklist, press **Download and start now** (a one-time ~255 MB download of EmbeddingGemma 2 from Hugging Face; about a minute on a good connection), then **I've read this, let's go**.
 4. Pin the extension (puzzle icon → pin). Browse as usual.
+
+What's in it: deep blocks and attention residue (popup and dashboard), territories with names and topic tags, an attention map, spiral prediction (rules, Markov, and a GRU that is used only if it beats Markov on your own data), in-page nudges (banner, blur, optional 30-second breathing pause), a nightly autopsy, and privacy controls including forgetting a single item.
 
 What to expect: nudges start from hour 0 with simple rules; territories appear after about two hours of browsing and ask you to confirm their labels; the Markov model takes over the next evening; the nightly autopsy is written the first time Chrome is open after 3 am (or press "Write today's autopsy now" on the dashboard).
 

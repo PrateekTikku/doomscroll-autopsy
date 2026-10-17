@@ -1,4 +1,4 @@
-# M7 fresh-profile smoke test (release 0.2.0)
+# M7 fresh-profile smoke test (release 0.2.0; re-run on 0.3.0 after M8, all checks passed, see m7-probe.json)
 
 Run: `cd extension && npm run zip && npm run eval:m5 && npm run probe:m7` (headless Chrome, throwaway profile, the **unzipped release**, not the dev build). Raw results: `m7-probe.json`; screenshots `onboarding*.png`, `probe-m5/`, `probe-m4/`.
 

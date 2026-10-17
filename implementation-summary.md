@@ -18,13 +18,13 @@
 | T3 Targeted retrain (K-08/K-24) | ✅ Done | 2026-10-16 | — | Cleaned data + nudge-state augmentation + length filter → run3: naming 100%/100%/100%, ignored-heavy nudge autopsies strict-clean 60% → 95%, template fallback in the extension 35% → 13%; bundled in the extension. "T3" was not defined in the milestones file; interpreted as this follow-up. docs/plans/T3.md |
 | M6 Integrate 270M | ✅ Done | 2026-10-16 | L4 | Fine-tuned 270M bundled with the extension (D-58, not on HF yet), loaded on demand in the offscreen document (G1: byte-identical to the test page, ~115 tok/s), names + suggested labels + nightly autopsy through validators with fallbacks; on 23 replayed days 20 autopsies model-written, 3 template (13% after the T3 retrain; 35% with T2's model). docs/plans/M6.md |
 | M7 Release + first user | ⚠️ Done with gaps | 2026-10-17 | L5 (pending the owner's step) | Onboarding opens on install, README install path, `npm run zip` (300.8 MB), fresh-profile probe on the unzipped release passes (incl. model download, m5 + m4 probes). Gaps: the owner must hand the zip to the friend and run the interview; real-device checks. docs/plans/M7.md |
-| M8 Should-tier extras | 🟡 In progress | | L6 | plan approved (delegated); items committed one by one |
+| M8 Should-tier extras | ✅ Done | 2026-10-17 | L6 | All five Should items, one commit each: GRU (trained with TF.js in the offscreen document, promoted only if it beats Markov; it ties on synthetic data, so Markov stays), UMAP attention map, topic tags (fed into naming), breathing pause, forget a single capture. Release rebuilt as 0.3.0. docs/plans/M8.md |
 | M9 Showcase | ⬜ Not started | | | |
 
 Status values: ⬜ Not started · 📝 Plan awaiting approval · 🟡 In progress (plan approved) · 🔍 Awaiting review · ✅ Done · ⚠️ Done with gaps · ❌ Blocked
 
 ## Current showcase level
-**Level 5 once the owner hands over the zip and interviews the friend (M7 built).** **Level 4 (M6 + T3).** The fine-tuned Gemma 3 270M (run3) names territories and writes the autopsy in the real extension, with measured fallback numbers (13% on replayed days). A download install still needs the owner's Hugging Face publish (K-23).
+**Level 6 (M8 built) on top of Level 5, which still needs the owner to hand over the zip and interview the friend.** **Level 4 (M6 + T3).** The fine-tuned Gemma 3 270M (run3) names territories and writes the autopsy in the real extension, with measured fallback numbers (13% on replayed days). A download install still needs the owner's Hugging Face publish (K-23).
 
 (Level 3, reached in M5:) Full product without the fine-tune: deep blocks, attention residue, daily facts, template autopsy, timeline, popup metrics and the Must privacy controls (M4's loop is underneath: observe → embed → territories → predict (rules + Markov) → in-page nudges, with replay/demo mode). The "one domain, many territories" and real-data rules-vs-Markov evidence still need the owner's real data. (Update this line whenever a milestone raises the level; see `implementation-milestones.md` 0.4.)
 
@@ -764,7 +764,7 @@ None needs a decision-log entry; these fill gaps the PDD leaves open:
 ### How to run / verify
 - `cd extension && npm run build && npm test && npm run compile && npm run smoke && npm run check:types` (47 files, 392 tests + 4 gated).
 - `npm run zip && npm run eval:m5 && npm run probe:m7` (about 4 minutes; 15 checks, all pass).
-- Zip at build time of this section: 300.8 MB, sha256 `8d9db7fe9fa389cf0d5f9aa10f307c56c0d13d8aaf1d3b0b23b6debf83156602` (M8 re-zips; the final checksum is in the M8 section).
+- Zip at build time of this section: 0.2.0, 300.8 MB, sha256 `8d9db7fe9fa389cf0d5f9aa10f307c56c0d13d8aaf1d3b0b23b6debf83156602`. **Superseded by the M8 build: give the friend `doomscroll-autopsy-0.3.0.zip` (checksum in the M8 section).**
 
 ### Acceptance criteria
 - [x] Fresh-profile smoke test passes on the unzipped release; checklist in `docs/showcase/M7/smoke-checklist.md`.
@@ -791,3 +791,61 @@ None needs a decision-log entry; these fill gaps the PDD leaves open:
 
 ### Notes for the next milestone
 - **M8:** re-zip at the end (`npm run zip`) and record the final checksum; each item is its own commit.
+
+
+---
+
+## M8 — Should-tier features
+**Status:** ✅ Done
+**Date:** 2026-10-17 · **Commits:** `228dad0` (plan), `6321fea` M8.1, `a5619e6` M8.2, `b121c65` M8.3, `664e7b2` M8.4, `b53b59e` M8.5, `f394a92` (queue fix), and the closing `M8:` commit (release + summary)
+**Approved plan:** `docs/plans/M8.md` (approved 2026-10-17, delegated by the owner) · **Work approved:** 2026-10-17 (each item self-reviewed and committed on its own under that delegation; the owner reviews later)
+
+### What was built
+1. **GRU** (PDD 9.6): `lib/ml/gru.ts` (features, plain-TypeScript forward pass for inference, training windows), `gru-train.ts` (TF.js, offscreen only), `gru-service.ts` / `gru-promote.ts` (train on all days but the latest, evaluate on the latest, promote only if AUC beats Markov by ≥ 0.005; stored as `models/gru`, `models/gru-eval`), prediction mode `gru`, dashboard "GRU" panel with the verdict and a "Train GRU now" button, nightly training after the nightly job. WebGPU trains it in ~13 s (CPU ~150 s). On synthetic personas it ties Markov and is never promoted.
+2. **Attention map**: stratified sample (≤ 1,500 vectors of the last 14 days), seeded UMAP (`umap-js`) in the dashboard page, SVG scatter coloured by label, click a dot to select and scroll to its territory.
+3. **Topic tags**: 324 phrases embedded once, top-3 per territory (cosine ≥ 0.30), shown under the territory name and passed into the 270M's naming prompt (the format it was trained on). Real vectors give "recipes | cooking videos | baking" for a cooking territory and the model names it "Cooking and baking tutorials".
+4. **Breathing pause**: 30 s guided overlay (step 3), via a *Take a breath* button on step 2 or by escalation when the highest step is 3; new Dashboard → Nudges section (sensitivity, highest step).
+5. **Forget one item**: Dashboard → Privacy lists the 20 most recent items; Forget deletes the sample, recomputes its territory, logs only the kind (bins stay; D-65).
+- **Release 0.3.0**: `releases/doomscroll-autopsy-0.3.0.zip`, 301.1 MB, sha256 `5d34229a9487f92ee9e69f83df83ba357a00380c7ebe68ad408ae054c58b68ab`; `probe:m7` (fresh profile, unzipped release, incl. `probe:m5` and `probe:m4`) passes. Version bumped from 0.2.0 so the friend can tell builds apart.
+
+### Key files
+- `extension/lib/ml/{gru,gru-train,gru-service,gru-promote,gru-background,gru-messages,map,topics,topics-service,topics-background,topics-messages}.ts` (+ tests), `lib/replay/synthetic-gru-eval.ts`
+- `extension/lib/nudge/{breathe,policy,copy,ui,messages,service}.ts`, `lib/privacy/{forget,messages,background}.ts`, `lib/metrics/background.ts`, `lib/gen/{naming,naming-service,background}.ts`
+- `extension/entrypoints/dashboard/{map,nudge-settings,privacy,replay,territories,main}.tsx`, `entrypoints/offscreen/main.ts`, `scripts/{m8-probe}.mjs`
+- `docs/showcase/M8/`
+
+### How to run / verify
+- `cd extension && npm run build && npm test && npm run compile && npm run smoke && npm run check:types` (52 files, 432 tests + 5 gated).
+- `npm run eval:m5 && npm run probe:m8` (GRU in the extension, map, tags with real embeddings, naming with tags, forget one item; `GRU_BACKEND=webgpu`), `npm run probe:m4` (breathing overlay driven through CDP, including the full 30 s), `npm run probe:m5`, `npm run probe:m6` (naming regression: 42/53 named, no regression), `npm run eval:m8` (~9 min: GRU vs Markov table), `npm run zip && npm run probe:m7`.
+- Owner: Dashboard → Prediction and replay → GRU → "Train GRU now" (needs two days of data); Territories → "Name territories with Gemma" (tags appear under names); Attention map → "Draw map"; Nudges → highest step 3, then Demo mode; Privacy → "Forget one item".
+
+### Acceptance criteria
+- [x] Each item has tests where logic exists, works in the build, and was committed separately (see commits).
+- [x] Final zip rebuilt (0.3.0) and verified on a fresh profile.
+- [~] "Reviewed with the owner's approval": reviewed by me under the owner's delegation; the owner has not looked yet.
+
+### Deviations from the approved plan
+- Version bumped to 0.3.0 (not planned). Topic tags refresh before naming but never start the embedding download from a background job (D-66). The GRU runs after the nightly job instead of inside it (D-66). The map probe uses vectors planted around the seeded territories' centroids (the replay seed has no sample vectors).
+
+### Decisions and deviations from the PDD
+- **D-61** GRU details (train in TF.js, infer in plain TS, promotion margin 0.005, `yieldEvery: 'never'`), **D-62** attention map sampling, **D-63** tags feed naming, **D-64** breathing pause, **D-65** forget one capture keeps bins, **D-66** long jobs outside the exclusive queue. PDD 4.4, 4.5, 9.3, 9.6, 11.4 have "As built" notes.
+
+### Spike / measurement results
+- **G2** (GRU cost): 12.7 s WebGPU, 151 s CPU in the extension; pass bar 90 s met on WebGPU. `docs/showcase/M8/gru-notes.md`.
+- GRU vs Markov vs rules, six synthetic personas × 7 days: `docs/showcase/M8/gru-vs-markov.md` (never promoted; K-18 caveat applies).
+- Topic tags with real EmbeddingGemma vectors and tagged naming: `m8-probe.json`.
+
+### Contracts changed
+- No `shared/` change, no `DB_VERSION` bump. `Mode` gains `'gru'`; `NudgePayload.offerBreath?`; new `models` records `gru`, `gru-eval`, `topic-vectors`; new messages `gru-train`, `gru-run`, `gru-status`, `topics-refresh`, `privacy-forget-capture`. TF.js moved from devDependencies to dependencies; `umap-js` added.
+
+### Known issues
+- **K-27** (M8): the GRU has only been evaluated on synthetic days and one seeded replay (it ties Markov, run-to-run AUC varies by more than 0.005, hence the margin); whether it ever beats Markov on a real person is unknown until the friend/owner has 2+ days of data. Owner: owner / M9 (report honestly either way).
+- **K-28** (M8): training and tagging are not interruptible: while the GRU trains (15 s on WebGPU, ~150 s on CPU) the offscreen document is busy, so a model-written autopsy requested at that moment waits.
+- **K-29** (M8): tags are recomputed on the next naming/nightly/dashboard refresh, so right after a forget cascade a territory's tags can lag its centroid. The attention map is drawn on demand and is not saved. The topic list is the M3 list (324 phrases); not hand-audited for gaps.
+- K-23 (model not on Hugging Face), K-09/K-13 (memory with both models and now TF.js) remain; TF.js loads only while training.
+
+### Showcase evidence
+- `docs/showcase/M8/`: `gru-vs-markov.{md,json}`, `gru-notes.md`, `m8-probe.json`, screenshots (`dashboard-gru`, `dashboard-map`, `dashboard-map-selected`, `nudge-breathing`, `dashboard-forget-item`), `CAPTURE.md`.
+
+### Notes for the next milestone (M9)
+- Post material: the GRU story is honest and interesting (it ties; the promotion rule and the `requestAnimationFrame` hang are good anecdotes); the map and the tags are the visual wins; the breathing pause is a GIF. Use release 0.3.0 for the demo. D-61 to D-66 explain the choices.
