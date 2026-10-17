@@ -13,11 +13,14 @@ const REFRESH_MS = 30_000;
 const plural = (n: number, one: string, many = `${one}s`) => `${n} ${n === 1 ? one : many}`;
 const num = (n: number | null, unit = '') => (n == null ? '–' : `${n}${unit}`);
 
-function Tile({ title, big, sub }: { title: string; big: string; sub: string }) {
+function Tile({ title, big, unit, sub, cls }: { title: string; big: string; unit?: string; sub: string; cls: string }) {
   return (
-    <div class="tile">
+    <div class={`tile ${cls}`}>
       <div class="muted">{title}</div>
-      <div class="big">{big}</div>
+      <div class="big">
+        {big}
+        {unit && <small> {unit}</small>}
+      </div>
       <div class="sub">{sub}</div>
     </div>
   );
@@ -34,71 +37,84 @@ export function weekLine(f: DailyFacts): string | null {
 export function Metrics({ facts }: { facts: DailyFacts }) {
   const over = facts.drainOverAllowance.reduce((m, d) => m + d.minutesOver, 0);
   const t = facts.totalsMin;
+  const total = Math.max(1, t.deep + t.shallow + t.drain);
   const week = weekLine(facts);
   return (
-    <div>
+    <div class="grid" style="gap:14px">
       <div class="tiles">
         <Tile
+          cls="t-deep"
           title="Deep blocks"
           big={String(facts.deepBlocks.count)}
-          sub={facts.deepBlocks.count ? `longest ${facts.deepBlocks.longestMin} min · ${facts.deepBlocks.totalMin} min in all` : '25+ minutes in Deep, detours ≤ 2 min'}
+          sub={facts.deepBlocks.count ? `longest ${facts.deepBlocks.longestMin} min · ${facts.deepBlocks.totalMin} min in all` : '25+ min in Deep, detours ≤ 2 min'}
         />
         <Tile
+          cls="t-shallow"
           title="Attention residue"
-          big={`${facts.residue.switchesOutOfDeep} switches`}
-          sub={facts.residue.meanMinBackToDeep == null ? 'out of Deep; no return yet' : `out of Deep · ${facts.residue.meanMinBackToDeep} min to get back`}
+          big={String(facts.residue.switchesOutOfDeep)}
+          unit="switches"
+          sub={facts.residue.meanMinBackToDeep == null ? 'out of Deep, no return yet' : `${facts.residue.meanMinBackToDeep} min on average to get back`}
         />
         <Tile
+          cls="t-drain"
           title="Drain past allowance"
-          big={`${over} min`}
+          big={String(over)}
+          unit="min"
           sub={facts.drainOverAllowance.length ? facts.drainOverAllowance.map((d) => `${d.territory} +${d.minutesOver}`).join(' · ') : 'within every allowance'}
         />
         <Tile
+          cls="t-ok"
           title="Nudges that worked"
           big={`${facts.nudges.accepted} of ${facts.nudges.shown}`}
-          sub={facts.nudges.shown === 0 ? 'no nudges shown' : `${facts.nudges.snoozed} snoozed · ${facts.nudges.ignored} ignored${facts.nudges.medianReturnMin != null ? ` · back in ${facts.nudges.medianReturnMin} min` : ''}`}
+          sub={facts.nudges.shown === 0 ? 'none shown' : `${facts.nudges.snoozed} snoozed · ${facts.nudges.ignored} ignored${facts.nudges.medianReturnMin != null ? ` · back in ${facts.nudges.medianReturnMin} min` : ''}`}
         />
       </div>
-      <p class="muted">
-        Browser time: {t.deep} min Deep · {t.shallow} min Shallow · {t.drain} min Drain{week ? ` · ${week}` : ' · the 7-day comparison appears after 7 days of history'}
-      </p>
+      <div class="card" style="padding:14px 18px">
+        <div class="row" style="justify-content:space-between;margin-bottom:8px">
+          <strong>Browser time</strong>
+          <span class="muted small">
+            <i class="swatch" style="background:var(--deep)" />
+            {t.deep} min Deep
+            <i class="swatch" style="background:var(--shallow);margin-left:12px" />
+            {t.shallow} min Shallow
+            <i class="swatch" style="background:var(--drain);margin-left:12px" />
+            {t.drain} min Drain
+          </span>
+        </div>
+        <div class="stack" role="img" aria-label={`Deep ${t.deep}, Shallow ${t.shallow}, Drain ${t.drain} minutes`}>
+          <i style={`width:${(t.deep / total) * 100}%;background:var(--deep)`} />
+          <i style={`width:${(t.shallow / total) * 100}%;background:var(--shallow)`} />
+          <i style={`width:${(t.drain / total) * 100}%;background:var(--drain)`} />
+        </div>
+        <p class="muted small" style="margin:8px 0 0">
+          {week ?? 'The 7-day comparison appears after a week of history.'}
+        </p>
+      </div>
     </div>
   );
 }
 
 /** Product success metrics (PDD 4.7, D-48): the last 7 days. */
 export function Success({ m }: { m: SuccessMetrics }) {
+  const stat = (label: string, value: string, note: string) => (
+    <div style="min-width:0">
+      <div class="muted small" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{label}</div>
+      <div style="font-size:20px;font-weight:750;letter-spacing:-0.01em">{value}</div>
+      <div class="muted small">{note}</div>
+    </div>
+  );
   return (
     <div>
-      <h2>How it's going (last {plural(m.days, 'day')} with data)</h2>
-      <table>
-        <tbody>
-          <tr>
-            <td>Deep blocks per day (want ↑)</td>
-            <td>
-              <strong>{num(m.avgDeepBlocks)}</strong> on average · longest {m.longestMin} min
-            </td>
-          </tr>
-          <tr>
-            <td>Switches out of Deep per day (want ↓)</td>
-            <td>
-              <strong>{num(m.avgSwitches)}</strong> · {num(m.avgMeanBack, ' min')} to get back
-            </td>
-          </tr>
-          <tr>
-            <td>Drain minutes past allowance per day (want ↓)</td>
-            <td>
-              <strong>{num(m.avgOverMin, ' min')}</strong>
-            </td>
-          </tr>
-          <tr>
-            <td>Nudges accepted</td>
-            <td>
-              <strong>{m.acceptanceRate == null ? '–' : `${Math.round(m.acceptanceRate * 100)}%`}</strong> ({m.nudgesAccepted} of {m.nudgesShown}) · median {num(m.medianReturnMin, ' min')} to return to Deep
-            </td>
-          </tr>
-        </tbody>
-      </table>
+      <div class="card-head">
+        <h2>How it's going</h2>
+        <span class="pill">last {plural(m.days, 'day')} with data</span>
+      </div>
+      <div class="grid g2" style="gap:14px">
+        {stat('Deep blocks per day ↑', num(m.avgDeepBlocks), `longest ${m.longestMin} min`)}
+        {stat('Switches out of Deep per day ↓', num(m.avgSwitches), `${num(m.avgMeanBack, ' min')} to get back`)}
+        {stat('Drain past allowance per day ↓', num(m.avgOverMin, ' min'), 'minutes beyond your allowance')}
+        {stat('Nudges accepted', m.acceptanceRate == null ? '–' : `${Math.round(m.acceptanceRate * 100)}%`, `${m.nudgesAccepted} of ${m.nudgesShown} · median ${num(m.medianReturnMin, ' min')} back to Deep`)}
+      </div>
     </div>
   );
 }
@@ -131,12 +147,12 @@ export function Today() {
   }, [date]);
 
   return (
-    <>
-      <section class="card" id="today">
-        <div class="row" style={{ justifyContent: 'space-between', alignItems: 'baseline' }}>
-          <h2 style={{ margin: 0 }}>{isToday ? 'Today' : 'History'}</h2>
-          <label>
-            Day{' '}
+    <div class="grid" style="gap:18px">
+      <section id="today" class="grid" style="gap:14px">
+        <div class="row" style="justify-content:space-between">
+          <h2 class="page-title">{isToday ? 'Today' : 'History'}</h2>
+          <label class="row muted small">
+            Day
             <select value={date} onChange={(e) => setDate(e.currentTarget.value)} aria-label="Pick a day">
               {dates.map((d) => (
                 <option key={d} value={d}>
@@ -147,17 +163,26 @@ export function Today() {
           </label>
         </div>
         {facts ? <Metrics facts={facts} /> : <p class="muted">Loading…</p>}
-        <h2>Timeline</h2>
-        <Timeline date={date} refreshMs={isToday ? REFRESH_MS : null} />
+        <div class="card">
+          <div class="card-head">
+            <h2>Timeline</h2>
+          </div>
+          <Timeline date={date} refreshMs={isToday ? REFRESH_MS : null} />
+        </div>
       </section>
 
-      <section class="card" id="autopsy">
-        <h2 style={{ marginTop: 0 }}>Autopsy</h2>
-        <Autopsy date={date} isToday={isToday} />
-        <Writer />
-      </section>
-
-      <section class="card" id="success">{success ? <Success m={success} /> : <p class="muted">Loading…</p>}</section>
-    </>
+      <div class="grid g-main" style="align-items:start">
+        <section class="card" id="autopsy">
+          <div class="card-head">
+            <h2>Autopsy</h2>
+          </div>
+          <Autopsy date={date} isToday={isToday} />
+          <Writer />
+        </section>
+        <section class="card" id="success">
+          {success ? <Success m={success} /> : <p class="muted">Loading…</p>}
+        </section>
+      </div>
+    </div>
   );
 }

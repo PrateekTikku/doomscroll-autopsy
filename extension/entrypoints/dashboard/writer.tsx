@@ -15,12 +15,12 @@ export function Writer() {
   }, []);
   if (!o) return null;
   return (
-    <div class="muted" style={{ fontSize: 12, marginTop: 8 }}>
-      <div>
+    <div class="muted small" style="margin-top:12px;padding-top:10px;border-top:1px solid var(--line);display:flex;flex-wrap:wrap;gap:2px 16px">
+      <span>
         {writerLine(o.status)} · {o.modelName}
-      </div>
-      <div>{statsLine('Names', o.stats.naming)}</div>
-      <div>{statsLine('Autopsies', o.stats.autopsy)}</div>
+      </span>
+      <span>{statsLine('Names', o.stats.naming)}</span>
+      <span>{statsLine('Autopsies', o.stats.autopsy)}</span>
     </div>
   );
 }

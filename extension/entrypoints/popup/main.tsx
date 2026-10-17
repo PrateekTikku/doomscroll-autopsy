@@ -61,7 +61,7 @@ export function spiralLine(s: SpiralStatus | null): string {
 }
 
 const PAUSE_OPTIONS: Array<[PauseOption, string]> = [
-  ['15m', '15 min'],
+  ['15m', '15 minutes'],
   ['1h', '1 hour'],
   ['tomorrow', 'Until tomorrow'],
   ['forever', 'Until I resume'],
@@ -73,6 +73,23 @@ function pausedLabel(until: Settings['pausedUntil']): string {
   const sameDay = d.toDateString() === new Date().toDateString();
   const time = d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   return `Paused until ${sameDay ? time : `${d.toLocaleDateString([], { weekday: 'short' })} ${time}`}`;
+}
+
+/** The compact state of a model for the footer: a coloured dot and a word. */
+function modelDot(state: string | undefined): { cls: string; text: string } {
+  switch (state) {
+    case 'ready':
+      return { cls: 'ok', text: 'ready' };
+    case 'downloading':
+    case 'loading':
+      return { cls: 'warn', text: 'loading' };
+    case 'error':
+      return { cls: 'warn', text: 'unavailable' };
+    case 'unloaded':
+      return { cls: '', text: 'asleep' };
+    default:
+      return { cls: '', text: 'idle' };
+  }
 }
 
 function Popup() {
@@ -139,99 +156,123 @@ function Popup() {
     await updateSettings({ pausedUntil: option ? pauseUntil(option) : null });
     await refresh();
   };
+  const open = (path: string) => void browser.tabs.create({ url: browser.runtime.getURL(path as never) });
 
   const lines = summaryLines(summary);
   const paused = stats ? isPaused({ pausedUntil: stats.pausedUntil } as Settings) : false;
+  const score = spiral?.score ?? null;
+  const modeName = spiral?.mode === 'gru' ? 'GRU' : spiral?.mode === 'markov' ? 'Markov' : 'Rules';
+  const embed = modelDot(model?.state);
+  const wr = modelDot(writer?.state);
 
   return (
-    <main style={{ width: 300 }}>
-      <h1>Doomscroll Autopsy</h1>
-      {error && <p class="bad">Couldn't reach the extension: {error}</p>}
-      <p class={paused ? 'warn' : 'ok'}>{stats ? (paused ? pausedLabel(stats.pausedUntil) : 'Observing this browser') : 'Loading…'}</p>
-
-      <h2>Today</h2>
-      <table>
-        <tbody>
-          <tr>
-            <td>Items seen</td>
-            <td>
-              <strong>{stats?.samplesToday ?? '–'}</strong>
-            </td>
-          </tr>
-          <tr>
-            <td>Active minutes</td>
-            <td>
-              <strong>{stats?.activeMinToday ?? '–'}</strong>
-            </td>
-          </tr>
-          <tr>
-            <td>Items per minute now</td>
-            <td>
-              <strong>{stats?.itemsPerMinNow ?? '–'}</strong>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-
-      {lines && (
-        <div class="popup-grid" aria-label="Focus today">
-          <div>
-            <div class="muted">Deep blocks</div>
-            <div class="big">{lines.deepBlocks}</div>
-            <div class="muted">{lines.deepSub}</div>
-          </div>
-          <div>
-            <div class="muted">Attention residue</div>
-            <div class="big">{lines.residue}</div>
-            <div class="muted">{lines.residueSub}</div>
-          </div>
-          <div>
-            <div class="muted">Drain past allowance</div>
-            <div class="big">{lines.drain}</div>
-          </div>
-          <div>
-            <div class="muted">Nudges that worked</div>
-            <div class="big">{lines.nudges}</div>
-            <div class="muted">{lines.nudgesSub}</div>
+    <main class="popup">
+      <div class="popup-head">
+        <div class="brand-mark" aria-hidden="true">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 12h4l3-8 4 16 3-8h4" />
+          </svg>
+        </div>
+        <div class="grow">
+          <h1>Doomscroll Autopsy</h1>
+          <div class="popup-status" aria-live="polite">
+            <span class={`dot ${paused ? 'warn' : 'ok'}`} />
+            {error ? <span class="bad">Can't reach the extension</span> : stats ? (paused ? pausedLabel(stats.pausedUntil) : 'Observing this browser') : 'Loading…'}
           </div>
         </div>
-      )}
+        {paused ? (
+          <button class="small" onClick={() => void pause(null)}>
+            Resume
+          </button>
+        ) : (
+          <select
+            class="small"
+            aria-label="Pause observing"
+            value=""
+            onChange={(e) => {
+              const v = e.currentTarget.value as PauseOption | '';
+              if (v) void pause(v);
+              e.currentTarget.value = '';
+            }}
+          >
+            <option value="">Pause…</option>
+            {PAUSE_OPTIONS.map(([option, label]) => (
+              <option key={option} value={option}>
+                {label}
+              </option>
+            ))}
+          </select>
+        )}
+        <button class="primary small" onClick={() => open('/dashboard.html')}>
+          Dashboard
+        </button>
+      </div>
 
-      <p class="muted" title={spiral?.modeReason ?? undefined}>
-        {spiralLine(spiral)}
-      </p>
-      {replaying && <p class="warn">Replay running: nudges you see now come from a recorded or synthetic day.</p>}
-
-      <p class={model?.state === 'error' ? 'warn' : 'muted'}>{modelLine(model)}</p>
-      <p class={writer?.state === 'error' ? 'warn' : 'muted'}>{writerLine(writer)}</p>
-      {model && model.samplesToday > 0 && (
-        <p class="muted">
-          Embedded today: {model.vectorsToday} of {model.samplesToday} items
-        </p>
-      )}
-
-      <h2>Pause</h2>
-      {paused ? (
-        <button onClick={() => pause(null)}>Resume now</button>
+      {lines ? (
+        <div class="popup-metrics" aria-label="Focus today">
+          <div class="mini" style="--tile-accent: var(--deep)">
+            <div class="k">Deep blocks</div>
+            <div class="v">{lines.deepBlocks}</div>
+            <div class="s">{summary && summary.deepBlocks ? `longest ${summary.longestMin}m` : 'none yet'}</div>
+          </div>
+          <div class="mini" style="--tile-accent: var(--shallow)">
+            <div class="k">Switches</div>
+            <div class="v">{lines.residue}</div>
+            <div class="s">{summary?.meanMinBackToDeep == null ? 'out of Deep' : `${summary.meanMinBackToDeep}m to return`}</div>
+          </div>
+          <div class="mini" style="--tile-accent: var(--drain)">
+            <div class="k">Drain over</div>
+            <div class="v">{lines.drain}</div>
+            <div class="s">beyond limit</div>
+          </div>
+          <div class="mini" style="--tile-accent: var(--ok)">
+            <div class="k">Nudges</div>
+            <div class="v">{lines.nudges}</div>
+            <div class="s">{summary?.nudgesShown ? `${summary.nudgesShown} shown` : 'none shown'}</div>
+          </div>
+        </div>
       ) : (
-        <div class="row">
-          {PAUSE_OPTIONS.map(([option, label]) => (
-            <button key={option} onClick={() => pause(option)}>
-              {label}
-            </button>
+        <div class="popup-metrics" aria-hidden="true">
+          {[0, 1, 2, 3].map((i) => (
+            <div key={i} class="mini">
+              <div class="k">…</div>
+              <div class="v">–</div>
+            </div>
           ))}
         </div>
       )}
 
-      <p>
-        <button onClick={() => browser.tabs.create({ url: browser.runtime.getURL('/dashboard.html') })}>Open dashboard</button>
-      </p>
-      <p class="muted">
-        v{browser.runtime.getManifest().version} ·{' '}
-        <a href="#" onClick={(e) => { e.preventDefault(); void browser.tabs.create({ url: browser.runtime.getURL('/onboarding.html' as never) }); }}>
+      <div class="popup-row" title={spiral?.modeReason ?? undefined}>
+        <span class="muted small" style="white-space:nowrap">
+          Spiral score
+        </span>
+        <div class="scorebar" role="meter" aria-valuemin={0} aria-valuemax={1} aria-valuenow={score ?? 0} aria-label="Spiral score">
+          <div class="bar">
+            <i style={`width:${Math.round((score ?? 0) * 100)}%`} />
+            {spiral && <b style={`left:${Math.round(spiral.threshold * 100)}%`} title={`nudges at ${spiral.threshold.toFixed(2)}`} />}
+          </div>
+        </div>
+        <strong>{score == null ? '–' : score.toFixed(2)}</strong>
+        <span class="pill accent">{modeName}</span>
+      </div>
+      <p class="sr-only">{spiralLine(spiral)}</p>
+      {replaying && <p class="warn small" style="margin-top:6px">Replay running: nudges come from a recorded or demo day.</p>}
+
+      <div class="popup-foot">
+        <span title={stats ? `${stats.samplesToday} items, ${stats.activeMinToday} active minutes` : undefined}>
+          {stats ? `${stats.samplesToday} items · ${stats.activeMinToday} min · ${stats.itemsPerMinNow}/min` : 'no data yet'}
+        </span>
+        <span title={modelLine(model)}>
+          <i class={`dot ${embed.cls}`} /> embedder {embed.text}
+        </span>
+        <span title={writerLine(writer)}>
+          <i class={`dot ${wr.cls}`} /> writer {wr.text}
+        </span>
+        <a href="#" onClick={(e) => { e.preventDefault(); open('/onboarding.html'); }}>
           How it works
         </a>
-      </p>
+      </div>
+      <p class="sr-only">{modelLine(model)} {writerLine(writer)} v{browser.runtime.getManifest().version}</p>
     </main>
   );
 }

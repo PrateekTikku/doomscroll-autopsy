@@ -133,7 +133,7 @@ try {
   const loaded = await send('Extensions.loadUnpacked', { path: ext });
   if (loaded.error) throw new Error(JSON.stringify(loaded.error));
   const extId = loaded.result.id;
-  const control = (await openPage(`chrome-extension://${extId}/dashboard.html`)).sessionId;
+  const control = (await openPage(`chrome-extension://${extId}/dashboard.html#all`)).sessionId;
   await sleep(1500);
   await setSettings(control, { devMode: true, blocklist: { addedDomains: ['example.com'], removedDomains: [], addedKeywords: [] } });
   await sleep(1500);

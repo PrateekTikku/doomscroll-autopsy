@@ -129,7 +129,7 @@ try {
   const loaded = await send('Extensions.loadUnpacked', { path: ext });
   if (loaded.error) throw new Error(JSON.stringify(loaded.error));
   const extId = loaded.result.id;
-  const dash = await openPage(`chrome-extension://${extId}/dashboard.html`);
+  const dash = await openPage(`chrome-extension://${extId}/dashboard.html#all`);
   const s = dash.sessionId;
   await send('Emulation.setDeviceMetricsOverride', { width: 1280, height: 1000, deviceScaleFactor: 1, mobile: false }, s);
   await sleep(2500);
@@ -212,7 +212,7 @@ try {
   );
   await send('Page.reload', {}, s);
   await waitFor(s, `document.getElementById('map')`, 'map section');
-  await evaluate(s, clickText('Draw map'));
+  await evaluate(s, `${clickText('Draw map')} || ${clickText('Redraw')}`);
   await waitFor(s, `document.querySelectorAll('#map svg circle').length > 200`, 'map dots', 60000);
   const mapInfo = await evaluate(s, `({ dots: document.querySelectorAll('#map svg circle').length, text: document.getElementById('map-selection').innerText, fills: [...new Set([...document.querySelectorAll('#map svg circle')].map((c) => c.getAttribute('fill')))] })`);
   check('attention map draws one dot per sampled item, coloured by label', mapInfo.dots >= 300 && mapInfo.fills.length >= 2, { planted, mapInfo });

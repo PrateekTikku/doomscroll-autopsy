@@ -26,29 +26,42 @@ function Row({ v, onChange }: { v: TerritoryView; onChange: () => void }) {
     if (Number.isFinite(n)) await setTerritoryAllowance(t.id, n);
     onChange();
   };
+  const state = t.labelConfirmed ? t.label : t.suggestedLabel;
   return (
     <tr id={`territory-${t.id}`} class={v.dormant ? 'dormant' : ''}>
       <td>
-        <strong>{t.name}</strong>
-        <span class="muted" title="Who wrote this name"> · {nameSourceLabel(t)}</span>
-        {v.dormant && <span class="muted"> · dormant (confirmed earlier, no members now)</span>}
-        {t.topicTags?.length > 0 && (
-          <div class="muted" title="Zero-shot topics: how close this territory is to each phrase (PDD 9.3)">
-            about: {t.topicTags.map((x) => `${x.tag} (${x.score.toFixed(2)})`).join(', ')}
+        <div class="row" style="gap:8px;flex-wrap:nowrap;align-items:flex-start">
+          <i class="dot" style={`margin-top:7px;flex:none;background:var(--${state ?? 'muted'}, var(--muted))`} title={state ?? 'no label yet'} />
+          <div style="min-width:0">
+            <strong>{t.name}</strong>
+            <span class="muted small" title="Who wrote this name"> · {nameSourceLabel(t) === 'named by Gemma 3 270M (fine-tuned)' ? 'Gemma 270M' : nameSourceLabel(t)}</span>
+            {v.dormant && <span class="muted small"> · dormant</span>}
+            {t.topicTags?.length > 0 && (
+              <div class="chip-row" title="Zero-shot topics: how close this territory is to each phrase (PDD 9.3)">
+                {t.topicTags.map((x) => (
+                  <span class="tag" key={x.tag}>
+                    {x.tag} {x.score.toFixed(2)}
+                  </span>
+                ))}
+              </div>
+            )}
+            <div class="muted small" style="margin-top:3px">
+              {v.topOrigins.length ? v.topOrigins.map((o) => `${hostOf(o.origin)} (${o.count})`).join(' · ') : 'no recent items'}
+            </div>
           </div>
-        )}
-        <div class="muted">
-          {v.topOrigins.length ? v.topOrigins.map((o) => `${hostOf(o.origin)} (${o.count})`).join(', ') : 'no recent items'}
         </div>
       </td>
-      <td class="num">{t.size}</td>
-      <td class="num">{v.todayMin}</td>
+      <td class="num">
+        <strong>{v.todayMin}</strong>
+        <span class="muted small"> min today</span>
+        <div class="muted small">{t.size} items</div>
+      </td>
       <td>
-        <div class="row">
+        <div class="seg" role="group" aria-label={`Label for ${t.name}`}>
           {LABELS.map(({ label, text }) => (
             <button
               key={label}
-              class={`label-btn ${t.label === label ? 'on' : ''} ${t.label !== label && t.suggestedLabel === label && !t.labelConfirmed ? 'suggested' : ''}`}
+              class={`label-btn ${label} ${t.label === label ? 'on' : ''} ${t.label !== label && t.suggestedLabel === label && !t.labelConfirmed ? 'suggested' : ''}`}
               aria-pressed={t.label === label}
               onClick={() => pick(label)}
             >
@@ -56,42 +69,43 @@ function Row({ v, onChange }: { v: TerritoryView; onChange: () => void }) {
             </button>
           ))}
         </div>
-        <div class="muted">
-          {t.labelConfirmed
-            ? 'confirmed'
-            : t.suggestedLabel
-              ? `suggested: ${t.suggestedLabel} (rule-based). Click to confirm.`
-              : 'no suggestion yet'}
+        <div class="muted small" style="margin-top:4px">
+          {t.labelConfirmed ? (
+            <>confirmed</>
+          ) : t.suggestedLabel ? (
+            <>suggested: {t.suggestedLabel}, click to confirm</>
+          ) : (
+            <>no suggestion yet</>
+          )}
+          {t.label === 'drain' && (
+            <label style="margin-left:8px">
+              · allowance{' '}
+              <input
+                class="allowance small"
+                type="number"
+                min={0}
+                max={1440}
+                value={allowance}
+                onInput={(e) => setAllowance(e.currentTarget.value)}
+                onBlur={commit}
+                onKeyDown={(e) => e.key === 'Enter' && e.currentTarget.blur()}
+              />{' '}
+              min/day
+            </label>
+          )}
+          {v.dormant && (
+            <button
+              class="small"
+              style="margin-left:6px"
+              onClick={async () => {
+                await deleteTerritory(t.id);
+                onChange();
+              }}
+            >
+              Delete
+            </button>
+          )}
         </div>
-      </td>
-      <td>
-        {t.label === 'drain' ? (
-          <label>
-            <input
-              class="allowance"
-              type="number"
-              min={0}
-              max={1440}
-              value={allowance}
-              onInput={(e) => setAllowance(e.currentTarget.value)}
-              onBlur={commit}
-              onKeyDown={(e) => e.key === 'Enter' && e.currentTarget.blur()}
-            />{' '}
-            min/day
-          </label>
-        ) : (
-          <span class="muted">-</span>
-        )}
-        {v.dormant && (
-          <button
-            onClick={async () => {
-              await deleteTerritory(t.id);
-              onChange();
-            }}
-          >
-            Delete
-          </button>
-        )}
       </td>
     </tr>
   );
@@ -147,49 +161,72 @@ export function Territories() {
     }
   };
 
+  const counts = (rows ?? []).reduce((m, v) => m.set(v.territory.label ?? v.territory.suggestedLabel ?? 'none', (m.get(v.territory.label ?? v.territory.suggestedLabel ?? 'none') ?? 0) + 1), new Map<string, number>());
+  const [all, setAll] = useState(false);
+  useEffect(() => {
+    const on = () => setAll(true);
+    window.addEventListener('territory-select', on);
+    return () => window.removeEventListener('territory-select', on);
+  }, []);
+  const shown = rows && !all ? rows.slice(0, 10) : rows;
+
   return (
     <section class="card" id="territories">
-      <h2>Territories</h2>
-      <p class="muted">
-        Groups of what you look at, found by the on-device model and named by the fine-tuned Gemma 3 270M (a plain
-        "site · section" name where its answer didn't pass the checks). Suggested labels are suggestions, not judgements: you
-        decide. Drain time beyond its allowance is what triggers nudges.
-      </p>
-      <div class="row">
-        <button onClick={recluster} disabled={busy}>
-          Re-cluster now
-        </button>
-        <button onClick={nameThem} disabled={busy}>
-          Name territories with Gemma
-        </button>
-        <span class="muted">{status}</span>
+      <div class="card-head">
+        <h2>Territories</h2>
+        <div class="row">
+          <button class="small" onClick={recluster} disabled={busy}>
+            Re-cluster now
+          </button>
+          <button class="small primary" onClick={nameThem} disabled={busy}>
+            Name territories with Gemma
+          </button>
+        </div>
       </div>
+      <p class="muted small" style="margin-bottom:8px">
+        What you look at, grouped on-device and named by the fine-tuned Gemma 3 270M. Labels are yours to set; Drain beyond its allowance triggers nudges.
+        {status && <span class="pill accent" style="margin-left:8px">{status}</span>}
+      </p>
+      {rows && rows.length > 0 && (
+        <div class="row small muted" style="margin-bottom:6px">
+          <span>{rows.length} territories</span>
+          {(['deep', 'shallow', 'drain'] as const).map((l) => (
+            <span key={l}>
+              <i class="swatch" style={`background:var(--${l})`} />
+              {counts.get(l) ?? 0} {l}
+            </span>
+          ))}
+        </div>
+      )}
       {rows == null ? (
         <p class="muted">Loading…</p>
       ) : rows.length === 0 ? (
-        <p class="muted">
-          No territories yet. They appear after about 300 embedded items (roughly two hours of browsing), or press
-          Re-cluster now once you have 60.
-        </p>
+        <p class="muted">No territories yet. They appear after about 300 embedded items (roughly two hours of browsing), or press Re-cluster now once you have 60.</p>
       ) : (
-        <table class="territories">
-          <thead>
-            <tr>
-              <th>Territory</th>
-              <th class="num">Items</th>
-              <th class="num">Today (min)</th>
-              <th>Label</th>
-              <th>Allowance</th>
-            </tr>
-          </thead>
-          <tbody>
-            {rows.map((v) => (
-              <Row key={v.territory.id} v={v} onChange={refresh} />
-            ))}
-          </tbody>
-        </table>
+        <>
+          <table class="territories">
+            <thead>
+              <tr>
+                <th>Territory</th>
+                <th class="num">Time</th>
+                <th>Label</th>
+              </tr>
+            </thead>
+            <tbody>
+              {shown!.map((v) => (
+                <Row key={v.territory.id} v={v} onChange={refresh} />
+              ))}
+            </tbody>
+          </table>
+          {rows.length > 10 && (
+            <div class="row" style="justify-content:center;margin-top:8px">
+              <button class="small ghost" onClick={() => setAll(!all)}>
+                {all ? 'Show fewer' : `Show all ${rows.length}`}
+              </button>
+            </div>
+          )}
+        </>
       )}
     </section>
   );
 }
-

@@ -50,7 +50,9 @@ const HOUR = 3600_000;
 const floorHour = (ts: number) => new Date(ts).setMinutes(0, 0, 0);
 const ceilHour = (ts: number) => (floorHour(ts) === ts ? ts : floorHour(ts) + HOUR);
 
-export function buildTimeline(input: { date: string; bins: BinRecord[]; territories: TerritoryRecord[]; nudges: NudgeRecord[] }): TimelineModel {
+/** `maxLanes` merges the smallest territories into one lane; the dashboard groups lanes by label, so it asks for all of them. */
+export function buildTimeline(input: { date: string; bins: BinRecord[]; territories: TerritoryRecord[]; nudges: NudgeRecord[]; maxLanes?: number }): TimelineModel {
+  const maxLanes = input.maxLanes ?? MAX_LANES;
   const dayFrom = dayStart(input.date);
   const dayTo = dayEnd(input.date);
   const lookup = lookupTerritories(input.territories);
@@ -69,7 +71,7 @@ export function buildTimeline(input: { date: string; bins: BinRecord[]; territor
   const keys = [...secondsBy.keys()];
   const labelOf = (k: string): Label | 'other' => (k ? (lookup.get(k)?.label ?? 'other') : 'other');
   keys.sort((a, b) => LABEL_ORDER[labelOf(a)] - LABEL_ORDER[labelOf(b)] || secondsBy.get(b)! - secondsBy.get(a)!);
-  const shown = keys.length > MAX_LANES ? keys.slice(0, MAX_LANES - 1) : keys;
+  const shown = keys.length > maxLanes ? keys.slice(0, maxLanes - 1) : keys;
   const lanes: Lane[] = shown.map((k) => ({ key: k, name: k ? (lookup.get(k)?.name ?? 'Unnamed') : 'Unassigned', label: labelOf(k), seconds: secondsBy.get(k)! }));
   const hidden = keys.slice(shown.length);
   if (hidden.length) lanes.push({ key: '*other*', name: `${hidden.length} smaller territories`, label: 'other', seconds: hidden.reduce((m, k) => m + secondsBy.get(k)!, 0) });

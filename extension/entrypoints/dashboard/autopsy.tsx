@@ -56,22 +56,22 @@ export function Autopsy({ date, isToday }: { date: string; isToday: boolean }) {
           {text.split('\n\n').map((p, i) => (
             <p key={i}>{p}</p>
           ))}
-          <p class="muted">
-            <span class="pill">{source}</span>{' '}
+          <p class="muted small" style="margin-top:12px">
+            <span class={`pill ${report ? (report.source?.kind === 'model' ? 'accent' : '') : 'warn'}`}>{source}</span>{' '}
             {report?.generatedAt ? `· ${new Date(report.generatedAt).toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' })}` : ''}
           </p>
         </>
       )}
       <div class="row">
-        <button onClick={generate} disabled={busy}>
+        <button class="primary small" onClick={generate} disabled={busy}>
           {busy ? 'Writing…' : report ? 'Write it again' : isToday ? "Write today's autopsy now" : 'Write this autopsy'}
         </button>
       </div>
       {error && <p class="bad">{error}</p>}
       {facts && (
-        <details>
-          <summary class="muted">The numbers behind it</summary>
-          <pre style={{ whiteSpace: 'pre-wrap', fontSize: 12 }}>{JSON.stringify(facts, null, 2)}</pre>
+        <details style="margin-top:8px">
+          <summary>The numbers behind it</summary>
+          <pre style={{ whiteSpace: 'pre-wrap', fontSize: 12, maxHeight: 260 }}>{JSON.stringify(facts, null, 2)}</pre>
         </details>
       )}
     </div>

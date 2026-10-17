@@ -124,7 +124,7 @@ function GruPanel({ onChange }: { onChange: () => void | Promise<void> }) {
         <p class="muted">Not trained yet. It needs at least two days of history; it trains nightly and you can run it now.</p>
       )}
       <div class="row">
-        <button onClick={() => void run()} disabled={busy}>
+        <button class="small" onClick={() => void run()} disabled={busy}>
           {busy ? 'Training…' : 'Train GRU now'}
         </button>
       </div>
@@ -253,11 +253,15 @@ export function ReplayPanel() {
   };
 
   return (
-    <section class="card" id="prediction">
-      <h2>Prediction and replay</h2>
+    <div id="prediction" class="grid g2" style="align-items:start">
+    <section class="card">
+      <div class="card-head">
+        <h2>Prediction and replay</h2>
+        <span class="pill accent">{mode ? ({ markov: 'Markov', gru: 'GRU', rules: 'Rules' } as const)[mode.mode] : '…'}</span>
+      </div>
       <p>
         Active mode: <strong>{mode ? ({ markov: 'Markov', gru: 'GRU', rules: 'Rules' } as const)[mode.mode] : '…'}</strong>
-        {mode && <span class="muted"> · {mode.reason}</span>}
+        {mode && <span class="muted small"> · {mode.reason}</span>}
       </p>
 
       <GruPanel onChange={reload} />
@@ -265,20 +269,25 @@ export function ReplayPanel() {
       <h3>Rules vs Markov on your data</h3>
       {evalResult ? <EvalTable e={evalResult} /> : <p class="muted">Not evaluated yet.</p>}
       <div class="row">
-        <button onClick={evaluate} disabled={busy != null}>
+        <button class="small primary" onClick={evaluate} disabled={busy != null}>
           Evaluate on my data
         </button>
-        <button onClick={runSynthetic} disabled={busy != null}>
+        <button class="small" onClick={runSynthetic} disabled={busy != null}>
           Synthetic evaluation (6 personas × 14 days)
         </button>
         {busy && <span class="muted">{busy}</span>}
       </div>
       {synthetic && <pre class="muted">{synthetic}</pre>}
+    </section>
 
-      <h3>Demo mode</h3>
-      <p class="muted">
-        Plays a prepared 80-minute day at {speed}× (about {Math.round(80 / speed * 60)} s): reading docs, a Slack break, then a Shorts spiral. A banner is due around minute {DEMO_EXPECTED.bannerAtMin},
-        the blur around {DEMO_EXPECTED.blurAtMin}. Open the page you want it to appear on (or stay here). Nudges carry a <strong>Replay</strong> label and nothing is stored.
+    <section class="card">
+      <div class="card-head">
+        <h2>Demo mode</h2>
+        <span class="pill">a replay, nothing stored</span>
+      </div>
+      <p class="muted small">
+        Plays a prepared 80-minute day at {speed}× (about {Math.round(80 / speed * 60)} s): docs, a Slack break, then a Shorts spiral. A banner is due around minute {DEMO_EXPECTED.bannerAtMin}, the blur around {DEMO_EXPECTED.blurAtMin}.
+        Open the page you want it on (or stay here); nudges carry a <strong>Replay</strong> label.
       </p>
       <div class="row">
         <select value={speed} onChange={(e) => setSpeed(Number((e.target as HTMLSelectElement).value))} disabled={running}>
@@ -286,7 +295,7 @@ export function ReplayPanel() {
           <option value={60}>60×</option>
           <option value={120}>120×</option>
         </select>
-        {running ? <button onClick={stop}>Stop</button> : <button onClick={startDemo}>Start demo</button>}
+        {running ? <button onClick={stop}>Stop</button> : <button class="primary" onClick={startDemo}>Start demo</button>}
         {running && <span class="warn">Replay running · {Math.round(progress * 100)}%</span>}
       </div>
       {log.length > 0 && (
@@ -298,10 +307,11 @@ export function ReplayPanel() {
       )}
 
       <h3>Replay a recording</h3>
-      <p class="muted">Pick a JSONL recording from Developer → Download recording. Its events go through the pipeline in memory.</p>
+      <p class="muted small">Pick a JSONL recording from Developer → Download recording. Its events go through the pipeline in memory.</p>
       <input type="file" accept=".jsonl,.ndjson,application/x-ndjson,text/plain" onChange={(e) => (e.target as HTMLInputElement).files?.[0] && void loadRecording((e.target as HTMLInputElement).files![0]!)} />
       {fileResult && <p class="muted">{fileResult}</p>}
     </section>
+    </div>
   );
 }
 

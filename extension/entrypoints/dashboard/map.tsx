@@ -1,4 +1,4 @@
-import { useRef, useState } from 'preact/hooks';
+import { useEffect, useRef, useState } from 'preact/hooks';
 import { getAll, getByTs, type Label, type SampleRecord, type TerritoryRecord } from '@/lib/db';
 import { layoutPoints, MAP_MAX_POINTS, MAP_MIN_POINTS, nearestPoint, projectUmap, sampleForMap, territoryCentres, type MapPoint } from '@/lib/ml/map';
 
@@ -46,9 +46,13 @@ export function AttentionMap() {
   const select = (id: string | null) => {
     setSelected(id);
     if (id) {
-      const row = document.getElementById(`territory-${id}`);
-      row?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      row?.animate([{ background: 'color-mix(in srgb, var(--deep) 25%, transparent)' }, { background: 'transparent' }], { duration: 1600 });
+      // The list may be collapsed or on another tab: ask it to show the row, then scroll to it.
+      window.dispatchEvent(new CustomEvent('territory-select', { detail: id }));
+      setTimeout(() => {
+        const row = document.getElementById(`territory-${id}`);
+        row?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        row?.animate([{ background: 'color-mix(in srgb, var(--accent) 22%, transparent)' }, { background: 'transparent' }], { duration: 1800 });
+      }, 60);
     }
   };
 
@@ -59,23 +63,25 @@ export function AttentionMap() {
     select(i >= 0 ? (drawn.points[i]!.territoryId ?? null) : null);
   };
 
+  useEffect(() => {
+    void draw(); // draws once on load when there are enough embedded items
+  }, []);
+
   const centres = drawn ? territoryCentres(drawn.points) : null;
   const sel = drawn?.territories.find((t) => t.id === selected) ?? null;
 
   return (
-    <section class="card" id="map">
-      <h2>Attention map</h2>
-      <p class="muted">
-        Each dot is one item you looked at in the last {DAYS} days, placed so that similar items sit close together (a UMAP of
-        the stored vectors, on this page, nothing leaves the device). Colour is the territory's label. Click a dot to find its
-        territory. No titles or text are drawn.
-      </p>
-      <div class="row">
-        <button onClick={() => void draw()} disabled={progress != null}>
-          {drawn ? 'Redraw map' : 'Draw map'}
+    <section class="card" id="map" style="position:sticky;top:16px">
+      <div class="card-head">
+        <h2>Attention map</h2>
+        <button class="small" onClick={() => void draw()} disabled={progress != null}>
+          {drawn ? 'Redraw' : 'Draw map'}
         </button>
-        {progress != null && <span class="muted">Projecting… {Math.round(progress * 100)}%</span>}
       </div>
+      <p class="muted small" style="margin-bottom:8px">
+        Every dot is an item from the last {DAYS} days; similar items sit close together (UMAP of the stored vectors, computed here). Click a dot to find its territory.
+        {progress != null && <span class="pill accent" style="margin-left:8px">projecting {Math.round(progress * 100)}%</span>}
+      </p>
       {error && <p class="warn">{error}</p>}
       {drawn && (
         <>
@@ -83,7 +89,7 @@ export function AttentionMap() {
             ref={svg}
             class="chart"
             viewBox={`0 0 ${SIZE} ${SIZE}`}
-            style="max-width:640px;cursor:pointer;border:1px solid var(--line);border-radius:8px"
+            style="max-width:100%;cursor:pointer;border:1px solid var(--line);border-radius:12px;background:var(--surface-2)"
             role="img"
             aria-label="Attention map of recent items, coloured by label"
             onClick={onClick as never}

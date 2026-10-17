@@ -55,7 +55,7 @@ export async function computeDayFacts(date: string, opts: { compare?: boolean } 
 }
 
 export async function loadTimeline(date: string): Promise<TimelineModel> {
-  return buildTimeline(await loadDay(date));
+  return buildTimeline({ ...(await loadDay(date)), maxLanes: Infinity });
 }
 
 export async function getReport(date: string): Promise<ReportRecord | undefined> {

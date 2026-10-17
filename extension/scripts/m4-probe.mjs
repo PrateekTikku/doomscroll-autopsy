@@ -134,7 +134,7 @@ try {
   const loaded = await send('Extensions.loadUnpacked', { path: ext });
   if (loaded.error) throw new Error(JSON.stringify(loaded.error));
   const extId = loaded.result.id;
-  const controlPage = await openPage(`chrome-extension://${extId}/dashboard.html`);
+  const controlPage = await openPage(`chrome-extension://${extId}/dashboard.html#all`);
   const control = controlPage.sessionId;
   results.controlTarget = controlPage.targetId;
   await sleep(1500);

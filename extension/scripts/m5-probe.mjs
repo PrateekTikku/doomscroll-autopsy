@@ -127,7 +127,7 @@ try {
   const loaded = await send('Extensions.loadUnpacked', { path: ext });
   if (loaded.error) throw new Error(JSON.stringify(loaded.error));
   const extId = loaded.result.id;
-  const dash = await openPage(`chrome-extension://${extId}/dashboard.html`);
+  const dash = await openPage(`chrome-extension://${extId}/dashboard.html#all`);
   const s = dash.sessionId;
   await send('Emulation.setDeviceMetricsOverride', { width: 1280, height: 1000, deviceScaleFactor: 1, mobile: false }, s);
   await sleep(2500);
@@ -210,9 +210,9 @@ try {
 
   // ---- Popup ----
   const popup = await openPage(`chrome-extension://${extId}/popup.html`);
-  await waitFor(popup.sessionId, `/Attention residue/.test(document.body.innerText)`, 'popup focus metrics');
+  await waitFor(popup.sessionId, `/deep blocks/i.test(document.body.innerText)`, 'popup focus metrics');
   const popupText = await evaluate(popup.sessionId, `document.body.innerText`);
-  check('popup shows deep blocks, residue, drain past allowance, nudges', /Deep blocks/.test(popupText) && /Attention residue/.test(popupText) && /Drain past allowance/.test(popupText) && /Nudges that worked/.test(popupText), popupText.replace(/\s+/g, ' ').slice(0, 300));
+  check('popup shows deep blocks, residue, drain past allowance, nudges', /deep blocks/i.test(popupText) && /switches/i.test(popupText) && /drain over/i.test(popupText) && /nudges/i.test(popupText), popupText.replace(/\s+/g, ' ').slice(0, 300));
   check('popup wording', !new RegExp(OUTSIDE, 'i').test(popupText));
   await shot(popup.sessionId, 'popup.png');
   await send('Target.closeTarget', { targetId: popup.targetId });
@@ -250,7 +250,7 @@ try {
   await evaluate(s, typeInto('Keyword to block', 'payroll'));
   await evaluate(s, clickText('Add keyword'));
   await sleep(500);
-  await evaluate(s, `(() => { const sel = [...document.querySelectorAll('#privacy select')][0]; sel.value = '14'; sel.dispatchEvent(new Event('change', { bubbles: true })); return true; })()`);
+  await evaluate(s, `(() => { const sel = document.querySelector('#privacy select[aria-label="Keep data for"]'); sel.value = '14'; sel.dispatchEvent(new Event('change', { bubbles: true })); return true; })()`);
   await sleep(500);
   const settings = await evaluate(s, `chrome.storage.local.get('settings').then((r) => r.settings)`);
   check('blocklist editor and retention save to settings', settings.blocklist.addedDomains.includes('mybank.example.com') && settings.blocklist.addedKeywords.includes('payroll') && settings.retentionDays === 14, { added: settings.blocklist, retention: settings.retentionDays });

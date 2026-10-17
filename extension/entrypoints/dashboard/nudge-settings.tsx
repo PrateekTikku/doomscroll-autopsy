@@ -8,9 +8,9 @@ const SENSITIVITIES: Array<[Sensitivity, string]> = [
   ['strict', 'Strict'],
 ];
 const STEPS: Array<[1 | 2 | 3, string, string]> = [
-  [1, 'Banner only', 'a small dismissible banner'],
-  [2, 'Banner, then blur', 'if you keep going, the feed blurs slightly'],
-  [3, 'Banner, blur, then a breathing pause', 'a 30-second breathing cycle as the last step'],
+  [1, 'Banner', 'a small dismissible banner'],
+  [2, 'Banner + blur', 'if you keep going, the feed blurs slightly'],
+  [3, '+ breathing pause', 'a 30-second breathing cycle as the last step'],
 ];
 
 export function NudgeSettings() {
@@ -21,23 +21,31 @@ export function NudgeSettings() {
   }, []);
   return (
     <section class="card" id="nudges">
-      <h2>Nudges</h2>
-      <p class="muted">At most one nudge per 15 minutes, never in Deep or Shallow work, and never while a Drain territory still has allowance left.</p>
-      <div class="field">
-        <span>Sensitivity</span>
-        {SENSITIVITIES.map(([value, label]) => (
-          <button key={value} class={`label-btn${s.sensitivity === value ? ' on' : ''}`} aria-pressed={s.sensitivity === value} title={`nudge at a spiral score of ${SENSITIVITY_THRESHOLD[value]}`} onClick={() => void updateSettings({ sensitivity: value }).then(setS)}>
-            {label}
-          </button>
-        ))}
+      <div class="card-head">
+        <h2>Nudges</h2>
+        <span class="muted small">at most one per 15 minutes, never in Deep or Shallow work</span>
       </div>
-      <div class="field">
-        <span>Highest step</span>
-        {STEPS.map(([value, label, hint]) => (
-          <button key={value} class={`label-btn${s.maxNudgeStep === value ? ' on' : ''}`} aria-pressed={s.maxNudgeStep === value} title={hint} onClick={() => void updateSettings({ maxNudgeStep: value }).then(setS)}>
-            {label}
-          </button>
-        ))}
+      <div class="grid g2" style="gap:18px">
+        <div>
+          <div class="muted small" style="margin-bottom:6px">Sensitivity</div>
+          <div class="seg" role="group" aria-label="Sensitivity">
+            {SENSITIVITIES.map(([value, label]) => (
+              <button key={value} class={s.sensitivity === value ? 'on' : ''} aria-pressed={s.sensitivity === value} title={`nudge at a spiral score of ${SENSITIVITY_THRESHOLD[value]}`} onClick={() => void updateSettings({ sensitivity: value }).then(setS)}>
+                {label}
+              </button>
+            ))}
+          </div>
+        </div>
+        <div>
+          <div class="muted small" style="margin-bottom:6px">Highest step</div>
+          <div class="seg" role="group" aria-label="Highest step">
+            {STEPS.map(([value, label, hint]) => (
+              <button key={value} class={s.maxNudgeStep === value ? 'on' : ''} aria-pressed={s.maxNudgeStep === value} title={hint} onClick={() => void updateSettings({ maxNudgeStep: value }).then(setS)}>
+                {label}
+              </button>
+            ))}
+          </div>
+        </div>
       </div>
     </section>
   );

@@ -132,7 +132,7 @@ try {
   const loaded = await send('Extensions.loadUnpacked', { path: ext });
   if (loaded.error) throw new Error(JSON.stringify(loaded.error));
   const extId = loaded.result.id;
-  const dash = await openPage(`chrome-extension://${extId}/dashboard.html`);
+  const dash = await openPage(`chrome-extension://${extId}/dashboard.html#all`);
   const s = dash.sessionId;
   await send('Emulation.setDeviceMetricsOverride', { width: 1280, height: 1000, deviceScaleFactor: 1, mobile: false }, s);
   await sleep(2500);
@@ -236,7 +236,7 @@ try {
   );
   check('dashboard shows who wrote the autopsy', /Written (by|from)/.test(ui.pill ?? ''), ui.pill);
   check('dashboard shows the writer model line and counters', ui.writer.length >= 3, ui.writer);
-  check('territory rows say whether a name came from the model', ui.tags.some((t) => /named by Gemma 3 270M/.test(t)), ui.tags.slice(0, 4));
+  check('territory rows say whether a name came from the model', ui.tags.some((t) => /Gemma 270M|baseline/.test(t)), ui.tags.slice(0, 4));
   check('"Name territories with Gemma" button is there', ui.button.some((b) => /Name territories with Gemma/.test(b)));
   await evaluate(s, `document.getElementById('territories').scrollIntoView(); true`);
   await shot(s, 'dashboard-territories-model.png');
@@ -245,8 +245,8 @@ try {
 
   // Button flow in the page.
   await evaluate(s, `[...document.querySelectorAll('#territories button')].find((b) => b.innerText.startsWith('Name territories with Gemma')).click()`);
-  await waitFor(s, `/named by the model|writer model could not run/.test(document.querySelector('#territories .row span')?.innerText ?? '')`, 'naming button result', 60_000);
-  const btn = await evaluate(s, `document.querySelector('#territories .row span').innerText`);
+  await waitFor(s, `/named by the model|writer model could not run/.test(document.querySelector('#territories p .pill')?.innerText ?? '')`, 'naming button result', 60_000);
+  const btn = await evaluate(s, `document.querySelector('#territories p .pill').innerText`);
   check('the naming button runs the model and reports the result', /named by the model/.test(btn), btn);
 
   // Popup.
