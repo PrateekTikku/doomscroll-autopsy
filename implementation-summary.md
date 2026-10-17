@@ -18,7 +18,7 @@
 | T3 Targeted retrain (K-08/K-24) | ✅ Done | 2026-10-16 | — | Cleaned data + nudge-state augmentation + length filter → run3: naming 100%/100%/100%, ignored-heavy nudge autopsies strict-clean 60% → 95%, template fallback in the extension 35% → 13%; bundled in the extension. "T3" was not defined in the milestones file; interpreted as this follow-up. docs/plans/T3.md |
 | M6 Integrate 270M | ✅ Done | 2026-10-16 | L4 | Fine-tuned 270M bundled with the extension (D-58, not on HF yet), loaded on demand in the offscreen document (G1: byte-identical to the test page, ~115 tok/s), names + suggested labels + nightly autopsy through validators with fallbacks; on 23 replayed days 20 autopsies model-written, 3 template (13% after the T3 retrain; 35% with T2's model). docs/plans/M6.md |
 | M7 Release + first user | ⚠️ Done with gaps | 2026-10-17 | L5 (pending the owner's step) | Onboarding opens on install, README install path, `npm run zip` (300.8 MB), fresh-profile probe on the unzipped release passes (incl. model download, m5 + m4 probes). Gaps: the owner must hand the zip to the friend and run the interview; real-device checks. docs/plans/M7.md |
-| M8 Should-tier extras | ⬜ Not started | | L6 | |
+| M8 Should-tier extras | 🟡 In progress | | L6 | plan approved (delegated); items committed one by one |
 | M9 Showcase | ⬜ Not started | | | |
 
 Status values: ⬜ Not started · 📝 Plan awaiting approval · 🟡 In progress (plan approved) · 🔍 Awaiting review · ✅ Done · ⚠️ Done with gaps · ❌ Blocked
