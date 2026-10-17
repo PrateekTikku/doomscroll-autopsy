@@ -17,7 +17,7 @@
 | T2 Fine-tune + ONNX | ✅ Done | 2026-10-16 | — | Fine-tuned 270M meets the PDD 10.4 ship bar; ONNX 8-bit (324 MB, genai builder) generates in the browser at ~118 tok/s; 4-bit loses quality; autopsy edge over template is small. docs/plans/T2.md |
 | T3 Targeted retrain (K-08/K-24) | ✅ Done | 2026-10-16 | — | Cleaned data + nudge-state augmentation + length filter → run3: naming 100%/100%/100%, ignored-heavy nudge autopsies strict-clean 60% → 95%, template fallback in the extension 35% → 13%; bundled in the extension. "T3" was not defined in the milestones file; interpreted as this follow-up. docs/plans/T3.md |
 | M6 Integrate 270M | ✅ Done | 2026-10-16 | L4 | Fine-tuned 270M bundled with the extension (D-58, not on HF yet), loaded on demand in the offscreen document (G1: byte-identical to the test page, ~115 tok/s), names + suggested labels + nightly autopsy through validators with fallbacks; on 23 replayed days 20 autopsies model-written, 3 template (13% after the T3 retrain; 35% with T2's model). docs/plans/M6.md |
-| M7 Release + first user | ⬜ Not started | | L5 | |
+| M7 Release + first user | 🟡 In progress | | L5 | plan approved (delegated) |
 | M8 Should-tier extras | ⬜ Not started | | L6 | |
 | M9 Showcase | ⬜ Not started | | | |
 
