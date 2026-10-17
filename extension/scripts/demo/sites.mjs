@@ -1,0 +1,2 @@
+/** First path segments safe to keep (generic sections, never user names, ids or queries). The host whitelist is in sites.json. */
+export const SAFE_SEGMENTS = new Set(['pulls', 'issues', 'actions', 'notifications', 'docs', 'blog', 'learn', 'courses', 'search', 'watch', 'shorts', 'reels', 'explore', 'feed', 'home', 'browse', 'r', 'new', 'chat', 'projects', 'models', 'datasets', 'spaces', 'api', 'tutorials', 'guide', 'stable', 'document', 'spreadsheets', 'meetings', 'question', 'questions', 'posts', 'in', 'lecture', 'course', 'learn']);

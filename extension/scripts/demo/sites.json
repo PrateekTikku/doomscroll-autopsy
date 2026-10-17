@@ -1,0 +1,194 @@
+{
+ "github.com": {
+  "label": "deep",
+  "kind": "code"
+ },
+ "docs.pytorch.org": {
+  "label": "deep",
+  "kind": "docs"
+ },
+ "huggingface.co": {
+  "label": "deep",
+  "kind": "docs"
+ },
+ "unsloth.ai": {
+  "label": "deep",
+  "kind": "docs"
+ },
+ "tinker-docs.thinkingmachines.ai": {
+  "label": "deep",
+  "kind": "docs"
+ },
+ "thinkingmachines.ai": {
+  "label": "deep",
+  "kind": "read"
+ },
+ "wxt.dev": {
+  "label": "deep",
+  "kind": "docs"
+ },
+ "stackoverflow.com": {
+  "label": "deep",
+  "kind": "docs"
+ },
+ "developers.google.com": {
+  "label": "deep",
+  "kind": "docs"
+ },
+ "dev.to": {
+  "label": "deep",
+  "kind": "write"
+ },
+ "www.coursera.org": {
+  "label": "deep",
+  "kind": "course"
+ },
+ "www.deeplearning.ai": {
+  "label": "deep",
+  "kind": "course"
+ },
+ "onlinecourses.nptel.ac.in": {
+  "label": "deep",
+  "kind": "course"
+ },
+ "anthropic.skilljar.com": {
+  "label": "deep",
+  "kind": "course"
+ },
+ "academy.langchain.com": {
+  "label": "deep",
+  "kind": "course"
+ },
+ "dlsyscourse.org": {
+  "label": "deep",
+  "kind": "course"
+ },
+ "cs231n.github.io": {
+  "label": "deep",
+  "kind": "read"
+ },
+ "blog.ezyang.com": {
+  "label": "deep",
+  "kind": "read"
+ },
+ "numpy.org": {
+  "label": "deep",
+  "kind": "docs"
+ },
+ "realpython.com": {
+  "label": "deep",
+  "kind": "read"
+ },
+ "allenai.org": {
+  "label": "deep",
+  "kind": "read"
+ },
+ "dottxt-ai.github.io": {
+  "label": "deep",
+  "kind": "docs"
+ },
+ "www.researchgate.net": {
+  "label": "deep",
+  "kind": "read"
+ },
+ "claude.ai": {
+  "label": "deep",
+  "kind": "assistant"
+ },
+ "platform.claude.com": {
+  "label": "deep",
+  "kind": "docs"
+ },
+ "support.claude.com": {
+  "label": "deep",
+  "kind": "docs"
+ },
+ "aistudio.google.com": {
+  "label": "deep",
+  "kind": "assistant"
+ },
+ "gemini.google.com": {
+  "label": "deep",
+  "kind": "assistant"
+ },
+ "notebook.google.com": {
+  "label": "deep",
+  "kind": "assistant"
+ },
+ "docs.google.com": {
+  "label": "deep",
+  "kind": "write"
+ },
+ "www.mlh.com": {
+  "label": "deep",
+  "kind": "read"
+ },
+ "hacktoberfest.com": {
+  "label": "deep",
+  "kind": "read"
+ },
+ "devrelay.com": {
+  "label": "deep",
+  "kind": "read"
+ },
+ "rrweb.com": {
+  "label": "deep",
+  "kind": "docs"
+ },
+ "www.google.com": {
+  "label": "shallow",
+  "kind": "search"
+ },
+ "meet.google.com": {
+  "label": "shallow",
+  "kind": "meeting"
+ },
+ "drive.google.com": {
+  "label": "shallow",
+  "kind": "admin"
+ },
+ "www.linkedin.com": {
+  "label": "shallow",
+  "kind": "social"
+ },
+ "discord.com": {
+  "label": "shallow",
+  "kind": "chat"
+ },
+ "www.commudle.com": {
+  "label": "shallow",
+  "kind": "admin"
+ },
+ "devfest2k26.gdgnoida.com": {
+  "label": "shallow",
+  "kind": "admin"
+ },
+ "medium.com": {
+  "label": "shallow",
+  "kind": "read"
+ },
+ "towardsdatascience.com": {
+  "label": "shallow",
+  "kind": "read"
+ },
+ "www.youtube.com": {
+  "label": "mixed",
+  "kind": "youtube"
+ },
+ "www.instagram.com": {
+  "label": "drain",
+  "kind": "reels"
+ },
+ "www.netflix.com": {
+  "label": "drain",
+  "kind": "stream"
+ },
+ "www.reddit.com": {
+  "label": "drain",
+  "kind": "threads"
+ },
+ "www.quora.com": {
+  "label": "drain",
+  "kind": "threads"
+ }
+}

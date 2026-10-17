@@ -26,3 +26,7 @@ training/data/*
 *.bin
 extension/public/ort/
 extension/public/models/
+
+# Local copy of the owner's browser history used to build the demo profile; never commit
+.demo-history/
+.demo/

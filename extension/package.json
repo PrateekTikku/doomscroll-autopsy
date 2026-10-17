@@ -27,6 +27,9 @@
     "eval:m6": "M6_EVAL=1 vitest run lib/gen/evidence.test.ts",
     "probe:m6": "node scripts/m6-probe.mjs",
     "probe:m8": "node scripts/m8-probe.mjs",
+    "demo:seed": "node scripts/demo/extract-history.mjs && DEMO_BUILD=1 vitest run lib/replay/demo-profile.test.ts",
+    "demo:profile": "node scripts/demo/build-profile.mjs",
+    "demo:open": "node scripts/demo/open.mjs",
     "eval:m8": "M8_EVAL=1 vitest run lib/replay/synthetic-gru-eval.test.ts",
     "report:m6": "M6_REPORT=1 vitest run lib/gen/evidence.test.ts"
   },
