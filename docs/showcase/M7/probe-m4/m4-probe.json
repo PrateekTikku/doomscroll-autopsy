@@ -1,5 +1,5 @@
 {
-  "date": "2026-10-17T03:58:23.845Z",
+  "date": "2026-10-17T11:44:47.394Z",
   "checks": {
     "strict-csp: banner shown": {
       "ok": true,
@@ -67,6 +67,78 @@
         "after": 1783
       }
     },
+    "step 2 offers \"Take a breath\" when the user allows step 3": {
+      "ok": true,
+      "detail": [
+        "Back to it",
+        "Keep going",
+        "Take a breath"
+      ]
+    },
+    "step 2 has no breathing button when step 3 is not allowed": {
+      "ok": true,
+      "detail": [
+        "Back to it",
+        "Keep going"
+      ]
+    },
+    "\"Take a breath\" opens the breathing overlay with a countdown and a Skip button": {
+      "ok": true,
+      "detail": {
+        "texts": [
+          "Take a breath",
+          "Breathe in · 5",
+          "30 s left",
+          "Skip"
+        ],
+        "buttons": [
+          {
+            "nodeId": 205,
+            "text": "Skip"
+          }
+        ]
+      }
+    },
+    "Skip ends the pause and removes the overlay": {
+      "ok": true
+    },
+    "step 3 opens the breathing pause in front of the page": {
+      "ok": true,
+      "detail": {
+        "mid": {
+          "present": true,
+          "shadowClosed": true,
+          "topAtBanner": true,
+          "topAtCenter": true,
+          "bodyChildren": 1,
+          "rootChildren": 3
+        },
+        "texts": [
+          "Take a breath",
+          "Breathe in · 5",
+          "30 s left",
+          "Skip"
+        ]
+      }
+    },
+    "after 30 s the pause ends and asks Back to it / Keep going": {
+      "ok": true,
+      "detail": {
+        "texts": [
+          "Take a breath",
+          "Done. Now decide: back to deep work, or carry on?",
+          "Back to it",
+          "Keep going"
+        ],
+        "buttons": [
+          "Back to it",
+          "Keep going"
+        ]
+      }
+    },
+    "answering after the pause removes the overlay": {
+      "ok": true
+    },
     "paused page refuses a nudge": {
       "ok": true,
       "detail": "{\"ok\":true,\"data\":{\"shown\":false}}"
@@ -78,13 +150,13 @@
     "dashboard shows the prediction panel and the active mode": {
       "ok": true,
       "detail": [
-        "Prediction and replay",
+        "Prediction",
         "Active mode: Rules · rules until the history spans a day (0 h so far, 0 labelled bins)"
       ]
     },
     "Evaluate on my data runs without an error on little data": {
       "ok": true,
-      "detail": "10/17/2026, 9:28:44 AM · not enough data yet (needs about 30 minutes of bins) · 1 train / 0 test bins"
+      "detail": "Not trained yet. It needs at least two days of history; it trains nightly and you can run it now."
     },
     "demo: banner then blur appear on the page in front": {
       "ok": true,
@@ -95,17 +167,17 @@
             "shows": "none"
           },
           {
-            "atS": 30.1,
+            "atS": 29.1,
             "shows": "banner"
           },
           {
-            "atS": 37.2,
+            "atS": 37.1,
             "shows": "blur"
           }
         ],
         "log": [
-          "57:13 replay time · step 1 (banner) · score 0.95 · youtube.com · shorts",
-          "72:13 replay time · step 2 (blur) · score 0.93 · youtube.com · shorts"
+          "57:15 replay time · step 1 (banner) · score 0.95 · youtube.com · shorts",
+          "72:15 replay time · step 2 (blur) · score 0.93 · youtube.com · shorts"
         ]
       }
     },
@@ -113,5 +185,7 @@
       "ok": true
     }
   },
-  "demoPanel": []
+  "demoPanel": [
+    "Not enough embedded items yet (0; the map needs at least 30)."
+  ]
 }

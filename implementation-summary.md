@@ -849,3 +849,10 @@ None needs a decision-log entry; these fill gaps the PDD leaves open:
 
 ### Notes for the next milestone (M9)
 - Post material: the GRU story is honest and interesting (it ties; the promotion rule and the `requestAnimationFrame` hang are good anecdotes); the map and the tags are the visual wins; the breathing pause is a GIF. Use release 0.3.0 for the demo. D-61 to D-66 explain the choices.
+
+---
+
+## Post-M8 additions (2026-10-17, owner's requests)
+- **Demo profile** (`extension/scripts/demo/`, `lib/replay/demo-*.ts`): `npm run demo:seed` (from the owner's browsing history, whitelisted hosts and timestamps only; the History copy in `.demo-history/` and the profile in `.demo/` are git-ignored) → `npm run demo:profile` (real embeddings, k-means, 270M names and autopsies, GRU/Markov) → `npm run demo:open` (load unpacked from `.demo/chrome-mv3` once; Chrome 155 ignores `--load-extension`). `node scripts/demo/shoot.mjs` takes screenshots. Re-run the two build steps before recording so "today" is the recording day. Describe it in the post as a demo profile built from the owner's own browsing history with scroll and dwell signals reconstructed, not as recorded live.
+- **UI redesign** (D-67): shared design system, compact popup with a pause dropdown, five-tab dashboard.
+- **Release rebuilt:** `releases/doomscroll-autopsy-0.3.0.zip`, 301.1 MB, sha256 `284bfdf78e58bb352273819a0f1a79492f2ec278daa7e452453bf37a9857f30f` (supersedes the checksum in the M8 section); `probe:m7` passes on it.

@@ -1,5 +1,5 @@
 {
- "date": "2026-10-17T05:30:10.546Z",
+ "date": "2026-10-17T11:43:37.384Z",
  "version": "0.3.0",
  "zip": "/Users/prateek/Desktop/Learning/hackathons/Hacktoberfest-Week2/releases/doomscroll-autopsy-0.3.0.zip",
  "checks": {
@@ -7,7 +7,7 @@
    "ok": true,
    "detail": {
     "version": "0.3.0",
-    "extId": "hejfmaibmjhfecolljldjicfkfaegoom"
+    "extId": "coollbkbincmimdccknagmelidkmdjni"
    }
   },
   "release carries the writer model and the ORT runtime": {
@@ -59,7 +59,7 @@
    "detail": {
     "finalLine": "Ready. No connection needed from now on.",
     "sawProgress": true,
-    "ms": 41101
+    "ms": 38082
    }
   },
   "done opens the dashboard and remembers it": {
@@ -82,7 +82,7 @@
  "download": {
   "finalLine": "Ready. No connection needed from now on.",
   "sawProgress": true,
-  "ms": 41101
+  "ms": 38082
  },
  "modelReady": true,
  "failed": []

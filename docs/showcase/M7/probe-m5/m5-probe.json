@@ -1,5 +1,5 @@
 {
- "date": "2026-10-17T03:57:53.384Z",
+ "date": "2026-10-17T11:44:17.991Z",
  "checks": {
   "seed loaded": {
    "ok": true,
@@ -14,7 +14,7 @@
    "ok": true,
    "detail": [
     "Deep blocks 2 longest 88 min · 158 min in all",
-    "Attention residue 2 switches out of Deep · 29 min to get back",
+    "Attention residue 2 switches 29 min on average to get back",
     "Drain past allowance 5 min x.com · home +5",
     "Nudges that worked 0 of 1 0 snoozed · 1 ignored"
    ]
@@ -24,17 +24,17 @@
    "detail": {
     "tiles": [
      "Deep blocks 2 longest 88 min · 158 min in all",
-     "Attention residue 2 switches out of Deep · 29 min to get back",
+     "Attention residue 2 switches 29 min on average to get back",
      "Drain past allowance 5 min x.com · home +5",
      "Nudges that worked 0 of 1 0 snoozed · 1 ignored"
     ],
-    "lanes": 21,
-    "segments": 39,
+    "lanes": 16,
+    "segments": 41,
     "blocks": 2,
     "nudges": 1,
     "velocityDots": 107,
     "days": 8,
-    "legend": "Deep\nShallow\nDrain\nNot labelled yet\n┅ dashed outline: deep block\n▲ nudge (green: went back to it)"
+    "legend": "Deep\nShallow\nDrain\n┅ deep block\n▲ nudge (green: went back to it)"
    }
   },
   "history picker lists the seeded days": {
@@ -56,14 +56,14 @@
   },
   "success metrics are shown (PDD 4.7)": {
    "ok": true,
-   "detail": "HOW IT'S GOING (LAST 7 DAYS WITH DATA)\nDeep blocks per day (want ↑)\t2.4 on average · longest 88 min\nSwitches out of Deep per day (want ↓)\t2.3 · 15.1 min to get back\nDrain minutes past allowance per da"
+   "detail": "HOW IT'S GOING\nlast 7 days with data\nDeep blocks per day ↑\n2.4\nlongest 88 min\nSwitches out of Deep per day ↓\n2.3\n15.1 min to get back\nDrain past allowance per day ↓\n6 min\nminutes beyond your allowance"
   },
   "history: today compares with 7 earlier days, the oldest day does not": {
    "ok": true,
    "detail": {
     "todayWeek": true,
     "oldest": {
-     "h": "HISTORY",
+     "h": "History",
      "tiles": 4,
      "comparison": false
     }
@@ -75,7 +75,7 @@
   },
   "popup shows deep blocks, residue, drain past allowance, nudges": {
    "ok": true,
-   "detail": "Doomscroll Autopsy Observing this browser TODAY Items seen 0 Active minutes 0 Items per minute now 0 Deep blocks 2 longest 88 min Attention residue 2 switches · 29 min to get back Drain past allowance 5 min Nudges that worked 0 of 1 1 shown Mode: Markov · spiral score 0.00 (nudges at 0.60) Model: st"
+   "detail": "Doomscroll Autopsy Observing this browser Pause… 15 minutes 1 hour Until tomorrow Until I resume Dashboard DEEP BLOCKS 2 longest 88m SWITCHES 2 29m to return DRAIN OVER 5 min beyond limit NUDGES 0 of 1 1 shown Spiral score 0.00 Markov Mode: Markov · spiral score 0.00 (nudges at 0.60) 0 items · 440 m"
   },
   "popup wording": {
    "ok": true
@@ -83,8 +83,8 @@
   "forget last hour: UI flow works and the hour is empty": {
    "ok": true,
    "detail": {
-    "forgot": "Forgot 0 items, 1 half-minute bins. 0 territories updated, 0 removed, 1 reports redone.",
-    "binsBefore": 8562
+    "forgot": "Forgot 0 items, 121 half-minute bins. 0 territories updated, 0 removed, 1 reports redone.",
+    "binsBefore": 8561
    }
   },
   "forget a whole day: bins and its report are gone, only the kind is logged": {
