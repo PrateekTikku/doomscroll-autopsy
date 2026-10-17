@@ -42,9 +42,12 @@ declare module '@/lib/messaging' {
       response: { vector: number[] | null; ms: number };
     };
     'embedder-status': { request: void; response: EmbedderStatus };
+    'embedder-warm': { request: void; response: EmbedderStatus };
     'embedder-unload': { request: void; response: EmbedderStatus };
     /** Popup → background. */
     'embed-status': { request: void; response: EmbedStatusView };
+    /** Onboarding → background: start the one-time model download now. Returns at once; poll embed-status. */
+    'embed-warm': { request: void; response: EmbedderStatus };
   }
 }
 

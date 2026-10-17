@@ -73,6 +73,13 @@ export function registerEmbedding(router: Router): { submitItem(item: ItemInput)
     })();
   });
 
+  // Fire and forget: a first download can outlast a message round trip; the page polls embed-status.
+  router.register('embed-warm', async () => {
+    await ensureOffscreenDocument();
+    void send('offscreen', 'embedder-warm').catch(() => undefined);
+    return EMPTY_STATUS;
+  });
+
   router.register('embed-status', async (): Promise<EmbedStatusView> => {
     // Don't create the offscreen document just to answer a popup poll.
     const model = (await offscreenExists()) ? await send('offscreen', 'embedder-status').catch(() => EMPTY_STATUS) : EMPTY_STATUS;

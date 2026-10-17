@@ -38,6 +38,17 @@ describe('model host', () => {
     expect((await host.unload()).state).toBe('unloaded');
   });
 
+  it('warm() loads without an item and reports a failure in status instead of throwing', async () => {
+    let loads = 0;
+    const ok = createModelHost(async () => (loads++, fakeEmbedder(null)), async () => 'webgpu');
+    expect((await ok.warm()).state).toBe('ready');
+    expect(loads).toBe(1);
+    const bad = createModelHost(async () => fakeEmbedder(null), async () => {
+      throw new Error('WebGPU is not available');
+    });
+    expect(await bad.warm()).toMatchObject({ state: 'error', error: expect.stringContaining('WebGPU') });
+  });
+
   it('reports an error when WebGPU is missing, without loading', async () => {
     let loads = 0;
     const host = createModelHost(

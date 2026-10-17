@@ -17,14 +17,14 @@
 | T2 Fine-tune + ONNX | ✅ Done | 2026-10-16 | — | Fine-tuned 270M meets the PDD 10.4 ship bar; ONNX 8-bit (324 MB, genai builder) generates in the browser at ~118 tok/s; 4-bit loses quality; autopsy edge over template is small. docs/plans/T2.md |
 | T3 Targeted retrain (K-08/K-24) | ✅ Done | 2026-10-16 | — | Cleaned data + nudge-state augmentation + length filter → run3: naming 100%/100%/100%, ignored-heavy nudge autopsies strict-clean 60% → 95%, template fallback in the extension 35% → 13%; bundled in the extension. "T3" was not defined in the milestones file; interpreted as this follow-up. docs/plans/T3.md |
 | M6 Integrate 270M | ✅ Done | 2026-10-16 | L4 | Fine-tuned 270M bundled with the extension (D-58, not on HF yet), loaded on demand in the offscreen document (G1: byte-identical to the test page, ~115 tok/s), names + suggested labels + nightly autopsy through validators with fallbacks; on 23 replayed days 20 autopsies model-written, 3 template (13% after the T3 retrain; 35% with T2's model). docs/plans/M6.md |
-| M7 Release + first user | 🟡 In progress | | L5 | plan approved (delegated) |
+| M7 Release + first user | ⚠️ Done with gaps | 2026-10-17 | L5 (pending the owner's step) | Onboarding opens on install, README install path, `npm run zip` (300.8 MB), fresh-profile probe on the unzipped release passes (incl. model download, m5 + m4 probes). Gaps: the owner must hand the zip to the friend and run the interview; real-device checks. docs/plans/M7.md |
 | M8 Should-tier extras | ⬜ Not started | | L6 | |
 | M9 Showcase | ⬜ Not started | | | |
 
 Status values: ⬜ Not started · 📝 Plan awaiting approval · 🟡 In progress (plan approved) · 🔍 Awaiting review · ✅ Done · ⚠️ Done with gaps · ❌ Blocked
 
 ## Current showcase level
-**Level 4 (M6 + T3).** The fine-tuned Gemma 3 270M (run3) names territories and writes the autopsy in the real extension, with measured fallback numbers (13% on replayed days). A download install still needs the owner's Hugging Face publish (K-23).
+**Level 5 once the owner hands over the zip and interviews the friend (M7 built).** **Level 4 (M6 + T3).** The fine-tuned Gemma 3 270M (run3) names territories and writes the autopsy in the real extension, with measured fallback numbers (13% on replayed days). A download install still needs the owner's Hugging Face publish (K-23).
 
 (Level 3, reached in M5:) Full product without the fine-tune: deep blocks, attention residue, daily facts, template autopsy, timeline, popup metrics and the Must privacy controls (M4's loop is underneath: observe → embed → territories → predict (rules + Markov) → in-page nudges, with replay/demo mode). The "one domain, many territories" and real-data rules-vs-Markov evidence still need the owner's real data. (Update this line whenever a milestone raises the level; see `implementation-milestones.md` 0.4.)
 
@@ -740,3 +740,54 @@ None needs a decision-log entry; these fill gaps the PDD leaves open:
 
 ### Notes for the next milestone
 - **M7:** nothing in T3 changes packaging (still ≈ 324 MB model). To publish the model, use `training/data/runs/run3/onnx_final` (not run1) and update `training/model_card.md`.
+
+
+---
+
+## M7 — Release candidate and first user
+**Status:** ⚠️ Done with gaps (the friend install and interview are the owner's)
+**Date:** 2026-10-17 · **Commits:** `87c5f7c` (plan) plus the `M7:` commits after it (see `git log`)
+**Approved plan:** `docs/plans/M7.md` (approved 2026-10-17, delegated by the owner) · **Work approved:** 2026-10-17 (self-review under that delegation; the owner reviews later)
+
+### What was built
+- **Onboarding page** (`entrypoints/onboarding`, `lib/onboarding`): what is observed / kept, the PDD 11.1 honest wording, the install warning explained, limits and requirements (WebGPU, size, browser only, nightly job needs Chrome open), a "Download and start now" button with progress for EmbeddingGemma 2, blocklist review and edit, sensitivity choice, "done" flag (`onboardedAt`). Opens by itself on install; linked from the popup and dashboard.
+- **Warm-up hook:** `embedder-warm` (offscreen, `host.warm()`) and `embed-warm` (background, fire and forget) so the download can start without an item.
+- **Release:** version 0.2.0; `npm run zip` builds, zips and copies to `releases/doomscroll-autopsy-0.2.0.zip` (gitignored) and prints size and sha256.
+- **Probes:** `npm run probe:m7` unzips the release into a fresh profile and checks onboarding, the real model download, then re-runs `probe:m5` and `probe:m4` (now accepting `EXT=`) on the unzipped build.
+- README install path for a first user; `docs/first-user/interview.md` (PDD 16.4 questions + observation sheet).
+
+### Key files
+- `extension/entrypoints/onboarding/main.tsx`, `extension/lib/onboarding/{index,index.test}.ts`
+- `extension/lib/ml/{host,messages,background}.ts`, `entrypoints/offscreen/main.ts`, `lib/observer/background.ts` (open on install)
+- `extension/scripts/{zip-release,m7-probe}.mjs`, `docs/first-user/interview.md`, `docs/showcase/M7/`
+
+### How to run / verify
+- `cd extension && npm run build && npm test && npm run compile && npm run smoke && npm run check:types` (47 files, 392 tests + 4 gated).
+- `npm run zip && npm run eval:m5 && npm run probe:m7` (about 4 minutes; 15 checks, all pass).
+- Zip at build time of this section: 300.8 MB, sha256 `8d9db7fe9fa389cf0d5f9aa10f307c56c0d13d8aaf1d3b0b23b6debf83156602` (M8 re-zips; the final checksum is in the M8 section).
+
+### Acceptance criteria
+- [x] Fresh-profile smoke test passes on the unzipped release; checklist in `docs/showcase/M7/smoke-checklist.md`.
+- [~] Zip produced (path above); **the owner confirms the friend has installed it** (not possible for me).
+
+### Deviations from the approved plan
+- None of substance. The "model download progress" task covers EmbeddingGemma 2 only, since the writer is bundled (D-58, as planned). The smoke test uses the replayed seed (as planned) rather than waiting for hours of real browsing.
+
+### Decisions and deviations from the PDD
+- **D-60** (packaging and onboarding). PDD 4.3 "As built" note: ~255 MB download, not ~580 MB, because the writer ships in the zip.
+
+### Spike / measurement results
+- R1: `wxt zip` handles the 386 MB tree: 300.8 MB zip in ~15 s; the unzipped folder loads and passes all probes. Real embedder download inside the probe: ~50 s to "Ready".
+
+### Contracts changed
+- No `shared/` or IndexedDB change. New local storage key `onboardedAt`; new messages `embedder-warm`, `embed-warm`.
+
+### Known issues
+- **K-26** (M7): the zip is ~300 MB and the unpacked folder ~390 MB; sending it by chat won't work (AirDrop or a drive link). The model is not on Hugging Face (K-23). Real-Mac checks remain: WebGPU on the friend's machine, memory with both models resident (K-09, K-13), real nudge delivery (K-19).
+- A wipe clears `onboardedAt` with the rest of local storage; onboarding does not reopen by itself (the popup link does).
+
+### Showcase evidence
+- `docs/showcase/M7/{smoke-checklist.md,m7-probe.json,CAPTURE.md,onboarding*.png,probe-m4/,probe-m5/}`
+
+### Notes for the next milestone
+- **M8:** re-zip at the end (`npm run zip`) and record the final checksum; each item is its own commit.

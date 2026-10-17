@@ -1,4 +1,5 @@
 import { browser } from 'wxt/browser';
+import { ONBOARDING_URL_PATH } from '@/lib/onboarding';
 import type { createRouter } from '@/lib/messaging';
 import { getSettings, isPaused, onSettingsChanged, updateSettings, type Settings } from '@/lib/settings';
 import { effectiveBlocklist, excludeMatchesFor, isBlockedHost } from './blocklist';
@@ -148,7 +149,9 @@ export function registerObserver(router: Router): void {
   };
   onSettingsChanged((s) => void applySettings(s).catch((err) => console.error('[doomscroll] settings:', err)));
 
-  browser.runtime.onInstalled.addListener(async () => {
+  browser.runtime.onInstalled.addListener(async (details) => {
+    // First run (PDD 4.3): explain what is observed before anything else.
+    if (details.reason === 'install') void browser.tabs.create({ url: browser.runtime.getURL(ONBOARDING_URL_PATH as never) });
     const settings = await getSettings();
     await syncContentScript(settings);
     await injectIntoOpenTabs(settings);

@@ -98,6 +98,7 @@ function Dashboard() {
         <a href="#privacy">Privacy</a>
         <a href="#prediction">Prediction and replay</a>
         <a href="#developer">Developer</a>
+        <a href="onboarding.html">How it works</a>
       </nav>
       <Today />
       <Territories />

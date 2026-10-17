@@ -1,0 +1,89 @@
+{
+ "date": "2026-10-17T03:57:01.895Z",
+ "version": "0.2.0",
+ "zip": "/Users/prateek/Desktop/Learning/hackathons/Hacktoberfest-Week2/releases/doomscroll-autopsy-0.2.0.zip",
+ "checks": {
+  "release unzips and loads; version matches": {
+   "ok": true,
+   "detail": {
+    "version": "0.2.0",
+    "extId": "igipbfncfinmafkegnohjpajdhopfhim"
+   }
+  },
+  "release carries the writer model and the ORT runtime": {
+   "ok": true
+  },
+  "onboarding opens by itself on install": {
+   "ok": true
+  },
+  "says what is observed and what is stored, with the honest wording": {
+   "ok": true
+  },
+  "explains the install warning": {
+   "ok": true
+  },
+  "states the limits (WebGPU, size, browser only)": {
+   "ok": true
+  },
+  "onboarding never talks about time outside the browser": {
+   "ok": true,
+   "detail": null
+  },
+  "blocklist default list is shown (50+ entries)": {
+   "ok": true,
+   "detail": 109
+  },
+  "blocklist edits and sensitivity save from onboarding": {
+   "ok": true,
+   "detail": {
+    "blocklist": {
+     "addedDomains": [
+      "mybank.example.com"
+     ],
+     "addedKeywords": [
+      "payroll"
+     ],
+     "removedDomains": []
+    },
+    "devMode": false,
+    "maxNudgeStep": 2,
+    "pausedUntil": null,
+    "quietHours": null,
+    "retentionDays": 30,
+    "sensitivity": "strict",
+    "storeTitles": true
+   }
+  },
+  "model download starts from onboarding and reaches a clear end state": {
+   "ok": true,
+   "detail": {
+    "finalLine": "Ready. No connection needed from now on.",
+    "sawProgress": true,
+    "ms": 49160
+   }
+  },
+  "done opens the dashboard and remembers it": {
+   "ok": true
+  },
+  "popup links back to the welcome page": {
+   "ok": true
+  },
+  "no exceptions in extension pages": {
+   "ok": true,
+   "detail": []
+  },
+  "probe:m5 passes on the unzipped release": {
+   "ok": true
+  },
+  "probe:m4 passes on the unzipped release": {
+   "ok": true
+  }
+ },
+ "download": {
+  "finalLine": "Ready. No connection needed from now on.",
+  "sawProgress": true,
+  "ms": 49160
+ },
+ "modelReady": true,
+ "failed": []
+}

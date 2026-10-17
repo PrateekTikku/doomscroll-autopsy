@@ -1,0 +1,117 @@
+{
+  "date": "2026-10-17T03:58:23.845Z",
+  "checks": {
+    "strict-csp: banner shown": {
+      "ok": true,
+      "detail": {
+        "reply": "{\"ok\":true,\"data\":{\"shown\":true}}",
+        "present": true,
+        "shadowClosed": true,
+        "topAtBanner": true,
+        "topAtCenter": false,
+        "bodyChildren": 1,
+        "rootChildren": 3
+      }
+    },
+    "strict-csp: Escape dismisses the banner": {
+      "ok": true
+    },
+    "strict-csp: blur shown, topmost at the centre": {
+      "ok": true,
+      "detail": {
+        "present": true,
+        "shadowClosed": true,
+        "topAtBanner": true,
+        "topAtCenter": true,
+        "bodyChildren": 1,
+        "rootChildren": 3
+      }
+    },
+    "strict-csp: page DOM unchanged by a nudge": {
+      "ok": true,
+      "detail": {
+        "before": 1784,
+        "after": 1784
+      }
+    },
+    "plain: banner shown": {
+      "ok": true,
+      "detail": {
+        "reply": "{\"ok\":true,\"data\":{\"shown\":true}}",
+        "present": true,
+        "shadowClosed": true,
+        "topAtBanner": true,
+        "topAtCenter": false,
+        "bodyChildren": 1,
+        "rootChildren": 3
+      }
+    },
+    "plain: Escape dismisses the banner": {
+      "ok": true
+    },
+    "plain: blur shown, topmost at the centre": {
+      "ok": true,
+      "detail": {
+        "present": true,
+        "shadowClosed": true,
+        "topAtBanner": true,
+        "topAtCenter": true,
+        "bodyChildren": 1,
+        "rootChildren": 3
+      }
+    },
+    "plain: page DOM unchanged by a nudge": {
+      "ok": true,
+      "detail": {
+        "before": 1783,
+        "after": 1783
+      }
+    },
+    "paused page refuses a nudge": {
+      "ok": true,
+      "detail": "{\"ok\":true,\"data\":{\"shown\":false}}"
+    },
+    "blocklisted page never receives a nudge": {
+      "ok": true,
+      "detail": "ERR:Could not establish connection. Receiving end does not exist."
+    },
+    "dashboard shows the prediction panel and the active mode": {
+      "ok": true,
+      "detail": [
+        "Prediction and replay",
+        "Active mode: Rules · rules until the history spans a day (0 h so far, 0 labelled bins)"
+      ]
+    },
+    "Evaluate on my data runs without an error on little data": {
+      "ok": true,
+      "detail": "10/17/2026, 9:28:44 AM · not enough data yet (needs about 30 minutes of bins) · 1 train / 0 test bins"
+    },
+    "demo: banner then blur appear on the page in front": {
+      "ok": true,
+      "detail": {
+        "seen": [
+          {
+            "atS": 1,
+            "shows": "none"
+          },
+          {
+            "atS": 30.1,
+            "shows": "banner"
+          },
+          {
+            "atS": 37.2,
+            "shows": "blur"
+          }
+        ],
+        "log": [
+          "57:13 replay time · step 1 (banner) · score 0.95 · youtube.com · shorts",
+          "72:13 replay time · step 2 (blur) · score 0.93 · youtube.com · shorts"
+        ]
+      }
+    },
+    "demo: Replay flag is set for the popup while it runs": {
+      "ok": true
+    }
+  },
+  "demoPanel": []
+}

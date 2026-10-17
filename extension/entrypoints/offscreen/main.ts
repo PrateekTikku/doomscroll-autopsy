@@ -12,6 +12,7 @@ const gen = createGenHost();
 router.register('ping', () => ({ ok: true, from: 'offscreen' }));
 router.register('embed', (input) => host.embed(input));
 router.register('embedder-status', () => host.status());
+router.register('embedder-warm', () => host.warm());
 router.register('embedder-unload', () => host.unload());
 router.register('generate', (req) => gen.generate(req));
 router.register('gen-status', () => gen.status());

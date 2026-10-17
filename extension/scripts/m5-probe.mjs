@@ -16,7 +16,7 @@ import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const here = dirname(fileURLToPath(import.meta.url));
-const ext = resolve(here, '../.output/chrome-mv3');
+const ext = process.env.EXT ? resolve(process.env.EXT) : resolve(here, '../.output/chrome-mv3');
 const seedPath = resolve(here, '../.output/probe-seed.json');
 const outDir = process.env.OUT ? resolve(process.env.OUT) : resolve(here, '../../docs/showcase/M5');
 mkdirSync(outDir, { recursive: true });

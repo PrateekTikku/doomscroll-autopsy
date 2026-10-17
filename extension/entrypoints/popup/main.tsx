@@ -226,7 +226,12 @@ function Popup() {
       <p>
         <button onClick={() => browser.tabs.create({ url: browser.runtime.getURL('/dashboard.html') })}>Open dashboard</button>
       </p>
-      <p class="muted">v{browser.runtime.getManifest().version} · focus metrics, privacy controls (M5)</p>
+      <p class="muted">
+        v{browser.runtime.getManifest().version} ·{' '}
+        <a href="#" onClick={(e) => { e.preventDefault(); void browser.tabs.create({ url: browser.runtime.getURL('/onboarding.html' as never) }); }}>
+          How it works
+        </a>
+      </p>
     </main>
   );
 }

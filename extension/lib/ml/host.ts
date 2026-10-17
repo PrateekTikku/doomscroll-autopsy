@@ -103,6 +103,15 @@ export function createModelHost(load: typeof loadEmbedder = loadEmbedder, detect
         throw err;
       }
     },
+    /** Starts the download/load without an item (onboarding's "Download now"); resolves with the status. */
+    async warm(): Promise<EmbedderStatus> {
+      try {
+        await ensure();
+      } catch {
+        // the failure is in status.error
+      }
+      return { ...status };
+    },
     async unload(): Promise<EmbedderStatus> {
       const e = embedder;
       embedder = null;

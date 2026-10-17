@@ -1,0 +1,156 @@
+{
+ "date": "2026-10-17T03:57:53.384Z",
+ "checks": {
+  "seed loaded": {
+   "ok": true,
+   "detail": {
+    "bins": 8561,
+    "territories": 10,
+    "nudges": 6,
+    "shiftDays": 5
+   }
+  },
+  "today: four metric tiles with numbers": {
+   "ok": true,
+   "detail": [
+    "Deep blocks 2 longest 88 min · 158 min in all",
+    "Attention residue 2 switches out of Deep · 29 min to get back",
+    "Drain past allowance 5 min x.com · home +5",
+    "Nudges that worked 0 of 1 0 snoozed · 1 ignored"
+   ]
+  },
+  "timeline: lanes, segments, deep-block outlines, velocity line": {
+   "ok": true,
+   "detail": {
+    "tiles": [
+     "Deep blocks 2 longest 88 min · 158 min in all",
+     "Attention residue 2 switches out of Deep · 29 min to get back",
+     "Drain past allowance 5 min x.com · home +5",
+     "Nudges that worked 0 of 1 0 snoozed · 1 ignored"
+    ],
+    "lanes": 21,
+    "segments": 39,
+    "blocks": 2,
+    "nudges": 1,
+    "velocityDots": 107,
+    "days": 8,
+    "legend": "Deep\nShallow\nDrain\nNot labelled yet\n┅ dashed outline: deep block\n▲ nudge (green: went back to it)"
+   }
+  },
+  "history picker lists the seeded days": {
+   "ok": true,
+   "detail": 8
+  },
+  "autopsy: preview before it is saved": {
+   "ok": true,
+   "detail": "Preview, not saved yet"
+  },
+  "autopsy: stored as a template report of 120-180 words": {
+   "ok": true,
+   "detail": {
+    "modelVersion": "template",
+    "words": 154,
+    "deep": 2,
+    "hasTomorrow": true
+   }
+  },
+  "success metrics are shown (PDD 4.7)": {
+   "ok": true,
+   "detail": "HOW IT'S GOING (LAST 7 DAYS WITH DATA)\nDeep blocks per day (want ↑)\t2.4 on average · longest 88 min\nSwitches out of Deep per day (want ↓)\t2.3 · 15.1 min to get back\nDrain minutes past allowance per da"
+  },
+  "history: today compares with 7 earlier days, the oldest day does not": {
+   "ok": true,
+   "detail": {
+    "todayWeek": true,
+    "oldest": {
+     "h": "HISTORY",
+     "tiles": 4,
+     "comparison": false
+    }
+   }
+  },
+  "dashboard text never mentions time outside the browser": {
+   "ok": true,
+   "detail": null
+  },
+  "popup shows deep blocks, residue, drain past allowance, nudges": {
+   "ok": true,
+   "detail": "Doomscroll Autopsy Observing this browser TODAY Items seen 0 Active minutes 0 Items per minute now 0 Deep blocks 2 longest 88 min Attention residue 2 switches · 29 min to get back Drain past allowance 5 min Nudges that worked 0 of 1 1 shown Mode: Markov · spiral score 0.00 (nudges at 0.60) Model: st"
+  },
+  "popup wording": {
+   "ok": true
+  },
+  "forget last hour: UI flow works and the hour is empty": {
+   "ok": true,
+   "detail": {
+    "forgot": "Forgot 0 items, 1 half-minute bins. 0 territories updated, 0 removed, 1 reports redone.",
+    "binsBefore": 8562
+   }
+  },
+  "forget a whole day: bins and its report are gone, only the kind is logged": {
+   "ok": true,
+   "detail": {
+    "range": "{\"ok\":true,\"data\":{\"samples\":0,\"bins\":1064,\"nudges\":1,\"recorderEvents\":0,\"territoriesUpdated\":8,\"territoriesRemoved\":0,\"reportsRegenerated\":0}}",
+    "afterDay": {
+     "bins": 0,
+     "report": false,
+     "log": [
+      "id,kind,range,ts",
+      "id,kind,range,ts"
+     ]
+    }
+   }
+  },
+  "forget a site + always skip adds it to the blocklist": {
+   "ok": true,
+   "detail": [
+    "example.com"
+   ]
+  },
+  "blocklist editor and retention save to settings": {
+   "ok": true,
+   "detail": {
+    "added": {
+     "addedDomains": [
+      "example.com",
+      "mybank.example.com"
+     ],
+     "addedKeywords": [
+      "payroll"
+     ],
+     "removedDomains": []
+    },
+    "retention": 14
+   }
+  },
+  "blocklist entries are listed with the new one": {
+   "ok": true
+  },
+  "wipe: needs the typed word, then empties every store, the model cache and the settings": {
+   "ok": true,
+   "detail": {
+    "disabled": true,
+    "total": 1,
+    "wiped": {
+     "counts": {
+      "bins": 0,
+      "forgetLog": 0,
+      "models": 1,
+      "nudges": 0,
+      "recorderEvents": 0,
+      "reports": 0,
+      "samples": 0,
+      "territories": 0
+     },
+     "caches": [],
+     "settings": null
+    }
+   }
+  },
+  "no exceptions in extension pages": {
+   "ok": true,
+   "detail": []
+  }
+ },
+ "failed": []
+}
