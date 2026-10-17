@@ -32,6 +32,11 @@ function Row({ v, onChange }: { v: TerritoryView; onChange: () => void }) {
         <strong>{t.name}</strong>
         <span class="muted" title="Who wrote this name"> · {nameSourceLabel(t)}</span>
         {v.dormant && <span class="muted"> · dormant (confirmed earlier, no members now)</span>}
+        {t.topicTags?.length > 0 && (
+          <div class="muted" title="Zero-shot topics: how close this territory is to each phrase (PDD 9.3)">
+            about: {t.topicTags.map((x) => `${x.tag} (${x.score.toFixed(2)})`).join(', ')}
+          </div>
+        )}
         <div class="muted">
           {v.topOrigins.length ? v.topOrigins.map((o) => `${hostOf(o.origin)} (${o.count})`).join(', ') : 'no recent items'}
         </div>

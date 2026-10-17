@@ -3,6 +3,7 @@ import { get, put } from '@/lib/db';
 import type { createRouter } from '@/lib/messaging';
 import { refreshPrediction } from '@/lib/ml/evaluate';
 import { runGru } from '@/lib/ml/gru-background';
+import { runTopicTags } from '@/lib/ml/topics-background';
 import { syncAssignments } from '@/lib/ml/territories';
 import { checkDue } from '@/lib/ml/territories-background';
 import { lastNightlyBoundary } from '@/lib/ml/territories-core';
@@ -16,9 +17,9 @@ import { ensureReports, generateReport } from './service';
 
 /**
  * The nightly job (PDD 6.3): at the first check after 03:00 local (a sleeping laptop catches up):
- *   1. retention, 2. re-cluster if due, 4. name territories with the 270M (M6), 7. facts and the
+ *   1. retention, 2. re-cluster if due, 3. topic tags (M8), 4. name territories with the 270M (M6), 7. facts and the
  *   autopsy (model first, template fallback) for every finished day.
- * 5. GRU training and promotion (M8, D-20); the prediction mode is refreshed right after. Steps 3 and 6 (tags, UMAP) are M8 items too, done outside the job.
+ * 5. GRU training and promotion (M8, D-20); the prediction mode is refreshed right after. Step 6 (UMAP) is drawn on demand on the dashboard.
  */
 export const NIGHTLY_ALARM = 'metrics-nightly';
 export const NIGHTLY_META = 'nightly-meta';
@@ -41,6 +42,8 @@ export function isNightlyDue(lastRunAt: number | null, now: number): boolean {
 
 /** Runs the nightly steps in order; each step is isolated so one failure doesn't skip the rest. */
 export interface NightlyDeps {
+  /** Step 3: zero-shot topic tags for every territory (M8); defaults to the embedder in the offscreen document. */
+  tags?: () => Promise<unknown>;
   /** Step 4; defaults to the writer model in the offscreen document. */
   name?: () => Promise<unknown>;
   unload?: () => Promise<void>;
@@ -63,6 +66,7 @@ export async function runNightly(now = Date.now(), deps: NightlyDeps = {}): Prom
     await checkDue();
     await syncAssignments(now);
   });
+  await step('tags', () => (deps.tags ?? runTopicTags)());
   await step('naming', () => (deps.name ?? (() => nameTerritories(generateViaOffscreen, { now })))());
   await step('prediction', () => refreshPrediction(now));
   await step('gru', () => (deps.gru ?? (() => runGru()))());

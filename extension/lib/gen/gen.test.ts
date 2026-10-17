@@ -60,6 +60,16 @@ describe('describeTerritory', () => {
     expect(d.minutesToday).toBe(20);
   });
 
+  it('passes the top-3 topic tags into the description, clamped and still schema-valid', () => {
+    const { samples } = seedTerritory('t1', 'https://www.youtube.com', '/shorts/x');
+    const bins = binsFrom(D, '09:00', [[20, 't1']]);
+    const tags = [{ tag: 'memes', score: 0.51 }, { tag: 'celebrity news', score: 0.4 }, { tag: 'gaming clips', score: 0.33 }, { tag: 'fourth', score: 0.31 }];
+    const d = describeTerritory({ samples, bins, storeTitles: false, topicTags: tags })!;
+    expect(d.topicTags).toEqual(tags.slice(0, 3));
+    expect(validDescription(d), JSON.stringify(validDescription.errors)).toBe(true);
+    expect(describeTerritory({ samples, bins, storeTitles: false })!.topicTags).toEqual([]);
+  });
+
   it('leaves titles out when "store titles" is off, uses "/" for IDs, and needs some activity', () => {
     const { samples } = seedTerritory('t1', 'https://x.com', '/1234567890');
     expect(describeTerritory({ samples, bins: binsFrom(D, '09:00', [[5, 't1']]), storeTitles: false })!.sampleTitles).toEqual([]);

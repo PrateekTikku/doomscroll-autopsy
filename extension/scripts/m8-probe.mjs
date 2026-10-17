@@ -3,7 +3,8 @@
  * replayed persona history from `npm run eval:m5`:
  *   GRU trains in the offscreen document (WebGPU if available) and is evaluated against Markov (promotion per D-20);
  *   the attention map draws from vectors and selects territories;
- *   (later items add: topic tags, breathing step, forget one capture.)
+ *   (topic tags come from real embeddings and feed the naming prompt;
+ *   (later items add: breathing step, forget one capture.)
  * Usage: npm run eval:m5 && npm run build && npm run probe:m8   (HEADED=1, OUT=dir, EXT=folder)
  * Writes ../docs/showcase/M8/m8-probe.json and screenshots next to it.
  */
@@ -227,6 +228,56 @@ try {
   const selection = await evaluate(s, `({ text: document.getElementById('map-selection').innerText, rows: document.querySelectorAll('tr[id^=territory-]').length })`);
   check('clicking a dot selects its territory (and the territory list has the row)', /^Selected: /.test(selection.text) && selection.rows > 0, selection);
   await shot(s, 'dashboard-map-selected.png');
+
+  // ---- Topic tags with the real embedder, then naming with tags in the prompt ----
+  const realTexts = {
+    cooking: ['Easy 15 minute pasta carbonara recipe', 'How to bake sourdough bread at home', 'Street food tour: best noodles in Bangkok', 'Chocolate chip cookie recipe step by step', 'Meal prep ideas for the week, healthy dinners'],
+    programming: ['Python tutorial: decorators explained with examples', 'API reference: fetch() and the Response object', 'How to debug a memory leak in Node.js', 'Rust ownership and borrowing documentation', 'Code review: refactoring a large pull request'],
+  };
+  const tagged = await evaluate(
+    s,
+    `(async () => { ${IDB}
+      const texts = ${JSON.stringify(realTexts)};
+      const embed = (text) => chrome.runtime.sendMessage({ target: 'offscreen', type: 'embed', payload: { text, image: null } }).then((r) => (r.data ?? r).vector);
+      const db = await idb();
+      const out = {};
+      let t = Date.now() - 3600000;
+      for (const [name, list] of Object.entries(texts)) {
+        const vecs = [];
+        for (const text of list) vecs.push(Float32Array.from(await embed(text)).slice(0, 256));
+        const c = new Float32Array(256);
+        for (const v of vecs) for (let i = 0; i < 256; i++) c[i] += v[i];
+        let n = 0; for (const x of c) n += x * x; n = Math.sqrt(n); for (let i = 0; i < 256; i++) c[i] /= n;
+        const id = 'probe-' + name;
+        const host = name === 'cooking' ? 'https://www.allrecipes.com' : 'https://docs.python.org';
+        await new Promise((res, rej) => {
+          const tx = db.transaction(['territories', 'samples', 'bins'], 'readwrite');
+          tx.objectStore('territories').put({ id, centroid: c, size: 40, name: name + ' baseline', topicTags: [], suggestedLabel: null, label: null, labelConfirmed: false, allowanceMin: null, createdAt: Date.now(), updatedAt: Date.now() });
+          for (let k = 0; k < 40; k++) tx.objectStore('samples').put({ ts: t + k * 20000, origin: host, path: '/' + name + '/' + k, isVisual: false, dwellMs: 20000, vector: vecs[k % vecs.length], territoryId: id, territoryDist: 0.1 });
+          for (let k = 0; k < 40; k++) tx.objectStore('bins').put({ binStart: Math.floor((t + k * 30000) / 30000) * 30000, active_s: 30, territoryId: id, away: false, idle: false, nudgeShown: false, nudgeResponse: null, scroll_px_s_mean: 10, items_per_min: 2, mean_dwell_ms: 20000, video_skip_rate: 0, tab_switches: 0, away_s: 0, idle_s: 0 });
+          tx.oncomplete = res; tx.onerror = () => rej(tx.error);
+        });
+        t += 3600000 / 2;
+        out[name] = id;
+      }
+      return out;
+    })()`,
+  );
+  const tagRun = await Promise.race([evaluate(s, `${msg('topics-refresh', undefined)}`), sleep(240000).then(() => 'null')]);
+  const tagReport = JSON.parse(tagRun);
+  const tagsNow = await evaluate(s, `(async () => { ${IDB} const rows = await all('territories'); return Object.fromEntries(rows.filter((t) => t.id.startsWith('probe-')).map((t) => [t.id, t.topicTags])); })()`);
+  results.topicTags = { report: tagReport.data ?? tagReport, tagsNow };
+  const cookTags = (tagsNow['probe-cooking'] ?? []).map((x) => x.tag).join(' | ');
+  const progTags = (tagsNow['probe-programming'] ?? []).map((x) => x.tag).join(' | ');
+  check('topic tags: real embeddings give sensible top-3 tags for cooking and programming territories', /recipe|cook|food|meal|baking|kitchen/i.test(cookTags) && /program|code|software|python|api|develop|debug|documentation/i.test(progTags), { cookTags, progTags });
+  check('topic tags: all territories are tagged by the refresh', (tagReport.data ?? tagReport).territories >= 12, tagReport.data ?? tagReport);
+
+  const namedRaw = await Promise.race([evaluate(s, `${msg('gen-name-territories', { force: true })}`), sleep(300000).then(() => 'null')]);
+  const named = JSON.parse(namedRaw);
+  const rep = named?.data ?? named;
+  const mine = (rep?.results ?? []).filter((r) => r.id.startsWith('probe-'));
+  results.namingWithTags = mine;
+  check('naming with tags in the prompt: the model names both tagged territories after what is in them', mine.length === 2 && mine.every((r) => r.source === 'model' && r.errors.length === 0) && /cook|bak|recipe|food/i.test(mine.find((r) => r.id === 'probe-cooking')?.name ?? '') && /python|program|api|doc|code/i.test(mine.find((r) => r.id === 'probe-programming')?.name ?? ''), mine.map((r) => ({ id: r.id, name: r.name, label: r.label })));
 
   check('no exceptions in extension pages', exceptions.length === 0, exceptions.slice(0, 5));
 } catch (err) {

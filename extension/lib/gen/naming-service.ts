@@ -60,7 +60,7 @@ export async function nameTerritories(generate: GenerateFn, opts: { force?: bool
       continue;
     }
     report.considered++;
-    const desc = describeTerritory({ samples, bins: binsBy.get(t.id) ?? [], storeTitles: settings.storeTitles });
+    const desc = describeTerritory({ samples, bins: binsBy.get(t.id) ?? [], storeTitles: settings.storeTitles, topicTags: t.topicTags });
     if (!desc) {
       report.skipped++;
       continue;

@@ -1,5 +1,6 @@
 import type { createRouter } from '@/lib/messaging';
 import { onReclustered } from '@/lib/ml/territories';
+import { runTopicTags } from '@/lib/ml/topics-background';
 import { setAutopsyWriter, type AutopsyWriter } from '@/lib/metrics/service';
 import { exclusive } from '@/lib/privacy/background';
 import { writeAutopsy } from './autopsy';
@@ -30,6 +31,8 @@ export function registerGen(router: Router): void {
   const run = (force = false) =>
     exclusive(async () => {
       try {
+        // Topic tags first: they go into the naming prompt (PDD 9.3). A failure only means no tags.
+        await runTopicTags().catch((e) => console.warn('[doomscroll] topic tags failed:', e));
         return await nameTerritories(generateViaOffscreen, { force });
       } finally {
         await unloadWriter();

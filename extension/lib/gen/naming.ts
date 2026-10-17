@@ -24,6 +24,8 @@ export interface DescribeInput {
   /** Browsing bins of this territory (last 7 days). */
   bins: BinRecord[];
   storeTitles: boolean;
+  /** Top-3 zero-shot topic tags of the territory (PDD 9.3); empty when unavailable. */
+  topicTags?: Array<{ tag: string; score: number }>;
 }
 
 /** "/segment" (first path segment, never an ID) or "/". */
@@ -65,7 +67,7 @@ export function describeTerritory(input: DescribeInput): TerritoryDescription | 
   return {
     origins: origins as TerritoryDescription['origins'],
     sampleTitles: titles as TerritoryDescription['sampleTitles'],
-    topicTags: [],
+    topicTags: (input.topicTags ?? []).slice(0, 3).map((t) => ({ tag: t.tag.slice(0, 60), score: Math.max(-1, Math.min(1, t.score)) })) as TerritoryDescription['topicTags'],
     velocity: {
       itemsPerMin: round1(mean((b) => b.items_per_min)),
       skipRate: Math.min(1, Math.max(0, Math.round(mean((b) => b.video_skip_rate) * 100) / 100)),
