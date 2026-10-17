@@ -1,0 +1,284 @@
+[
+ {
+  "persona": "developer",
+  "days": 7,
+  "bins": 7484,
+  "trainWindows": 1428,
+  "trainMs": 97286,
+  "backend": "cpu",
+  "eval": {
+   "ranAt": 1792210766810,
+   "split": "latest-day",
+   "trainBins": 6418,
+   "testBins": 1066,
+   "testFrom": 1791086400000,
+   "rules": {
+    "top1": 0.956766917293233,
+    "top3": 0.9887218045112782,
+    "switchTop3": 0.7391304347826086,
+    "switchN": 46,
+    "auc": 0.9933377748167888,
+    "nNext": 1064,
+    "nScore": 1046,
+    "positives": 19
+   },
+   "markov": {
+    "top1": 0.956766917293233,
+    "top3": 0.993421052631579,
+    "switchTop3": 0.8478260869565217,
+    "switchN": 46,
+    "auc": 0.9925690565264182,
+    "nNext": 1064,
+    "nScore": 1046,
+    "positives": 19
+   },
+   "gru": {
+    "top1": 0.9370300751879699,
+    "top3": 0.9783834586466166,
+    "switchTop3": 0.8260869565217391,
+    "switchN": 46,
+    "auc": 0.9939527494490852,
+    "nNext": 1064,
+    "nScore": 1046,
+    "positives": 19
+   }
+  },
+  "promoted": false,
+  "reason": "GRU AUC 0.994 did not beat Markov 0.993 by 0.005 (ties go to Markov)"
+ },
+ {
+  "persona": "writer",
+  "days": 7,
+  "bins": 6239,
+  "trainWindows": 1162,
+  "trainMs": 78702,
+  "backend": "cpu",
+  "eval": {
+   "ranAt": 1792210846403,
+   "split": "latest-day",
+   "trainBins": 5354,
+   "testBins": 885,
+   "testFrom": 1791081000000,
+   "rules": {
+    "top1": 0.9626274065685164,
+    "top3": 0.9954699886749717,
+    "switchTop3": 0.8787878787878788,
+    "switchN": 33,
+    "auc": 1,
+    "nNext": 883,
+    "nScore": 865,
+    "positives": 20
+   },
+   "markov": {
+    "top1": 0.9626274065685164,
+    "top3": 0.9954699886749717,
+    "switchTop3": 0.8787878787878788,
+    "switchN": 33,
+    "auc": 1,
+    "nNext": 883,
+    "nScore": 865,
+    "positives": 20
+   },
+   "gru": {
+    "top1": 0.942242355605889,
+    "top3": 0.9762174405436014,
+    "switchTop3": 0.9090909090909091,
+    "switchN": 33,
+    "auc": 1,
+    "nNext": 883,
+    "nScore": 865,
+    "positives": 20
+   }
+  },
+  "promoted": false,
+  "reason": "GRU AUC 1.000 did not beat Markov 1.000 by 0.005 (ties go to Markov)"
+ },
+ {
+  "persona": "researcher",
+  "days": 7,
+  "bins": 8234,
+  "trainWindows": 1211,
+  "trainMs": 81590,
+  "backend": "cpu",
+  "eval": {
+   "ranAt": 1792210928895,
+   "split": "latest-day",
+   "trainBins": 7114,
+   "testBins": 1120,
+   "testFrom": 1791088200000,
+   "rules": {
+    "top1": 0.9659803043867502,
+    "top3": 0.9919427036705462,
+    "switchTop3": 0.7631578947368421,
+    "switchN": 38,
+    "auc": 1,
+    "nNext": 1117,
+    "nScore": 1100,
+    "positives": 2
+   },
+   "markov": {
+    "top1": 0.9659803043867502,
+    "top3": 0.9937332139659804,
+    "switchTop3": 0.8157894736842105,
+    "switchN": 38,
+    "auc": 1,
+    "nNext": 1117,
+    "nScore": 1100,
+    "positives": 2
+   },
+   "gru": {
+    "top1": 0.9471799462846912,
+    "top3": 0.97224709042077,
+    "switchTop3": 0.7631578947368421,
+    "switchN": 38,
+    "auc": 1,
+    "nNext": 1117,
+    "nScore": 1100,
+    "positives": 2
+   }
+  },
+  "promoted": false,
+  "reason": "GRU AUC 1.000 did not beat Markov 1.000 by 0.005 (ties go to Markov)"
+ },
+ {
+  "persona": "designer",
+  "days": 7,
+  "bins": 7063,
+  "trainWindows": 1337,
+  "trainMs": 89670,
+  "backend": "cpu",
+  "eval": {
+   "ranAt": 1792211019546,
+   "split": "latest-day",
+   "trainBins": 6054,
+   "testBins": 1009,
+   "testFrom": 1791084600000,
+   "rules": {
+    "top1": 0.9662363455809335,
+    "top3": 0.9811320754716981,
+    "switchTop3": 0.4411764705882353,
+    "switchN": 34,
+    "auc": 0.9864336310440407,
+    "nNext": 1007,
+    "nScore": 989,
+    "positives": 34
+   },
+   "markov": {
+    "top1": 0.9662363455809335,
+    "top3": 0.9960278053624627,
+    "switchTop3": 0.8823529411764706,
+    "switchN": 34,
+    "auc": 0.9873421619956884,
+    "nNext": 1007,
+    "nScore": 989,
+    "positives": 34
+   },
+   "gru": {
+    "top1": 0.9513406156901688,
+    "top3": 0.9860973187686196,
+    "switchTop3": 0.9411764705882353,
+    "switchN": 34,
+    "auc": 0.9857406837080381,
+    "nNext": 1007,
+    "nScore": 989,
+    "positives": 34
+   }
+  },
+  "promoted": false,
+  "reason": "GRU AUC 0.986 did not beat Markov 0.987 by 0.005 (ties go to Markov)"
+ },
+ {
+  "persona": "student",
+  "days": 7,
+  "bins": 9897,
+  "trainWindows": 1489,
+  "trainMs": 100433,
+  "backend": "cpu",
+  "eval": {
+   "ranAt": 1792211121097,
+   "split": "latest-day",
+   "trainBins": 8506,
+   "testBins": 1391,
+   "testFrom": 1791091800000,
+   "rules": {
+    "top1": 0.9560518731988472,
+    "top3": 0.9956772334293948,
+    "switchTop3": 0.9016393442622951,
+    "switchN": 61,
+    "auc": 1,
+    "nNext": 1388,
+    "nScore": 1371,
+    "positives": 31
+   },
+   "markov": {
+    "top1": 0.9560518731988472,
+    "top3": 0.9971181556195965,
+    "switchTop3": 0.9344262295081968,
+    "switchN": 61,
+    "auc": 1,
+    "nNext": 1388,
+    "nScore": 1371,
+    "positives": 31
+   },
+   "gru": {
+    "top1": 0.9423631123919308,
+    "top3": 0.9978386167146974,
+    "switchTop3": 0.9508196721311475,
+    "switchN": 61,
+    "auc": 1,
+    "nNext": 1388,
+    "nScore": 1371,
+    "positives": 31
+   }
+  },
+  "promoted": false,
+  "reason": "GRU AUC 1.000 did not beat Markov 1.000 by 0.005 (ties go to Markov)"
+ },
+ {
+  "persona": "freelancer",
+  "days": 7,
+  "bins": 7102,
+  "trainWindows": 1345,
+  "trainMs": 90416,
+  "backend": "cpu",
+  "eval": {
+   "ranAt": 1792211212647,
+   "split": "latest-day",
+   "trainBins": 6086,
+   "testBins": 1016,
+   "testFrom": 1791082800000,
+   "rules": {
+    "top1": 0.9575936883629191,
+    "top3": 0.9960552268244576,
+    "switchTop3": 0.9069767441860465,
+    "switchN": 43,
+    "auc": null,
+    "nNext": 1014,
+    "nScore": 996,
+    "positives": 0
+   },
+   "markov": {
+    "top1": 0.9575936883629191,
+    "top3": 0.9960552268244576,
+    "switchTop3": 0.9069767441860465,
+    "switchN": 43,
+    "auc": null,
+    "nNext": 1014,
+    "nScore": 996,
+    "positives": 0
+   },
+   "gru": {
+    "top1": 0.9437869822485208,
+    "top3": 0.97534516765286,
+    "switchTop3": 0.8837209302325582,
+    "switchN": 43,
+    "auc": null,
+    "nNext": 1014,
+    "nScore": 996,
+    "positives": 0
+   }
+  },
+  "promoted": false,
+  "reason": "the held-out day has no spiral to measure AUC on, so Markov stays"
+ }
+]

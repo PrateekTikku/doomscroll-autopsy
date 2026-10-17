@@ -1,6 +1,7 @@
 import { get, getAll, put, type BinRecord } from '@/lib/db';
 import { evaluateModes, type EvalResult } from './eval';
 import { trainMarkov, type MarkovModel } from './markov';
+import { getPromotedGru } from './gru-promote';
 import { selectMode, territoryInfo, type Mode } from './scoring';
 
 /** Storage side of the prediction models: `models` records `markov`, `eval`, `prediction-mode` (PDD 8.1). */
@@ -30,9 +31,12 @@ export function modeStats(bins: BinRecord[]): { spanMs: number; labelledBins: nu
 export async function refreshPrediction(now = Date.now(), force = false): Promise<{ mode: Mode; markov: MarkovModel | null }> {
   const bins = await sortedBins();
   const stats = modeStats(bins);
-  const mode = selectMode(stats);
+  let mode = selectMode(stats);
+  // D-20: the GRU runs only while its latest held-out evaluation beat Markov.
+  const gru = mode === 'markov' ? await getPromotedGru() : null;
+  if (gru) mode = 'gru';
   let markov: MarkovModel | null = null;
-  if (mode === 'markov') {
+  if (mode === 'markov' || mode === 'gru') {
     const stored = await get('models', MODEL_MARKOV);
     if (!force && stored && now - stored.updatedAt < MARKOV_REFRESH_MS) {
       markov = stored.data as MarkovModel;
@@ -46,7 +50,9 @@ export async function refreshPrediction(now = Date.now(), force = false): Promis
     spanMs: stats.spanMs,
     labelledBins: stats.labelledBins,
     reason:
-      mode === 'markov'
+      mode === 'gru'
+        ? 'the GRU beat Markov on its held-out day'
+        : mode === 'markov'
         ? 'a day of labelled bins is available'
         : `rules until the history spans a day (${Math.round(stats.spanMs / 3600_000)} h so far, ${stats.labelledBins} labelled bins)`,
   };

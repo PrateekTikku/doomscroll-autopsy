@@ -23,8 +23,8 @@ describe('nightly job', () => {
     for (const b of binsFrom('2026-10-15', '09:00', [[40, 'doc'], [20, 'reels']])) await put('bins', b);
     const now = new Date(2026, 9, 16, 4, 0).getTime();
     const order: string[] = [];
-    const meta = await runNightly(now, { name: async () => void order.push('name'), unload: async () => void order.push('unload') });
-    expect(order).toEqual(['name', 'unload']);
+    const meta = await runNightly(now, { name: async () => void order.push('name'), unload: async () => void order.push('unload'), gru: async () => void order.push('gru') });
+    expect(order).toEqual(['name', 'gru', 'unload']);
     expect(meta.error).toBeNull();
     expect(meta.reportsWritten).toEqual(['2026-10-15']);
     const report = await get('reports', '2026-10-15');
@@ -36,7 +36,7 @@ describe('nightly job', () => {
   it('also works with a single short day', async () => {
     // A bin for a day far past retention is removed; reports still run.
     for (const b of binsFrom('2026-10-15', '09:00', [[30, 'doc']])) await put('bins', b);
-    const meta = await runNightly(new Date(2026, 9, 16, 4, 0).getTime(), { name: async () => undefined, unload: async () => undefined });
+    const meta = await runNightly(new Date(2026, 9, 16, 4, 0).getTime(), { name: async () => undefined, unload: async () => undefined, gru: async () => undefined });
     expect(meta.reportsWritten).toEqual(['2026-10-15']);
   });
 });

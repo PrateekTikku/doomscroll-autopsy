@@ -1,0 +1,68 @@
+{
+ "date": "2026-10-17T04:47:06.363Z",
+ "checks": {
+  "seed loaded": {
+   "ok": true,
+   "detail": {
+    "bins": 8561,
+    "territories": 10,
+    "nudges": 6,
+    "shiftDays": 5
+   }
+  },
+  "GRU trains in the extension and is evaluated against Markov": {
+   "ok": "GRU AUC 0.994 did not beat Markov 0.991 by 0.005 (ties go to Markov)",
+   "detail": {
+    "ranAt": 1792212431953,
+    "promoted": false,
+    "reason": "GRU AUC 0.994 did not beat Markov 0.991 by 0.005 (ties go to Markov)",
+    "gruAuc": 0.994193604298466,
+    "markovAuc": 0.9909004246468498,
+    "rulesAuc": 0.9916803882485484,
+    "gruTop1": 0.9137291280148423,
+    "markovTop1": 0.9656771799628943,
+    "gruTop3": 0.9925788497217068,
+    "markovTop3": 0.9944341372912802,
+    "split": "latest-day",
+    "trainBins": 7481,
+    "testBins": 1080,
+    "trainWindows": 2219,
+    "backend": "webgpu",
+    "trainMs": 12651,
+    "wallMs": 13802
+   }
+  },
+  "GRU verdict is stored and shown in the dashboard": {
+   "ok": true
+  },
+  "the active mode follows the promotion verdict": {
+   "ok": true,
+   "detail": "markov"
+  },
+  "no exceptions in extension pages": {
+   "ok": true,
+   "detail": []
+  }
+ },
+ "gru": {
+  "ranAt": 1792212431953,
+  "promoted": false,
+  "reason": "GRU AUC 0.994 did not beat Markov 0.991 by 0.005 (ties go to Markov)",
+  "gruAuc": 0.994193604298466,
+  "markovAuc": 0.9909004246468498,
+  "rulesAuc": 0.9916803882485484,
+  "gruTop1": 0.9137291280148423,
+  "markovTop1": 0.9656771799628943,
+  "gruTop3": 0.9925788497217068,
+  "markovTop3": 0.9944341372912802,
+  "split": "latest-day",
+  "trainBins": 7481,
+  "testBins": 1080,
+  "trainWindows": 2219,
+  "backend": "webgpu",
+  "trainMs": 12651,
+  "wallMs": 13802
+ },
+ "modeAfterGru": "markov",
+ "failed": []
+}

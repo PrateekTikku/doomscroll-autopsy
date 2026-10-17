@@ -55,7 +55,7 @@ export function summaryLines(m: PopupSummary | null) {
 /** One line about the prediction mode and the current spiral score (PDD 4.4). */
 export function spiralLine(s: SpiralStatus | null): string {
   if (!s) return 'Prediction: checking…';
-  const mode = s.mode === 'markov' ? 'Markov' : 'rules';
+  const mode = s.mode === 'gru' ? 'GRU' : s.mode === 'markov' ? 'Markov' : 'rules';
   if (s.score == null) return `Mode: ${mode} · spiral score appears while you browse`;
   return `Mode: ${mode} · spiral score ${s.score.toFixed(2)} (nudges at ${s.threshold.toFixed(2)})`;
 }

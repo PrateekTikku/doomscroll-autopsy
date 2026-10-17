@@ -4,6 +4,8 @@ import type { Envelope } from '@/lib/messaging';
 import { isFeedSample } from '@/lib/ml/names';
 import { binState, UNASSIGNED, type MarkovModel } from '@/lib/ml/markov';
 import { getStoredMode, MODEL_MARKOV, MODEL_MODE, refreshPrediction } from '@/lib/ml/evaluate';
+import type { GruModel } from '@/lib/ml/gru';
+import { getPromotedGru, gruPredictFromBins } from '@/lib/ml/gru-promote';
 import { DEFAULT_ALLOWANCE_MIN, drainSpent, scoreSpiral, territoryInfo, type Mode, type ScoreContext, type SpiralScore } from '@/lib/ml/scoring';
 import { getSettings, isPaused, SENSITIVITY_THRESHOLD, type Settings } from '@/lib/settings';
 import { nudgeCopy, type NudgeFacts } from './copy';
@@ -63,12 +65,13 @@ export function currentFromSamples(samples: SampleRecord[]): { state: string; sa
   return { state: UNASSIGNED, sample: latest };
 }
 
-async function getPrediction(now: number): Promise<{ mode: Mode; markov: MarkovModel | null }> {
+async function getPrediction(now: number): Promise<{ mode: Mode; markov: MarkovModel | null; gru: GruModel | null }> {
   const stored = await get('models', MODEL_MODE);
-  if (!stored || now - stored.updatedAt > MODE_REFRESH_MS) return refreshPrediction(now);
+  if (!stored || now - stored.updatedAt > MODE_REFRESH_MS) return { ...(await refreshPrediction(now)), gru: await getPromotedGru() };
   const mode = (stored.data as { mode: Mode }).mode;
-  const markov = mode === 'markov' ? ((await get('models', MODEL_MARKOV))?.data as MarkovModel | undefined) ?? null : null;
-  return { mode, markov };
+  const markov = mode === 'markov' || mode === 'gru' ? ((await get('models', MODEL_MARKOV))?.data as MarkovModel | undefined) ?? null : null;
+  const gru = mode === 'gru' ? await getPromotedGru() : null;
+  return { mode: gru ? mode : mode === 'gru' ? 'markov' : mode, markov, gru };
 }
 
 /** Reads storage and builds what scoring and the policy need. Null when nothing is being observed right now. */
@@ -102,8 +105,9 @@ export async function takeSnapshot(now: number, opts: { countUnassigned?: boolea
 
   const history = bins.slice(-HISTORY_BINS).map(binState);
   if (history[history.length - 1] !== state) history.push(state);
-  const { mode, markov } = await getPrediction(now);
-  const ctx: ScoreContext = { mode, markov, state, features: lastBin, history, territories: info, spentMin: spent, unassignedFeed };
+  const { mode, markov, gru } = await getPrediction(now);
+  const gruPredicted = gru ? gruPredictFromBins(gru, bins, info, state) : null;
+  const ctx: ScoreContext = { mode, markov, gruPredicted, state, features: lastBin, history, territories: info, spentMin: spent, unassignedFeed };
   const score = scoreSpiral(ctx);
 
   const territoryName = unassignedFeed ? cur!.sample.origin.replace(/^https?:\/\/(www\.)?/, '') : (names.get(state) ?? null);

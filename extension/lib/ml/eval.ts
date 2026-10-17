@@ -1,5 +1,6 @@
 import type { BinRecord } from '@/lib/db';
 import { BIN_MS } from '@/lib/observer/pipeline';
+import { gruForward, runningContexts, windowAt, type GruModel } from './gru';
 import { binState, nextDistribution, trainMarkov, type MarkovModel } from './markov';
 import { remainingAllowance, scoreSpiral, WINDOW_MIN, type Mode, type TerritoryInfo } from './scoring';
 
@@ -39,6 +40,8 @@ export interface EvalResult {
   testFrom: number | null;
   rules: ModeMetrics;
   markov: ModeMetrics;
+  /** Present when a GRU trained on the training split was supplied (PDD 9.6, D-20). */
+  gru?: ModeMetrics;
 }
 
 export function localDayStart(ts: number): number {
@@ -89,7 +92,7 @@ function emptyMetrics(): ModeMetrics {
 const ratio = (hit: number, n: number) => (n > 0 ? hit / n : null);
 
 /** `bins` sorted by `binStart`. Pure: no storage. */
-export function evaluateModes(bins: BinRecord[], territories: Map<string, TerritoryInfo>, opts: { now?: number; split?: Split } = {}): EvalResult {
+export function evaluateModes(bins: BinRecord[], territories: Map<string, TerritoryInfo>, opts: { now?: number; split?: Split; gru?: GruModel | null } = {}): EvalResult {
   const split = opts.split ?? chooseSplit(bins);
   const result: EvalResult = {
     ranAt: opts.now ?? Date.now(),
@@ -100,6 +103,8 @@ export function evaluateModes(bins: BinRecord[], territories: Map<string, Territ
     rules: emptyMetrics(),
     markov: emptyMetrics(),
   };
+  const gru = opts.gru ?? null;
+  if (gru) result.gru = emptyMetrics();
   if (split.kind === 'none') return result;
 
   const train = bins.slice(0, split.testStart);
@@ -110,10 +115,10 @@ export function evaluateModes(bins: BinRecord[], territories: Map<string, Territ
 
   const states = bins.map(binState);
   const lastStart = bins[bins.length - 1]!.binStart;
-  const agg = {
-    rules: { hit1: 0, hit3: 0, sw: 0, swHit: 0, n: 0, scores: [] as number[], pos: [] as boolean[] },
-    markov: { hit1: 0, hit3: 0, sw: 0, swHit: 0, n: 0, scores: [] as number[], pos: [] as boolean[] },
-  };
+  const newAgg = () => ({ hit1: 0, hit3: 0, sw: 0, swHit: 0, n: 0, scores: [] as number[], pos: [] as boolean[] });
+  const agg = { rules: newAgg(), markov: newAgg(), gru: newAgg() };
+  const modeNames = (gru ? ['rules', 'markov', 'gru'] : ['rules', 'markov']) as Array<'rules' | 'markov' | 'gru'>;
+  const ctxs = gru ? runningContexts(bins, territories) : [];
 
   // Drain minutes spent so far per local day, built up as we walk forward.
   let dayKey = -1;
@@ -130,15 +135,25 @@ export function evaluateModes(bins: BinRecord[], territories: Map<string, Territ
     }
     if (i < split.testStart) continue;
 
+    // One GRU forward pass per bin serves both its next-state and its spiral-score use.
+    let gruOut: { next: number[]; occupancy: number[] } | null = null;
+    let gruMinutes: Map<string, number> | null = null;
+    if (gru) {
+      const w = windowAt(bins, ctxs, i, gru.vocab, territories, gru.stats);
+      gruOut = gruForward(gru, w);
+      gruMinutes = new Map(gru.vocab.map((st, k) => [st, gruOut!.occupancy[k]! * ((HORIZON_BINS * BIN_MS) / 60_000)]));
+    }
+
     const next = bins[i + 1];
     if (next && next.binStart - b.binStart === BIN_MS) {
       const truth = states[i + 1]!;
       const switched = truth !== states[i];
-      const ranked = {
+      const ranked: Record<'rules' | 'markov' | 'gru', string[]> = {
         rules: [states[i]!, ...common.filter((s) => s !== states[i])],
         markov: nextDistribution(model, states[i]!).map(([s]) => s),
+        gru: gruOut ? gru!.vocab.map((st, k) => [st, gruOut!.next[k]!] as const).sort((a, b) => b[1] - a[1]).map(([st]) => st) : [],
       };
-      for (const m of ['rules', 'markov'] as const) {
+      for (const m of modeNames) {
         const a = agg[m];
         a.n++;
         if (inTopK(ranked[m], truth, 1)) a.hit1++;
@@ -162,10 +177,11 @@ export function evaluateModes(bins: BinRecord[], territories: Map<string, Territ
     const positive = excess >= SPIRAL_POSITIVE_MIN;
 
     const history = states.slice(Math.max(0, i - 19), i + 1);
-    for (const mode of ['rules', 'markov'] as const satisfies readonly Mode[]) {
+    for (const mode of modeNames satisfies readonly Mode[]) {
       const s = scoreSpiral({
         mode,
         markov: mode === 'markov' ? model : null,
+        gruPredicted: mode === 'gru' ? gruMinutes : null,
         state: states[i]!,
         features: b,
         history,
@@ -177,7 +193,7 @@ export function evaluateModes(bins: BinRecord[], territories: Map<string, Territ
     }
   }
 
-  for (const m of ['rules', 'markov'] as const) {
+  for (const m of modeNames) {
     const a = agg[m];
     result[m] = {
       top1: ratio(a.hit1, a.n),

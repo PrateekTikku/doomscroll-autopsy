@@ -26,18 +26,20 @@
     "probe:m5": "node scripts/m5-probe.mjs",
     "eval:m6": "M6_EVAL=1 vitest run lib/gen/evidence.test.ts",
     "probe:m6": "node scripts/m6-probe.mjs",
+    "probe:m8": "node scripts/m8-probe.mjs",
+    "eval:m8": "M8_EVAL=1 vitest run lib/replay/synthetic-gru-eval.test.ts",
     "report:m6": "M6_REPORT=1 vitest run lib/gen/evidence.test.ts"
   },
   "dependencies": {
     "@huggingface/transformers": "^4.3.1",
+    "@tensorflow/tfjs": "^4.22.0",
+    "@tensorflow/tfjs-backend-webgpu": "^4.22.0",
     "idb": "^8.0.4",
     "preact": "^11.0.1"
   },
   "devDependencies": {
     "@babel/core": "^7.29.7",
     "@preact/preset-vite": "^2.10.6",
-    "@tensorflow/tfjs": "^4.22.0",
-    "@tensorflow/tfjs-backend-webgpu": "^4.22.0",
     "@types/node": "^24.19.2",
     "ajv": "^8.20.0",
     "fake-indexeddb": "^6.2.5",

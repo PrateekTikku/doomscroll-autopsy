@@ -1,6 +1,9 @@
 import { useEffect, useRef, useState } from 'preact/hooks';
 import { browser } from 'wxt/browser';
 import { openDb } from '@/lib/db';
+import { send } from '@/lib/messaging';
+import type { GruEvalRecord } from '@/lib/ml/gru-promote';
+import '@/lib/ml/gru-messages';
 import type { EvalResult, ModeMetrics } from '@/lib/ml/eval';
 import { evaluateOnStoredData, getStoredEval, getStoredMode, refreshPrediction, type ModeRecord } from '@/lib/ml/evaluate';
 import { mountNudge, type MountedNudge } from '@/lib/nudge/ui';
@@ -58,6 +61,77 @@ function EvalTable({ e }: { e: EvalResult }) {
 }
 
 const minutesText = (virtualMin: number) => `${Math.floor(virtualMin)}:${String(Math.round((virtualMin % 1) * 60)).padStart(2, '0')}`;
+
+const pct1 = (x: number | null) => (x == null ? 'n/a' : `${(x * 100).toFixed(1)}%`);
+
+/** The GRU's latest held-out comparison with Markov and the promotion verdict (PDD 9.6, D-20). */
+function GruPanel({ onChange }: { onChange: () => void | Promise<void> }) {
+  const [rec, setRec] = useState<GruEvalRecord | null>(null);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  useEffect(() => {
+    void send('background', 'gru-status').then(setRec).catch(() => undefined);
+  }, []);
+  const run = async () => {
+    setBusy(true);
+    setError(null);
+    try {
+      setRec(await send('background', 'gru-run'));
+      await onChange();
+    } catch (e) {
+      setError(e instanceof Error ? e.message : String(e));
+    } finally {
+      setBusy(false);
+    }
+  };
+  return (
+    <div id="gru">
+      <h3>GRU (nightly, promoted only if it beats Markov)</h3>
+      {rec ? (
+        <>
+          <p>
+            <strong>{rec.promoted ? 'Running' : 'Not running'}</strong> <span class="muted">· {rec.reason}</span>
+          </p>
+          <table>
+            <thead>
+              <tr>
+                <th>Model</th>
+                <th class="num">AUC</th>
+                <th class="num">Next top-1</th>
+                <th class="num">Next top-3</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>GRU</td>
+                <td class="num">{rec.gruAuc == null ? 'n/a' : rec.gruAuc.toFixed(3)}</td>
+                <td class="num">{pct1(rec.gruTop1)}</td>
+                <td class="num">{pct1(rec.gruTop3)}</td>
+              </tr>
+              <tr>
+                <td>Markov</td>
+                <td class="num">{rec.markovAuc == null ? 'n/a' : rec.markovAuc.toFixed(3)}</td>
+                <td class="num">{pct1(rec.markovTop1)}</td>
+                <td class="num">{pct1(rec.markovTop3)}</td>
+              </tr>
+            </tbody>
+          </table>
+          <p class="muted">
+            Trained on {rec.trainWindows} windows in {(rec.trainMs / 1000).toFixed(0)} s ({rec.backend}); tested on {rec.testBins} bins of the latest day.
+          </p>
+        </>
+      ) : (
+        <p class="muted">Not trained yet. It needs at least two days of history; it trains nightly and you can run it now.</p>
+      )}
+      <div class="row">
+        <button onClick={() => void run()} disabled={busy}>
+          {busy ? 'Training…' : 'Train GRU now'}
+        </button>
+      </div>
+      {error && <p class="bad">{error}</p>}
+    </div>
+  );
+}
 
 /** Mode, evaluation and replay tools (M4). Replays run here, in memory, and never write to the stored data. */
 export function ReplayPanel() {
@@ -182,9 +256,11 @@ export function ReplayPanel() {
     <section class="card" id="prediction">
       <h2>Prediction and replay</h2>
       <p>
-        Active mode: <strong>{mode ? (mode.mode === 'markov' ? 'Markov' : 'Rules') : '…'}</strong>
+        Active mode: <strong>{mode ? ({ markov: 'Markov', gru: 'GRU', rules: 'Rules' } as const)[mode.mode] : '…'}</strong>
         {mode && <span class="muted"> · {mode.reason}</span>}
       </p>
+
+      <GruPanel onChange={reload} />
 
       <h3>Rules vs Markov on your data</h3>
       {evalResult ? <EvalTable e={evalResult} /> : <p class="muted">Not evaluated yet.</p>}

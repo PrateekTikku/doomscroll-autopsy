@@ -12,7 +12,7 @@ export const DEFAULT_ALLOWANCE_MIN = 15;
 export const MARKOV_MIN_SPAN_MS = 24 * 3600_000;
 export const MARKOV_MIN_LABELLED_BINS = 240;
 
-export type Mode = 'rules' | 'markov';
+export type Mode = 'rules' | 'markov' | 'gru';
 
 export interface TerritoryInfo {
   label: Label | null;
@@ -40,6 +40,8 @@ export function selectMode(stats: { spanMs: number; labelledBins: number }): Mod
 export interface ScoreContext {
   mode: Mode;
   markov?: MarkovModel | null;
+  /** GRU mode (PDD 9.6): expected minutes per state over the next 10 minutes, from the GRU's occupancy head. */
+  gruPredicted?: Map<string, number> | null;
   /** Current state key: a territory ID, `unassigned`, `away` or `idle`. */
   state: string;
   features: Pick<BinFeatures, 'items_per_min' | 'scroll_px_s_mean' | 'video_skip_rate'>;
@@ -107,7 +109,11 @@ function leftDeepRecently(ctx: ScoreContext): boolean {
 export function scoreSpiral(ctx: ScoreContext): SpiralScore {
   const cur = infoFor(ctx, ctx.state);
   const predicted = new Map<string, number>();
-  if (ctx.mode === 'markov' && ctx.markov) {
+  if (ctx.mode === 'gru' && ctx.gruPredicted) {
+    for (const [state, min] of ctx.gruPredicted) {
+      if (infoFor(ctx, state)?.label === 'drain') predicted.set(state, min);
+    }
+  } else if (ctx.mode === 'markov' && ctx.markov) {
     for (const [state, min] of rollout(ctx.markov, ctx.state)) {
       if (infoFor(ctx, state)?.label === 'drain') predicted.set(state, min);
     }
@@ -133,7 +139,7 @@ export function scoreSpiral(ctx: ScoreContext): SpiralScore {
   }
   return {
     score: Math.min(1, total / WINDOW_MIN),
-    mode: ctx.mode === 'markov' && ctx.markov ? 'markov' : 'rules',
+    mode: ctx.mode === 'gru' && ctx.gruPredicted ? 'gru' : ctx.mode === 'markov' && ctx.markov ? 'markov' : 'rules',
     predictedMin: predicted,
     excessMin: excess,
     currentLabel: cur?.label ?? null,

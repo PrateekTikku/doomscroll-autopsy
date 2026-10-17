@@ -2,6 +2,7 @@ import { browser } from 'wxt/browser';
 import { get, put } from '@/lib/db';
 import type { createRouter } from '@/lib/messaging';
 import { refreshPrediction } from '@/lib/ml/evaluate';
+import { runGru } from '@/lib/ml/gru-background';
 import { syncAssignments } from '@/lib/ml/territories';
 import { checkDue } from '@/lib/ml/territories-background';
 import { lastNightlyBoundary } from '@/lib/ml/territories-core';
@@ -17,7 +18,7 @@ import { ensureReports, generateReport } from './service';
  * The nightly job (PDD 6.3): at the first check after 03:00 local (a sleeping laptop catches up):
  *   1. retention, 2. re-cluster if due, 4. name territories with the 270M (M6), 7. facts and the
  *   autopsy (model first, template fallback) for every finished day.
- * Steps 3, 5 and 6 belong to later milestones (tags, GRU, UMAP).
+ * 5. GRU training and promotion (M8, D-20); the prediction mode is refreshed right after. Steps 3 and 6 (tags, UMAP) are M8 items too, done outside the job.
  */
 export const NIGHTLY_ALARM = 'metrics-nightly';
 export const NIGHTLY_META = 'nightly-meta';
@@ -43,6 +44,8 @@ export interface NightlyDeps {
   /** Step 4; defaults to the writer model in the offscreen document. */
   name?: () => Promise<unknown>;
   unload?: () => Promise<void>;
+  /** Step 5: train, evaluate and maybe promote the GRU (M8); defaults to the offscreen document. */
+  gru?: () => Promise<unknown>;
 }
 
 export async function runNightly(now = Date.now(), deps: NightlyDeps = {}): Promise<NightlyMeta> {
@@ -62,6 +65,7 @@ export async function runNightly(now = Date.now(), deps: NightlyDeps = {}): Prom
   });
   await step('naming', () => (deps.name ?? (() => nameTerritories(generateViaOffscreen, { now })))());
   await step('prediction', () => refreshPrediction(now));
+  await step('gru', () => (deps.gru ?? (() => runGru()))());
   await step('reports', async () => {
     written = await ensureReports(now);
   });

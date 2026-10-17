@@ -1,6 +1,8 @@
 import { createGenHost } from '@/lib/gen/host';
 import '@/lib/gen/messages';
 import { createRouter } from '@/lib/messaging';
+import { trainAndEvaluateStored } from '@/lib/ml/gru-service';
+import '@/lib/ml/gru-messages';
 import { createModelHost } from '@/lib/ml/host';
 import '@/lib/ml/messages';
 
@@ -15,6 +17,7 @@ router.register('embedder-status', () => host.status());
 router.register('embedder-warm', () => host.warm());
 router.register('embedder-unload', () => host.unload());
 router.register('generate', (req) => gen.generate(req));
+router.register('gru-train', async (opts) => (await trainAndEvaluateStored(opts ?? {})).record);
 router.register('gen-status', () => gen.status());
 router.register('gen-unload', () => gen.unload());
 router.listen();

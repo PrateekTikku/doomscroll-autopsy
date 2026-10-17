@@ -4,6 +4,7 @@ import { registerGen } from '@/lib/gen/background';
 import { registerMetrics } from '@/lib/metrics/background';
 import { registerPrivacy } from '@/lib/privacy/background';
 import { registerObserver } from '@/lib/observer/background';
+import { registerGru } from '@/lib/ml/gru-background';
 import { registerTerritories } from '@/lib/ml/territories-background';
 import { registerNudges } from '@/lib/nudge/background';
 import { ensureOffscreenDocument } from '@/lib/offscreen';
@@ -31,6 +32,7 @@ export default defineBackground(() => {
   registerMetrics(router);
   registerPrivacy(router);
   registerGen(router);
+  registerGru(router);
 
   router.listen();
 });
