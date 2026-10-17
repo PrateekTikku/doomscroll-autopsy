@@ -4,7 +4,7 @@
  *   GRU trains in the offscreen document (WebGPU if available) and is evaluated against Markov (promotion per D-20);
  *   the attention map draws from vectors and selects territories;
  *   (topic tags come from real embeddings and feed the naming prompt;
- *   (later items add: breathing step, forget one capture.)
+ *   (forget one capture through the privacy UI.)
  * Usage: npm run eval:m5 && npm run build && npm run probe:m8   (HEADED=1, OUT=dir, EXT=folder)
  * Writes ../docs/showcase/M8/m8-probe.json and screenshots next to it.
  */
@@ -278,6 +278,18 @@ try {
   const mine = (rep?.results ?? []).filter((r) => r.id.startsWith('probe-'));
   results.namingWithTags = mine;
   check('naming with tags in the prompt: the model names both tagged territories after what is in them', mine.length === 2 && mine.every((r) => r.source === 'model' && r.errors.length === 0) && /cook|bak|recipe|food/i.test(mine.find((r) => r.id === 'probe-cooking')?.name ?? '') && /python|program|api|doc|code/i.test(mine.find((r) => r.id === 'probe-programming')?.name ?? ''), mine.map((r) => ({ id: r.id, name: r.name, label: r.label })));
+
+  // ---- Forget a single capture, through the real UI ----
+  await send('Page.reload', {}, s);
+  await waitFor(s, `document.querySelectorAll('#recent-items tbody tr').length > 0`, 'recent items list');
+  const beforeForget = await evaluate(s, `(async () => { ${IDB} const rows = await all('samples'); return { n: rows.length, logs: (await all('forgetLog')).length }; })()`);
+  const listed = await evaluate(s, `({ rows: document.querySelectorAll('#recent-items tbody tr').length, first: document.querySelector('#recent-items tbody tr').innerText.replace(/\\s+/g, ' ') })`);
+  await evaluate(s, `document.getElementById('recent-items').scrollIntoView(); true`);
+  await shot(s, 'dashboard-forget-item.png');
+  await evaluate(s, `document.querySelector('#recent-items tbody tr button').click(); true`);
+  await waitFor(s, `/Forgot that item/.test(document.querySelector('#privacy [role=status]')?.innerText ?? '')`, 'forget item message');
+  const afterForget = await evaluate(s, `(async () => { ${IDB} const rows = await all('samples'); const logs = await all('forgetLog'); return { n: rows.length, kinds: logs.map((l) => l.kind), keys: logs.map((l) => Object.keys(l).sort().join()) }; })()`);
+  check('forget one item: lists recent items, deletes exactly one sample, logs only the kind', listed.rows >= 1 && listed.rows <= 20 && afterForget.n === beforeForget.n - 1 && afterForget.kinds.includes('capture') && afterForget.keys.every((k) => !/title|origin|path|text|site/.test(k) || k.includes('site')), { listed, beforeForget, afterForget });
 
   check('no exceptions in extension pages', exceptions.length === 0, exceptions.slice(0, 5));
 } catch (err) {

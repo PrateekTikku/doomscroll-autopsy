@@ -2,7 +2,7 @@ import type { createRouter } from '@/lib/messaging';
 import { isReclustering } from '@/lib/ml/territories';
 import { getSettings, updateSettings } from '@/lib/settings';
 import { addDomain } from './blocklist-edit';
-import { forgetRange, forgetSite, siteKey } from './forget';
+import { forgetCapture, forgetRange, forgetSite, siteKey } from './forget';
 import './messages';
 import { applyRetention, stripTitles } from './retention';
 import { wipeEverything } from './wipe';
@@ -39,6 +39,7 @@ export function registerPrivacy(router: Router): void {
       return forgetSite(req.site);
     }),
   );
+  router.register('privacy-forget-capture', (req) => exclusive(() => forgetCapture(req.id)));
   router.register('privacy-wipe', () => exclusive(() => wipeEverything()));
   router.register('privacy-retention', () => exclusive(async () => applyRetention((await getSettings()).retentionDays)));
   router.register('privacy-strip-titles', () => exclusive(async () => ({ cleared: await stripTitles() })));

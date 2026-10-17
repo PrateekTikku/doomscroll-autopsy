@@ -1,5 +1,5 @@
 {
- "date": "2026-10-17T05:01:28.838Z",
+ "date": "2026-10-17T05:12:14.546Z",
  "checks": {
   "seed loaded": {
    "ok": true,
@@ -11,25 +11,25 @@
    }
   },
   "GRU trains in the extension and is evaluated against Markov": {
-   "ok": "GRU AUC 0.994 did not beat Markov 0.991 by 0.005 (ties go to Markov)",
+   "ok": "GRU AUC 0.996 did not beat Markov 0.991 by 0.005 (ties go to Markov)",
    "detail": {
-    "ranAt": 1792213294394,
+    "ranAt": 1792213940107,
     "promoted": false,
-    "reason": "GRU AUC 0.994 did not beat Markov 0.991 by 0.005 (ties go to Markov)",
-    "gruAuc": 0.9935869659415894,
+    "reason": "GRU AUC 0.996 did not beat Markov 0.991 by 0.005 (ties go to Markov)",
+    "gruAuc": 0.9957535315018633,
     "markovAuc": 0.9909004246468498,
     "rulesAuc": 0.9916803882485484,
-    "gruTop1": 0.8942486085343229,
+    "gruTop1": 0.948051948051948,
     "markovTop1": 0.9656771799628943,
-    "gruTop3": 0.9935064935064936,
+    "gruTop3": 0.9953617810760668,
     "markovTop3": 0.9944341372912802,
     "split": "latest-day",
     "trainBins": 7481,
     "testBins": 1080,
     "trainWindows": 2219,
     "backend": "webgpu",
-    "trainMs": 13564,
-    "wallMs": 14783
+    "trainMs": 13736,
+    "wallMs": 14919
    }
   },
   "GRU verdict is stored and shown in the dashboard": {
@@ -96,29 +96,51 @@
     }
    ]
   },
+  "forget one item: lists recent items, deletes exactly one sample, logs only the kind": {
+   "ok": true,
+   "detail": {
+    "listed": {
+     "rows": 20,
+     "first": "10:41 AM probe.example/syn:ht Forget"
+    },
+    "beforeForget": {
+     "n": 400,
+     "logs": 0
+    },
+    "afterForget": {
+     "n": 399,
+     "kinds": [
+      "capture"
+     ],
+     "keys": [
+      "id,kind,ts"
+     ]
+    }
+   }
+  },
   "no exceptions in extension pages": {
    "ok": true,
    "detail": []
   }
  },
  "gru": {
-  "ranAt": 1792213294394,
+  "ranAt": 1792213940107,
   "promoted": false,
-  "reason": "GRU AUC 0.994 did not beat Markov 0.991 by 0.005 (ties go to Markov)",
-  "gruAuc": 0.9935869659415894,
+  "reason": "GRU AUC 0.996 did not beat Markov 0.991 by 0.005 (ties go to Markov)",
+  "gruAuc": 0.9957535315018633,
   "markovAuc": 0.9909004246468498,
   "rulesAuc": 0.9916803882485484,
-  "gruTop1": 0.8942486085343229,
+  "gruTop1": 0.948051948051948,
   "markovTop1": 0.9656771799628943,
-  "gruTop3": 0.9935064935064936,
+  "gruTop3": 0.9953617810760668,
   "markovTop3": 0.9944341372912802,
   "split": "latest-day",
   "trainBins": 7481,
   "testBins": 1080,
   "trainWindows": 2219,
   "backend": "webgpu",
-  "trainMs": 13564,
-  "wallMs": 14783
+  "trainMs": 13736,
+  "wallMs": 14919
  },
  "modeAfterGru": "markov",
  "topicTags": {

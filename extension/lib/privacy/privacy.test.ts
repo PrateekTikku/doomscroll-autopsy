@@ -5,7 +5,7 @@ import { ensureReports } from '@/lib/metrics/service';
 import { binsFrom, territory } from '@/lib/metrics/testutil';
 import { dayStart } from '@/lib/metrics/time';
 import { addDomain, addKeyword, listEntries, normalizeDomain, removeEntry } from './blocklist-edit';
-import { forgetRange, forgetSite, originMatchesSite, siteKey } from './forget';
+import { forgetCapture, forgetRange, forgetSite, originMatchesSite, siteKey } from './forget';
 import { applyRetention, stripTitles } from './retention';
 import { DEFAULT_SETTINGS } from '@/lib/settings';
 
@@ -129,6 +129,40 @@ describe('forgetSite', () => {
 
   it('rejects something that is not a site', async () => {
     await expect(forgetSite('hello')).rejects.toThrow();
+  });
+});
+
+describe('forgetCapture', () => {
+  it('removes one sample, keeps the bins and the other samples, recomputes the territory, logs only the kind', async () => {
+    await seed();
+    const reels = (await getAll('samples')).filter((x) => x.territoryId === 'reels').sort((a, b) => a.ts - b.ts);
+    const binsBefore = await count('bins');
+    const centroidBefore = (await get('territories', 'reels'))!.centroid;
+    const r = await forgetCapture(reels[3]!.id!);
+    expect(r).toMatchObject({ samples: 1, bins: 0, nudges: 0, territoriesUpdated: 1, territoriesRemoved: 0 });
+    expect(await get('samples', reels[3]!.id!)).toBeUndefined();
+    expect((await getAll('samples')).filter((x) => x.territoryId === 'reels')).toHaveLength(14);
+    expect(await count('bins')).toBe(binsBefore);
+    const t = (await get('territories', 'reels'))!;
+    expect(t.size).toBe(14);
+    expect(t.centroid[1]).toBeCloseTo(centroidBefore[1]!, 6); // the other members point the same way
+    expect(await getAll('forgetLog')).toEqual([expect.objectContaining({ kind: 'capture' })]);
+    expect(Object.keys((await getAll('forgetLog'))[0]!).sort()).toEqual(['id', 'kind', 'ts']);
+  });
+
+  it('removes an unconfirmed territory when its last item goes, and keeps a confirmed one dormant', async () => {
+    await seed();
+    for (const x of (await getAll('samples')).filter((x) => x.territoryId === 'reels')) await forgetCapture(x.id!);
+    expect(await get('territories', 'reels')).toBeUndefined();
+    const news = (await getAll('samples')).filter((x) => x.territoryId === 'news');
+    for (const x of news) await forgetCapture(x.id!);
+    expect((await get('territories', 'news'))).toMatchObject({ size: 0, label: 'shallow' });
+  });
+
+  it('returns null for an item that is already gone', async () => {
+    await seed();
+    expect(await forgetCapture(999_999)).toBeNull();
+    expect(await getAll('forgetLog')).toEqual([]);
   });
 });
 

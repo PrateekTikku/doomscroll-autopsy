@@ -8,6 +8,8 @@ declare module '@/lib/messaging' {
     'privacy-forget-range': { request: { from: number; to: number }; response: ForgetReport };
     /** `alwaysSkip` also adds the site to the blocklist. */
     'privacy-forget-site': { request: { site: string; alwaysSkip: boolean }; response: ForgetReport };
+    /** Forget one captured item (a sample id). Null if it no longer exists. */
+    'privacy-forget-capture': { request: { id: number }; response: ForgetReport | null };
     'privacy-wipe': { request: void; response: WipeReport };
     /** Applies the configured retention now. */
     'privacy-retention': { request: void; response: RetentionReport };

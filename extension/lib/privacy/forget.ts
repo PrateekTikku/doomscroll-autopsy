@@ -145,6 +145,23 @@ export async function forgetSite(siteInput: string, now = Date.now()): Promise<F
   return cascade(removed, { kind: 'site', site }, now);
 }
 
+/**
+ * Forgets one captured item (PDD 11.4, Should): its sample (metadata and vector) is deleted and its
+ * territory's centroid, size and unconfirmed name are recomputed. The 30-second activity totals
+ * around it stay: bins hold velocity numbers for everything seen in that half minute and carry no
+ * item identity, so removing them would also erase other items' time. Returns null if it is gone.
+ */
+export async function forgetCapture(id: number, now = Date.now()): Promise<ForgetReport | null> {
+  const db = await openDb();
+  const sample = await db.get('samples', id);
+  if (!sample) return null;
+  const removed = emptyRemoved();
+  if (sample.territoryId) removed.territoryIds.add(sample.territoryId);
+  await db.delete('samples', id);
+  removed.samples = 1;
+  return cascade(removed, { kind: 'capture' }, now);
+}
+
 async function deleteByTs(store: 'nudges' | 'recorderEvents', range: IDBKeyRange): Promise<number> {
   const db = await openDb();
   const tx = db.transaction(store, 'readwrite');

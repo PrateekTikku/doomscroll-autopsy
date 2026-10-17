@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'preact/hooks';
-import { getAll } from '@/lib/db';
+import { getAll, getByTs, type SampleRecord } from '@/lib/db';
 import { send } from '@/lib/messaging';
 import { pauseUntil, type PauseOption } from '@/lib/observer/pause';
 import { addDomain, addKeyword, listEntries, removeEntry } from '@/lib/privacy/blocklist-edit';
@@ -37,6 +37,13 @@ export function Privacy() {
   const [filter, setFilter] = useState('');
   const [wipeText, setWipeText] = useState('');
   const [log, setLog] = useState<Array<{ ts: number; text: string }>>([]);
+  const [recent, setRecent] = useState<SampleRecord[]>([]);
+
+  const refreshRecent = async () => {
+    const now = Date.now();
+    const rows = (await getByTs('samples', now - 24 * 3600_000, now)) as SampleRecord[];
+    setRecent(rows.sort((a, b) => b.ts - a.ts).slice(0, 20));
+  };
 
   const refreshLog = async () =>
     setLog(
@@ -49,6 +56,7 @@ export function Privacy() {
   useEffect(() => {
     void getSettings().then(setSettings);
     void refreshLog();
+    void refreshRecent();
     return onSettingsChanged(setSettings);
   }, []);
 
@@ -89,6 +97,13 @@ export function Privacy() {
       const r = await send('background', 'privacy-forget-site', { site, alwaysSkip });
       setSite('');
       return describe(r) + (alwaysSkip ? ' The site is now on your blocklist.' : '');
+    });
+
+  const forgetOne = (id: number) =>
+    run(async () => {
+      const r = await send('background', 'privacy-forget-capture', { id });
+      await refreshRecent();
+      return r ? 'Forgot that item. Its territory was updated; the half-minute activity totals around it stay.' : 'That item was already gone.';
     });
 
   const saveBlocklist = (edits: Settings['blocklist']) => updateSettings({ blocklist: edits });
@@ -154,6 +169,37 @@ export function Privacy() {
           <input type="checkbox" checked={alwaysSkip} onChange={(e) => setAlwaysSkip(e.currentTarget.checked)} /> Always skip this site from now on
         </label>
         <button disabled={busy || !site.trim()} onClick={forgetSite}>Forget site</button>
+      </div>
+
+      <h2>Forget one item</h2>
+      <p class="muted">The 20 most recent items from the last day. Forgetting one deletes its stored vector and details and updates its territory; the half-minute activity totals around it stay (they hold no content).</p>
+      <div id="recent-items">
+        {recent.length === 0 ? (
+          <p class="muted">Nothing observed in the last day.</p>
+        ) : (
+          <table>
+            <tbody>
+              {recent.map((r) => (
+                <tr key={r.id}>
+                  <td class="muted">{new Date(r.ts).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</td>
+                  <td style="text-align:left">
+                    {r.origin.replace(/^https?:\/\/(www\.)?/, '')}
+                    {r.path}
+                    {r.title ? <span class="muted"> · {r.title}</span> : null}
+                  </td>
+                  <td>
+                    <button disabled={busy} aria-label={`Forget item at ${new Date(r.ts).toLocaleTimeString()}`} onClick={() => void forgetOne(r.id!)}>
+                      Forget
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+        <button disabled={busy} onClick={() => void refreshRecent()}>
+          Refresh list
+        </button>
       </div>
 
       <h2>Blocklist</h2>
