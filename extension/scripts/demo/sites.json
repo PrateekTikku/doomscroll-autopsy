@@ -47,14 +47,6 @@
   "label": "deep",
   "kind": "course"
  },
- "onlinecourses.nptel.ac.in": {
-  "label": "deep",
-  "kind": "course"
- },
- "anthropic.skilljar.com": {
-  "label": "deep",
-  "kind": "course"
- },
  "academy.langchain.com": {
   "label": "deep",
   "kind": "course"
@@ -154,14 +146,6 @@
  "discord.com": {
   "label": "shallow",
   "kind": "chat"
- },
- "www.commudle.com": {
-  "label": "shallow",
-  "kind": "admin"
- },
- "devfest2k26.gdgnoida.com": {
-  "label": "shallow",
-  "kind": "admin"
  },
  "medium.com": {
   "label": "shallow",

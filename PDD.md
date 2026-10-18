@@ -4,7 +4,7 @@
 |---|---|
 | **Status** | Approved design (v2, after first review), ready to build |
 | **Last updated** | 2026-10-15 |
-| **Owner** | Prateek (prateektikku@gmail.com) |
+| **Owner** | Prateek |
 | **Built for** | Hacktoberfest Open-Source AI Challenge: Week 2 ("Side Hustle") on DEV |
 | **Hard deadline** | Submission post published by **Sun Oct 18, 11:59 PM PDT** (Oct 19 06:59 UTC) |
 | **Internal deadline** | Product built, tested and packaged by **Sat Oct 17 EOD**. Oct 18 is for the showcase only. |
@@ -644,7 +644,7 @@ Offer a post-mortem on DEV only with the owner's yes. Never publish anything wit
 | D-07 | Generation model: **Gemma 3 270M, fine-tuned** | **324 MB** ONNX with 8-bit weights in the browser (T2: every 4-bit build of the fine-tune lost too much quality; the 273 MB figure was the published base model at 4 bits), ≈118 tok/s; Google's on-device fine-tune path exists; narrow tasks suit it. Text-only is fine: vision is handled by EmbeddingGemma 2 (9.3) | Gemma 4 E2B (≈2.3–3.1 GB in ONNX; possible future optional upgrade) |
 | D-08 | Not Chrome's built-in Gemini Nano | Not open-weight, not Gemma | Prompt API |
 | D-09 | Local training uses **Unsloth** | Owner's choice; official Mac training via Studio/Desktop (MLX) | Plain MLX-LM, PEFT on MPS |
-| D-10 | Teacher: **Gemma 4 31B GGUF UD-Q4_K_XL, vision, MTP** | Highest-quality local Gemma; fits 64 GB; MTP speed-up; all-Gemma and open | Gemma 4 12B, E4B, 26B-A4B; Claude (closed) |
+| D-10 | Teacher: **Gemma 4 31B GGUF UD-Q4_K_XL, vision, MTP** | Highest-quality local Gemma; fits 64 GB; MTP speed-up; all-Gemma and open | Gemma 4 12B, E4B, 26B-A4B; a closed API model |
 | D-11 | ~1,000 examples, non-thinking | Likely fits overnight; enough for two narrow tasks | 1,500; 500 hand-curated |
 | D-12 | Eval: 100 held-out + 31B judge + 20 manual reviews | Numbers for the post plus a human check | Manual only; automatic only |
 | D-13 | Labels: AI suggests, user confirms; unconfirmed at half weight | Labels are personal; low friction | Manual-only; fully automatic |
@@ -666,7 +666,7 @@ Offer a post-mortem on DEV only with the owner's yes. Never publish anything wit
 | D-29 | First user: friend on an Apple Silicon Mac, installs Oct 17 | Same platform as development | Windows/Linux friend; online community |
 | D-30 | Demo: 2–3 min video + GIFs | Judges likely won't install it | GIFs only; video + installable zip |
 | D-31 | Code freeze Oct 17 EOD; Oct 18 showcase only | Writing is weighted most heavily and needs a full day | Building through Oct 18 |
-| D-32 | PDD lives in the repo as `PDD.md` | Agents and contributors see it next to the code | Claude Doc; both |
+| D-32 | PDD lives in the repo as `PDD.md` | Agents and contributors see it next to the code | a hosted doc; both |
 | D-33 | **Priority tiers** Must / Should / Could (5.1) | Guarantees a working product at freeze | Everything treated as required |
 | D-34 | **Our own observer** with borrowed patterns (ActivityWatch heartbeats, rrweb throttling, optional Readability) | rrweb records the whole DOM, is costly on feeds, over-collects, and can't tell which item is in view | rrweb as the base; fork aw-watcher-web |
 | D-35 | **Recorder, replayer, synthetic days and demo mode** (Must) | Test and demo without waiting for days of real data | Real data only |

@@ -4,11 +4,15 @@
 
 A Chromium (Manifest V3) extension for Deep Workers. It embeds what you look at in the browser with **EmbeddingGemma 2**, groups it into personal territories labelled **Deep / Shallow / Drain**, predicts when you're about to spiral, nudges you inside the page, and writes a nightly autopsy with a **fine-tuned Gemma 3 270M**. All inference runs in the browser; nothing you browse leaves your device. The only network traffic is the one-time model download from Hugging Face.
 
-Status: release candidate (0.3.0) for the DEV Hacktoberfest Week 2 challenge. Design: [`PDD.md`](PDD.md).
+Status: release candidate (0.3.0), built for the DEV Hacktoberfest Open-Source AI Challenge, Week 2. Design: [`PDD.md`](PDD.md).
+
+- **Fine-tuned model (Gemma 3 270M, ONNX):** <https://huggingface.co/PrateekTikku/doomscroll-autopsy-gemma-3-270m>
+- **Demo video and poster:** [`submission/`](submission/)
+- **Release zip (about 300 MB, includes the model):** the latest GitHub Release
 
 ## Install (for a first user)
 
-You get a zip, `doomscroll-autopsy-<version>.zip` (about 300 MB: the fine-tuned writer model is inside).
+Download `doomscroll-autopsy-<version>.zip` from the latest GitHub Release (about 300 MB: the fine-tuned writer model is inside).
 
 1. Unzip it somewhere permanent (for example `~/Applications/doomscroll-autopsy`). Chrome ties the extension and its stored data to that folder, so don't move or delete it afterwards.
 2. Open `chrome://extensions`, turn on **Developer mode**, click **Load unpacked** and pick the unzipped folder.
@@ -36,7 +40,7 @@ npm run build          # → extension/.output/chrome-mv3
 npm run zip            # → releases/doomscroll-autopsy-<version>.zip (gitignored), prints size and sha256
 ```
 
-The build bundles the fine-tuned 270M from `training/data/runs/run3/onnx_final` (see `scripts/copy-model.mjs`); without it the writer reports "unavailable" and templates are used.
+The build bundles the fine-tuned 270M from `training/data/runs/run3/onnx_final` (see `scripts/copy-model.mjs`); without it the writer reports "unavailable" and templates are used. To get the same weights from Hugging Face: `hf download PrateekTikku/doomscroll-autopsy-gemma-3-270m --local-dir ./model`, then build with `DOOMSCROLL_MODEL_DIR=$PWD/model`.
 
 In Chrome, open `chrome://extensions`, turn on **Developer mode**, click **Load unpacked** and pick `extension/.output/chrome-mv3`.
 
@@ -65,7 +69,7 @@ cd training && uv run pytest        # Python 3.13 via uv
 | `shared/` | JSON Schemas shared by both lanes, `personas.json`, generated `types.ts` |
 | `training/` | Teacher data, fine-tuning, evaluation, ONNX export (Python, `uv`) |
 | `experiments/` | Spike results and measurements |
-| `docs/` | Plans, showcase material, post draft |
+| `docs/` | Plans and showcase material |
 
 ## Privacy
 
@@ -73,4 +77,4 @@ No item text, screenshots or query strings are ever stored. Stored vectors are n
 
 ## License
 
-MIT (see `LICENSE`). EmbeddingGemma 2 is Apache 2.0; the fine-tuned Gemma 3 270M is distributed under the Gemma Terms of Use.
+The code is MIT (see `LICENSE`). The Gemma models are not covered by that license: EmbeddingGemma and the fine-tuned Gemma 3 270M are used and distributed under the Gemma Terms of Use (full text in [`training/GEMMA_TERMS.md`](training/GEMMA_TERMS.md)); EmbeddingGemma is downloaded from its own Hugging Face page at first run.

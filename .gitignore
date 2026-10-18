@@ -30,3 +30,21 @@ extension/public/models/
 # Local copy of the owner's browser history used to build the demo profile; never commit
 .demo-history/
 .demo/
+
+# Video working folder (finals live in submission/)
+video/.cache/
+video/out/
+video/assets/raw/
+
+
+# Secrets and large working files (never commit)
+.env
+**/.env
+video/audio/
+training/hf_upload/
+video/.hyperframes/
+video/narration.txt
+video/sample.py
+video/tts_kokoro.py
+video/speedup.py
+video/build_audio.py

@@ -9,8 +9,6 @@ language: [en]
 
 # doomscroll-autopsy-gemma-3-270m (ONNX)
 
-> **DRAFT. Not published.** Publishing needs the owner's explicit yes. Fill the `TODO` markers first.
-
 A fine-tune of **Gemma 3 270M (instruction-tuned)** for two narrow tasks inside the *Doomscroll Autopsy*
 browser extension, running fully in the browser through Transformers.js on WebGPU:
 
@@ -24,9 +22,11 @@ browser extension, running fully in the browser through Transformers.js on WebGP
 <https://ai.google.dev/gemma/terms>, which also incorporate the Gemma Prohibited Use Policy
 (<https://ai.google.dev/gemma/prohibited_use_policy>). Use of this model, and of any model derived from it,
 is subject to those terms and restrictions, and anyone you redistribute it to must be given a copy of them.
-TODO(owner, before publishing): add the full text of the Gemma Terms of Use as `GEMMA_TERMS.md` in this repo
-and keep the notice "Gemma is provided under and subject to the Gemma Terms of Use found at
-ai.google.dev/gemma/terms".
+The full text of the Gemma Terms of Use is in `GEMMA_TERMS.md` in this repository. Gemma is provided under and subject to the Gemma Terms of Use found at ai.google.dev/gemma/terms.
+
+## Version and links
+
+The weights in this repository are `run3`, the version bundled with the extension. Code, evaluation and the extension: <https://github.com/PrateekTikku/doomscroll-autopsy>.
 
 ## Training data
 
@@ -34,7 +34,7 @@ About 1,000 **synthetic** examples (973 train / 100 held out): 660 naming and 44
 programmatically for six Deep Worker personas (developer, writer, researcher, designer, student, freelancer),
 and outputs written by **Gemma 4 31B** (UD-Q4_K_XL, non-thinking) in the coach voice, then filtered by
 validators (valid JSON, length, number grounding, no mention of time outside the browser, tone, structure).
-No real browsing data was used.
+No real browsing data was used. The teacher outputs were produced by Gemma 4 31B, which has its own license (linked from <https://ai.google.dev/gemma/terms>); the model released here is a derivative of Gemma 3 270M and is governed by the Gemma Terms of Use.
 
 ## Training
 
@@ -60,7 +60,7 @@ the nudge paragraph was rewritten from the facts and varied (160 variants with r
 over 172 words were dropped. On the same 100 held-out prompts plus 40 ignored-heavy nudge prompts (automatic
 metrics only; the judge was not re-run): naming valid / grounded / label correct 100% / 100% / 100% (run1:
 97% / 97% / 95%); autopsy grounded 100% (92%); strict-clean on the nudge-heavy prompts 95% (60%); outside-browser
-mentions 0. Details: `docs/showcase/T3/results.md`.
+mentions 0. Details: <https://github.com/PrateekTikku/doomscroll-autopsy/blob/main/docs/showcase/T3/results.md>.
 
 No output mentioned time outside the browser. On autopsy the model writes better prose than a fill-in
 template but is less faithful (4.45 vs 5.0): it sometimes attaches a real number to the wrong thing (swapped
@@ -78,8 +78,8 @@ and fall back to a template. 4-bit builds were clearly worse (autopsy grounding 
 
 ```js
 import { AutoTokenizer, AutoModelForCausalLM } from '@huggingface/transformers';
-const tok = await AutoTokenizer.from_pretrained(REPO);
-const model = await AutoModelForCausalLM.from_pretrained(REPO, { dtype: 'fp16', device: 'webgpu' });
+const tok = await AutoTokenizer.from_pretrained('PrateekTikku/doomscroll-autopsy-gemma-3-270m');
+const model = await AutoModelForCausalLM.from_pretrained('PrateekTikku/doomscroll-autopsy-gemma-3-270m', { dtype: 'fp16', device: 'webgpu' });
 ```
 
 ## Limitations

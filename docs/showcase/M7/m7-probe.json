@@ -1,7 +1,7 @@
 {
  "date": "2026-10-17T11:43:37.384Z",
  "version": "0.3.0",
- "zip": "/Users/prateek/Desktop/Learning/hackathons/Hacktoberfest-Week2/releases/doomscroll-autopsy-0.3.0.zip",
+ "zip": "releases/doomscroll-autopsy-0.3.0.zip",
  "checks": {
   "release unzips and loads; version matches": {
    "ok": true,

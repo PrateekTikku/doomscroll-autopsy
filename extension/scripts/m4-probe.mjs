@@ -181,7 +181,7 @@ try {
 
   // ---- N1 on real sites (REAL=1; needs network) ----
   if (process.env.REAL) {
-    for (const [name, url] of [['github.com (strict CSP)', 'https://github.com/anthropics/anthropic-sdk-python'], ['YouTube Shorts', 'https://www.youtube.com/shorts']]) {
+    for (const [name, url] of [['github.com (strict CSP)', 'https://github.com/python/cpython'], ['YouTube Shorts', 'https://www.youtube.com/shorts']]) {
       const page = await openPage(url);
       await send('Page.bringToFront', {}, page.sessionId);
       await sleep(7000);
