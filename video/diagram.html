@@ -1,0 +1,32 @@
+<!doctype html><html><head><meta charset="utf-8"><style>
+*{box-sizing:border-box;margin:0}
+body{width:1900px;height:960px;background:radial-gradient(1200px 700px at 15% 0%,#eef0ff,transparent),#f6f7fb;font-family:"SF Pro Display",-apple-system,"Helvetica Neue",Arial,sans-serif;color:#0f1524;padding:60px 70px}
+h1{font-size:46px;letter-spacing:-1px;margin-bottom:6px}
+.sub{font-size:26px;color:#5b6478;margin-bottom:34px}
+.lane{position:relative;display:flex;align-items:center;gap:18px;padding:22px 26px 22px 250px;border-radius:30px;background:#fff;border:2px solid #e3e6f2;box-shadow:0 14px 40px rgba(15,21,36,.06);margin-bottom:26px;height:210px}
+.lt{position:absolute;left:26px;top:50%;transform:translateY(-50%);width:200px;font-size:22px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:#4f46e5}
+.b{display:flex;align-items:center;gap:14px;flex:1;min-width:0;height:150px;border-radius:22px;border:2px solid #dfe3f0;background:#f9faff;padding:0 22px}
+.b b{display:block;font-size:29px;letter-spacing:-.5px;line-height:1.15}
+.b span{display:block;font-size:22px;color:#5b6478;margin-top:6px;line-height:1.25}
+.g{background:#eef0ff;border-color:#9aa5f5}
+.d{background:#141b33;border-color:#2a3a6b;color:#fff}.d span{color:#b8c4e4}
+.ar{font-size:40px;color:#4f46e5;font-weight:700;flex:none}
+.foot{margin-top:6px;font-size:26px;color:#0f1524;font-weight:700;text-align:center}
+.dots{display:flex;gap:8px;margin-top:8px}.dots i{width:16px;height:16px;border-radius:50%}
+</style></head><body>
+<h1>How Doomscroll Autopsy works</h1><div class="sub">One pipeline, entirely inside the browser</div>
+<div class="lane"><div class="lt">Perceive</div>
+<div class="b "><div><b>Page you scroll</b><span>text and a screenshot, read on the page; never stored</span></div></div><div class="ar">→</div>
+<div class="b "><div><b>30 s bins + samples</b><span>IndexedDB: vectors and metadata, no item text, 30-day retention</span></div></div><div class="ar">→</div>
+<div class="b g"><img src="assets/brand/gemma.svg" width="54" height="54"><div><b>EmbeddingGemma 2</b><span>on-device, WebGPU, 256-d vectors, about 16 ms per item</span></div></div></div>
+<div class="lane"><div class="lt">Understand<br>and act</div>
+<div class="b "><div><b>Territories</b><span>your own k-means clusters, labelled Deep, Shallow or Drain</span></div></div><div class="ar">→</div>
+<div class="b "><div><b>Rabbit-hole prediction</b><span>rules, then Markov, then GRU, each only if it beats the last</span></div></div><div class="ar">→</div>
+<div class="b d"><div><b>Nudge ladder</b><span>banner, then blur, then a 30 s breathing pause</span></div></div></div>
+<div class="lane"><div class="lt">Explain</div>
+<div class="b "><div><b>Daily facts</b><span>deep blocks, switches, drains, nudge outcomes</span></div></div><div class="ar">→</div>
+<div class="b g" style="flex:1.35"><img src="assets/brand/gemma.svg" width="54" height="54"><div><b>Gemma 3 270M</b><span>fine-tuned: names and autopsy</span></div></div><div class="ar">→</div>
+<div class="b "><div><b>Validators</b><span>numbers must match the facts, else a template writes it</span></div></div><div class="ar">→</div>
+<div class="b d"><div><b>Dashboard</b><span>timeline, map, autopsy, controls</span></div></div></div>
+<div class="foot">Nothing you browse leaves your laptop. Only the one-time model download uses the network.</div>
+</body></html>
