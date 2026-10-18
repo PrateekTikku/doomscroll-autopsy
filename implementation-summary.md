@@ -19,7 +19,7 @@
 | M6 Integrate 270M | ✅ Done | 2026-10-16 | L4 | Fine-tuned 270M bundled with the extension (D-58, not on HF yet), loaded on demand in the offscreen document (G1: byte-identical to the test page, ~115 tok/s), names + suggested labels + nightly autopsy through validators with fallbacks; on 23 replayed days 20 autopsies model-written, 3 template (13% after the T3 retrain; 35% with T2's model). docs/plans/M6.md |
 | M7 Release + first user | ⚠️ Done with gaps | 2026-10-17 | L5 (pending the owner's step) | Onboarding opens on install, README install path, `npm run zip` (300.8 MB), fresh-profile probe on the unzipped release passes (incl. model download, m5 + m4 probes). Gaps: the owner must hand the zip to the friend and run the interview; real-device checks. docs/plans/M7.md |
 | M8 Should-tier extras | ✅ Done | 2026-10-17 | L6 | All five Should items, one commit each: GRU (trained with TF.js in the offscreen document, promoted only if it beats Markov; it ties on synthetic data, so Markov stays), UMAP attention map, topic tags (fed into naming), breathing pause, forget a single capture. Release rebuilt as 0.3.0. docs/plans/M8.md |
-| M9 Showcase | ⬜ Not started | | | |
+| M9 Showcase | ✅ Done | 2026-10-18 | L6 | Post published on DEV (`#hf26challenge`), 1:43 product video, public repo, fine-tuned model on Hugging Face, release zip on GitHub Releases. No first-user feedback (stated plainly in the post). |
 
 Status values: ⬜ Not started · 📝 Plan awaiting approval · 🟡 In progress (plan approved) · 🔍 Awaiting review · ✅ Done · ⚠️ Done with gaps · ❌ Blocked
 
@@ -856,3 +856,14 @@ None needs a decision-log entry; these fill gaps the PDD leaves open:
 - **Demo profile** (`extension/scripts/demo/`, `lib/replay/demo-*.ts`): `npm run demo:seed` (from the owner's browsing history, whitelisted hosts and timestamps only; the History copy in `.demo-history/` and the profile in `.demo/` are git-ignored) → `npm run demo:profile` (real embeddings, k-means, 270M names and autopsies, GRU/Markov) → `npm run demo:open` (load unpacked from `.demo/chrome-mv3` once; Chrome 155 ignores `--load-extension`). `node scripts/demo/shoot.mjs` takes screenshots. Re-run the two build steps before recording so "today" is the recording day. Describe it in the post as a demo profile built from the owner's own browsing history with scroll and dwell signals reconstructed, not as recorded live.
 - **UI redesign** (D-67): shared design system, compact popup with a pause dropdown, five-tab dashboard.
 - **Release rebuilt:** `releases/doomscroll-autopsy-0.3.0.zip`, 301.1 MB, sha256 `284bfdf78e58bb352273819a0f1a79492f2ec278daa7e452453bf37a9857f30f` (supersedes the checksum in the M8 section); `probe:m7` passes on it.
+
+---
+
+## M9 — Showcase (2026-10-18)
+- **Post:** published on DEV, https://dev.to/prateek_35ec9fda44e819f73/i-let-two-gemma-models-watch-my-browser-so-they-could-protect-my-deep-work-2lji (tags `devchallenge`, `hf26challenge`, `opensource`, `deepwork`; AI disclosure `some_ai`). Final text: `submission/post.md`. Prize categories: Best Use of Gemma and overall.
+- **Video:** https://youtu.be/XP_dJrgPX_Y; file, poster, cover and narration in `submission/`; sources in `video/` (HyperFrames, local Kokoro for timing drafts, ElevenLabs Matilda v3 for the final voice, character timings drive the animation cues).
+- **Code:** https://github.com/PrateekTikku/doomscroll-autopsy (public, history rewritten before the first push to remove tool attributions; backup bundle kept locally and git-ignored). Release `v0.3.0` carries the 301 MB zip (sha256 `284bfdf78e58bb352273819a0f1a79492f2ec278daa7e452453bf37a9857f30f`).
+- **Model:** https://huggingface.co/PrateekTikku/doomscroll-autopsy-gemma-3-270m (run3, 8-bit ONNX, 324 MB, license `gemma`, Gemma Terms of Use included).
+- **Checks before publishing:** secret and path scan of the tree and history (clean), fresh clone installs, type-checks, compiles, passes 443 tests and the smoke test.
+- **Not done:** first-user interview (no time), DevRelay agent session (skipped on purpose), GRU on real data (K-27), `experiments/results.md` (numbers live in the post and `docs/showcase/`).
+- **Deviation:** the demo profile used in the video is built from the owner's own history (hostnames and times only); the post says so.
